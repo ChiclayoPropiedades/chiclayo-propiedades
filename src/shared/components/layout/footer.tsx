@@ -163,7 +163,7 @@ export function Footer() {
               Recibe las últimas propiedades y noticias del mercado inmobiliario.
             </p>
             <form
-              onSubmit={(e) => e.preventDefault()}
+              action="#"
               className="flex flex-col gap-2"
               aria-label="Suscripción al newsletter"
             >
