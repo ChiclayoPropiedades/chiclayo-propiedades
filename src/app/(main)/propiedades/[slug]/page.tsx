@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getPropertyBySlug } from "@/features/properties/services/get-properties";
 import { PropertyDetails } from "@/features/properties/components/property-details";
 import { formatPrice } from "@/shared/lib/format";
+import { propertyJsonLd } from "@/shared/lib/structured-data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -55,6 +56,23 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            propertyJsonLd({
+              title: property.title,
+              description: property.description ?? null,
+              price: property.price,
+              currency: property.currency,
+              address: property.address ?? '',
+              district: property.district,
+              type: property.type,
+              slug: property.slug,
+            })
+          ),
+        }}
+      />
       <PropertyDetails property={property} />
     </main>
   );

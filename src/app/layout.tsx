@@ -10,9 +10,40 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Chiclayo Propiedades - Tu socio inmobiliario de confianza",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'https://chiclayopropiedades.com'
+  ),
+  title: {
+    default: 'Chiclayo Propiedades - Tu socio inmobiliario de confianza',
+    template: '%s | Chiclayo Propiedades',
+  },
   description:
-    "Encuentra propiedades en venta y alquiler en Chiclayo y Lambayeque. Conectamos compradores, vendedores y agentes inmobiliarios.",
+    'Encuentra las mejores propiedades en Chiclayo y Lambayeque. Casas, departamentos, terrenos en venta y alquiler. Asesores inmobiliarios expertos.',
+  keywords: [
+    'inmobiliaria chiclayo',
+    'propiedades chiclayo',
+    'casas en venta chiclayo',
+    'departamentos chiclayo',
+    'terrenos chiclayo',
+    'alquiler chiclayo',
+    'inmobiliaria lambayeque',
+  ],
+  authors: [{ name: 'Chiclayo Propiedades' }],
+  openGraph: {
+    type: 'website',
+    locale: 'es_PE',
+    siteName: 'Chiclayo Propiedades',
+    title: 'Chiclayo Propiedades - Tu socio inmobiliario de confianza',
+    description:
+      'Encuentra las mejores propiedades en Chiclayo y Lambayeque.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({

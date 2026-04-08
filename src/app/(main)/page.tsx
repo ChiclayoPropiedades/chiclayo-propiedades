@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { organizationJsonLd } from "@/shared/lib/structured-data";
 import {
   Building2,
   TrendingUp,
@@ -552,6 +553,10 @@ function NewsletterSection() {
 export default async function HomePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+      />
       <HeroSection />
       <AboutSection />
       <FeaturedPropertiesSection />

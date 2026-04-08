@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, Calendar, User, Tag, Newspaper } from "lucide-react";
 import { getPostBySlug, getPosts } from "@/features/blog/services/get-posts";
+import { articleJsonLd } from "@/shared/lib/structured-data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -66,6 +67,20 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            articleJsonLd({
+              title: post.title,
+              excerpt: post.excerpt,
+              slug: post.slug,
+              published_at: post.published_at,
+              author: authorName,
+            })
+          ),
+        }}
+      />
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"

@@ -17,6 +17,7 @@ import {
   getTrainingBySlug,
   getTrainings,
 } from "@/features/trainings/services/get-trainings";
+import { courseJsonLd } from "@/shared/lib/structured-data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -73,6 +74,21 @@ export default async function TrainingDetailPage({ params }: PageProps) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            courseJsonLd({
+              title: training.title,
+              description: training.description,
+              price: training.price,
+              currency: training.currency,
+              slug: training.slug,
+              instructor: training.instructor ?? null,
+            })
+          ),
+        }}
+      />
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6 lg:px-8">
