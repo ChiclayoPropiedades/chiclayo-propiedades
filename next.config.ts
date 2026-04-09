@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.in",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        // Imagenes del sitio original (Hostinger Horizons)
+        protocol: "https",
+        hostname: "www.chiclayopropiedades.com",
+        pathname: "/hcgi/**",
+      },
     ],
   },
 };
