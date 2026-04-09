@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { UserRound, Save, CheckCircle, AlertCircle } from "lucide-react";
+import { useEffect, useState, useTransition, useRef } from "react";
+import { UserRound, Save, CheckCircle, AlertCircle, Camera, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/shared/lib/supabase/client";
 import { updateProfile } from "@/features/dashboard/services/update-profile";
 
@@ -9,6 +10,7 @@ interface ProfileFormState {
   full_name: string;
   phone: string;
   bio: string;
+  avatar_url: string;
 }
 
 function FieldLabel({
@@ -33,13 +35,17 @@ export default function PerfilPage() {
     full_name: "",
     phone: "",
     bio: "",
+    avatar_url: "",
   });
+  const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -49,11 +55,12 @@ export default function PerfilPage() {
       } = await supabase.auth.getUser();
 
       if (!user) return;
+      setUserId(user.id);
 
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, phone, bio")
-        .eq("id", user.id)
+        .select("full_name, phone, bio, avatar_url")
+        .eq("user_id", user.id)
         .single();
 
       if (data) {
@@ -61,6 +68,7 @@ export default function PerfilPage() {
           full_name: data.full_name ?? "",
           phone: data.phone ?? "",
           bio: data.bio ?? "",
+          avatar_url: data.avatar_url ?? "",
         });
       }
       setLoading(false);
@@ -77,12 +85,83 @@ export default function PerfilPage() {
     setResult(null);
   }
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    if (!file.type.startsWith("image/")) {
+      setResult({ type: "error", message: "Solo se permiten imágenes (JPG, PNG, WebP)" });
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setResult({ type: "error", message: "La imagen no debe superar 2MB" });
+      return;
+    }
+
+    setUploading(true);
+    setResult(null);
+
+    const supabase = createClient();
+    const fileExt = file.name.split(".").pop();
+    const filePath = `${userId}/avatar.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      setResult({ type: "error", message: "Error al subir la imagen: " + uploadError.message });
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: avatarUrl })
+      .eq("user_id", userId);
+
+    if (updateError) {
+      setResult({ type: "error", message: "Error al guardar: " + updateError.message });
+    } else {
+      setForm((prev) => ({ ...prev, avatar_url: avatarUrl }));
+      setResult({ type: "success", message: "Foto de perfil actualizada" });
+    }
+
+    setUploading(false);
+  }
+
+  async function handleRemoveAvatar() {
+    if (!userId) return;
+    setUploading(true);
+
+    const supabase = createClient();
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: null })
+      .eq("user_id", userId);
+
+    setForm((prev) => ({ ...prev, avatar_url: "" }));
+    setResult({ type: "success", message: "Foto de perfil eliminada" });
+    setUploading(false);
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setResult(null);
 
     startTransition(async () => {
-      const res = await updateProfile(form);
+      const res = await updateProfile({
+        full_name: form.full_name,
+        phone: form.phone,
+        bio: form.bio,
+      });
       if (res.success) {
         setResult({ type: "success", message: "Perfil actualizado correctamente." });
       } else {
@@ -100,7 +179,7 @@ export default function PerfilPage() {
         <div className="h-8 w-48 animate-pulse rounded-lg bg-gray-200" />
         <div className="rounded-xl border border-gray-200 bg-white p-6">
           <div className="flex flex-col gap-5">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex flex-col gap-2">
                 <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
                 <div className="h-10 w-full animate-pulse rounded-lg bg-gray-100" />
@@ -120,13 +199,73 @@ export default function PerfilPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#1f2937]">Mi Perfil</h1>
           <p className="text-sm text-gray-500">
-            Actualiza tu información personal y de contacto
+            Actualiza tu información personal y foto de perfil
           </p>
+        </div>
+      </div>
+
+      {/* Avatar section */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-[#1f2937]">Foto de perfil / Logo</h2>
+        <div className="flex items-center gap-6">
+          <div className="relative">
+            {form.avatar_url ? (
+              <Image
+                src={form.avatar_url}
+                alt="Avatar"
+                width={96}
+                height={96}
+                className="size-24 rounded-full object-cover border-2 border-gray-200"
+              />
+            ) : (
+              <div className="flex size-24 items-center justify-center rounded-full bg-[#2563eb] text-3xl font-bold text-white border-2 border-gray-200">
+                {form.full_name.charAt(0).toUpperCase() || "?"}
+              </div>
+            )}
+            {uploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                <div className="size-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-gray-500">JPG, PNG o WebP. Máximo 2MB.</p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1e40af] disabled:opacity-60"
+              >
+                <Camera className="size-4" />
+                {form.avatar_url ? "Cambiar foto" : "Subir foto"}
+              </button>
+              {form.avatar_url && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={uploading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+                >
+                  <Trash2 className="size-4" />
+                  Eliminar
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+          </div>
         </div>
       </div>
 
       {/* Form card */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-[#1f2937]">Información personal</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
           {/* Full name */}
           <div className="flex flex-col gap-1.5">
