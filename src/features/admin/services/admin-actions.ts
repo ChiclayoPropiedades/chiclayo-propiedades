@@ -460,6 +460,87 @@ export async function getAdminStats(): Promise<AdminStats> {
   };
 }
 
+// ─── Servicios CRUD ───────────────────────────────────────────────────────────
+
+export async function createService(formData: FormData) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase.from("services").insert({
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+    icon: (formData.get("icon") as string) || null,
+    display_order: parseInt(formData.get("display_order") as string) || 0,
+    is_active: true,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/admin/servicios");
+  return { success: true };
+}
+
+export async function updateService(id: string, formData: FormData) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase
+    .from("services")
+    .update({
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      icon: (formData.get("icon") as string) || null,
+      display_order: parseInt(formData.get("display_order") as string) || 0,
+    })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/servicios");
+  return { success: true };
+}
+
+export async function deleteService(id: string) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase.from("services").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/servicios");
+  return { success: true };
+}
+
+// ─── Eliminar Propiedades ─────────────────────────────────────────────────────
+
+export async function deleteProperty(id: string) {
+  const { supabase } = await verifyAdmin();
+  await supabase.from("property_images").delete().eq("property_id", id);
+  const { error } = await supabase.from("properties").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/propiedades");
+  return { success: true };
+}
+
+// ─── Eliminar Usuarios ────────────────────────────────────────────────────────
+
+export async function deleteUser(profileId: string) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase.from("profiles").delete().eq("id", profileId);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
+// ─── Eliminar Leads ───────────────────────────────────────────────────────────
+
+export async function deleteInquiry(id: string) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase.from("inquiries").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/leads");
+  return { success: true };
+}
+
+// ─── Eliminar Capacitaciones ──────────────────────────────────────────────────
+
+export async function deleteTraining(id: string) {
+  const { supabase } = await verifyAdmin();
+  const { error } = await supabase.from("trainings").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/capacitaciones");
+  return { success: true };
+}
+
 // ─── Ranking ──────────────────────────────────────────────────────────────────
 
 export async function recalculateRankings(): Promise<void> {

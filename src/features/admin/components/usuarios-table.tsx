@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
 import {
   updateUserRole,
   toggleUserActive,
+  deleteUser,
   type AdminProfile,
 } from "@/features/admin/services/admin-actions";
 
@@ -32,13 +34,17 @@ const roleLabels: Record<string, string> = {
   user: "Usuario",
 };
 
-export function UsuariosTable({ users }: Props) {
+export function UsuariosTable({ users: initialUsers }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [users, setUsers] = useState<AdminProfile[]>(initialUsers);
 
   function handleRoleChange(profileId: string, role: string) {
     startTransition(async () => {
       try {
         await updateUserRole(profileId, role);
+        setUsers((prev) =>
+          prev.map((u) => (u.id === profileId ? { ...u, role } : u))
+        );
         toast.success("Rol actualizado correctamente");
       } catch {
         toast.error("Error al actualizar el rol");
@@ -50,11 +56,37 @@ export function UsuariosTable({ users }: Props) {
     startTransition(async () => {
       try {
         await toggleUserActive(profileId, !current);
-        toast.success(
-          !current ? "Usuario activado" : "Usuario desactivado"
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === profileId ? { ...u, is_active: !current } : u
+          )
         );
+        toast.success(!current ? "Usuario activado" : "Usuario desactivado");
       } catch {
         toast.error("Error al cambiar el estado del usuario");
+      }
+    });
+  }
+
+  function handleDelete(profileId: string, name: string) {
+    if (
+      !confirm(
+        `¿Estás seguro de eliminar al usuario "${name}"? Se eliminarán todas sus propiedades y datos asociados. Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await deleteUser(profileId);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        setUsers((prev) => prev.filter((u) => u.id !== profileId));
+        toast.success("Usuario eliminado correctamente");
+      } catch {
+        toast.error("Error al eliminar el usuario");
       }
     });
   }
@@ -133,6 +165,22 @@ export function UsuariosTable({ users }: Props) {
                 >
                   {user.is_active ? "Desactivar" : "Activar"}
                 </button>
+
+                {/* Eliminar (solo si no es admin) */}
+                {user.role !== "admin" && (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() =>
+                      handleDelete(user.id, user.full_name ?? "Sin nombre")
+                    }
+                    title="Eliminar usuario"
+                    className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                    aria-label={`Eliminar usuario: ${user.full_name ?? "Sin nombre"}`}
+                  >
+                    <Trash2 className="size-3.5" aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </TableCell>
           </TableRow>

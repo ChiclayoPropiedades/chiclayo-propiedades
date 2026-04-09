@@ -1,9 +1,9 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Eye, EyeOff, Star, StarOff } from "lucide-react";
+import { Eye, EyeOff, Star, StarOff, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ import { formatPrice } from "@/shared/lib/format";
 import {
   togglePropertyActive,
   togglePropertyFeatured,
+  deleteProperty,
   type AdminProperty,
 } from "@/features/admin/services/admin-actions";
 
@@ -37,13 +38,17 @@ const typeLabels: Record<string, string> = {
   otro: "Otro",
 };
 
-export function PropiedadesTable({ properties }: Props) {
+export function PropiedadesTable({ properties: initialProperties }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [properties, setProperties] = useState<AdminProperty[]>(initialProperties);
 
   function handleToggleActive(id: string, current: boolean) {
     startTransition(async () => {
       try {
         await togglePropertyActive(id, !current);
+        setProperties((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, is_active: !current } : p))
+        );
         toast.success(!current ? "Propiedad activada" : "Propiedad desactivada");
       } catch {
         toast.error("Error al cambiar el estado de la propiedad");
@@ -55,9 +60,31 @@ export function PropiedadesTable({ properties }: Props) {
     startTransition(async () => {
       try {
         await togglePropertyFeatured(id, !current);
+        setProperties((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, featured: !current } : p))
+        );
         toast.success(!current ? "Propiedad destacada" : "Propiedad quitada de destacados");
       } catch {
         toast.error("Error al cambiar el estado destacado");
+      }
+    });
+  }
+
+  function handleDelete(id: string, title: string) {
+    if (!confirm(`¿Estás seguro de eliminar la propiedad "${title}"? Se eliminarán también todas sus imágenes. Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await deleteProperty(id);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        setProperties((prev) => prev.filter((p) => p.id !== id));
+        toast.success("Propiedad eliminada correctamente");
+      } catch {
+        toast.error("Error al eliminar la propiedad");
       }
     });
   }
@@ -155,6 +182,16 @@ export function PropiedadesTable({ properties }: Props) {
                   ) : (
                     <Star className="size-3.5" aria-hidden="true" />
                   )}
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => handleDelete(prop.id, prop.title)}
+                  title="Eliminar propiedad"
+                  className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                  aria-label={`Eliminar propiedad: ${prop.title}`}
+                >
+                  <Trash2 className="size-3.5" aria-hidden="true" />
                 </button>
               </div>
             </TableCell>

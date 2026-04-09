@@ -1,8 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import {
 import { formatPrice } from "@/shared/lib/format";
 import {
   toggleTrainingActive,
+  deleteTraining,
   type AdminTraining,
 } from "@/features/admin/services/admin-actions";
 
@@ -26,16 +27,39 @@ const modalityLabels: Record<string, string> = {
   virtual: "Virtual",
 };
 
-export function CapacitacionesTable({ trainings }: Props) {
+export function CapacitacionesTable({ trainings: initialTrainings }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [trainings, setTrainings] = useState<AdminTraining[]>(initialTrainings);
 
   function handleToggleActive(id: string, current: boolean) {
     startTransition(async () => {
       try {
         await toggleTrainingActive(id, !current);
+        setTrainings((prev) =>
+          prev.map((t) => (t.id === id ? { ...t, is_active: !current } : t))
+        );
         toast.success(!current ? "Capacitación activada" : "Capacitación desactivada");
       } catch {
         toast.error("Error al cambiar el estado de la capacitación");
+      }
+    });
+  }
+
+  function handleDelete(id: string, title: string) {
+    if (!confirm(`¿Estás seguro de eliminar la capacitación "${title}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await deleteTraining(id);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        setTrainings((prev) => prev.filter((t) => t.id !== id));
+        toast.success("Capacitación eliminada correctamente");
+      } catch {
+        toast.error("Error al eliminar la capacitación");
       }
     });
   }
@@ -105,24 +129,36 @@ export function CapacitacionesTable({ trainings }: Props) {
               </span>
             </TableCell>
             <TableCell>
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={() => handleToggleActive(training.id, training.is_active)}
-                title={training.is_active ? "Desactivar" : "Activar"}
-                className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-                aria-label={
-                  training.is_active
-                    ? `Desactivar capacitación: ${training.title}`
-                    : `Activar capacitación: ${training.title}`
-                }
-              >
-                {training.is_active ? (
-                  <EyeOff className="size-3.5" aria-hidden="true" />
-                ) : (
-                  <Eye className="size-3.5" aria-hidden="true" />
-                )}
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => handleToggleActive(training.id, training.is_active)}
+                  title={training.is_active ? "Desactivar" : "Activar"}
+                  className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                  aria-label={
+                    training.is_active
+                      ? `Desactivar capacitación: ${training.title}`
+                      : `Activar capacitación: ${training.title}`
+                  }
+                >
+                  {training.is_active ? (
+                    <EyeOff className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <Eye className="size-3.5" aria-hidden="true" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => handleDelete(training.id, training.title)}
+                  title="Eliminar capacitación"
+                  className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                  aria-label={`Eliminar capacitación: ${training.title}`}
+                >
+                  <Trash2 className="size-3.5" aria-hidden="true" />
+                </button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

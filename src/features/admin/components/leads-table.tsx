@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
 } from "@/shared/components/ui/table";
 import {
   updateInquiryStatus,
+  deleteInquiry,
   type AdminInquiry,
 } from "@/features/admin/services/admin-actions";
 
@@ -31,16 +33,43 @@ const statusLabels: Record<string, string> = {
   closed: "Cerrado",
 };
 
-export function LeadsTable({ inquiries }: Props) {
+export function LeadsTable({ inquiries: initialInquiries }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [inquiries, setInquiries] = useState<AdminInquiry[]>(initialInquiries);
 
   function handleStatusChange(id: string, status: string) {
     startTransition(async () => {
       try {
         await updateInquiryStatus(id, status);
+        setInquiries((prev) =>
+          prev.map((inq) =>
+            inq.id === id
+              ? { ...inq, status: status as AdminInquiry["status"] }
+              : inq
+          )
+        );
         toast.success("Estado actualizado");
       } catch {
         toast.error("Error al actualizar el estado");
+      }
+    });
+  }
+
+  function handleDelete(id: string, name: string) {
+    if (!confirm(`¿Estás seguro de eliminar la consulta de "${name}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await deleteInquiry(id);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        setInquiries((prev) => prev.filter((inq) => inq.id !== id));
+        toast.success("Consulta eliminada correctamente");
+      } catch {
+        toast.error("Error al eliminar la consulta");
       }
     });
   }
@@ -100,17 +129,29 @@ export function LeadsTable({ inquiries }: Props) {
               </span>
             </TableCell>
             <TableCell>
-              <select
-                defaultValue={inquiry.status}
-                disabled={isPending}
-                onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
-                className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 disabled:opacity-50"
-                aria-label={`Cambiar estado del lead de ${inquiry.name}`}
-              >
-                <option value="new">Nuevo</option>
-                <option value="contacted">Contactado</option>
-                <option value="closed">Cerrado</option>
-              </select>
+              <div className="flex items-center gap-1.5">
+                <select
+                  defaultValue={inquiry.status}
+                  disabled={isPending}
+                  onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
+                  className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 disabled:opacity-50"
+                  aria-label={`Cambiar estado del lead de ${inquiry.name}`}
+                >
+                  <option value="new">Nuevo</option>
+                  <option value="contacted">Contactado</option>
+                  <option value="closed">Cerrado</option>
+                </select>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => handleDelete(inquiry.id, inquiry.name)}
+                  title="Eliminar consulta"
+                  className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                  aria-label={`Eliminar consulta de ${inquiry.name}`}
+                >
+                  <Trash2 className="size-3.5" aria-hidden="true" />
+                </button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
