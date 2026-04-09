@@ -171,21 +171,16 @@ function AboutSection() {
             manera segura, ágil y transparente.
           </p>
 
-          {/* Video placeholder */}
-          <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-inner">
-            <div className="flex aspect-video items-center justify-center">
-              <div className="flex flex-col items-center gap-3 text-gray-400">
-                <button
-                  type="button"
-                  aria-label="Reproducir video de presentación"
-                  className="flex size-16 items-center justify-center rounded-full bg-[#2563eb] text-white shadow-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
-                >
-                  <PlayCircle className="size-8" />
-                </button>
-                <span className="text-sm font-medium">
-                  Ver video de presentación
-                </span>
-              </div>
+          {/* Video de YouTube */}
+          <div className="w-full max-w-2xl overflow-hidden rounded-2xl shadow-lg">
+            <div className="aspect-video">
+              <iframe
+                src="https://www.youtube.com/embed/9UG8qJQE-2U"
+                title="Chiclayo Propiedades - Video de presentación"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
             </div>
           </div>
         </div>
