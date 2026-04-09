@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
         hostname: "www.chiclayopropiedades.com",
         pathname: "/hcgi/**",
       },
+      {
+        // Unsplash (imagen hero)
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        // Hostinger CDN (logos del sitio original)
+        protocol: "https",
+        hostname: "horizons-cdn.hostinger.com",
+      },
     ],
   },
 };
