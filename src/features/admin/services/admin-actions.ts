@@ -278,6 +278,51 @@ export async function togglePostPublished(
   revalidatePath("/admin/blog");
 }
 
+export interface UpdatePostData {
+  title: string;
+  slug: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  cover_image: string;
+  is_published: boolean;
+}
+
+export async function getAdminPostById(
+  postId: string
+): Promise<(AdminPost & { content: string; cover_image: string | null }) | null> {
+  const { supabase } = await verifyAdmin();
+
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("id, author_id, title, slug, excerpt, category, content, cover_image, is_published, published_at, created_at")
+    .eq("id", postId)
+    .maybeSingle();
+
+  return data as (AdminPost & { content: string; cover_image: string | null }) | null;
+}
+
+export async function updatePost(postId: string, data: UpdatePostData): Promise<void> {
+  const { supabase } = await verifyAdmin();
+
+  const { error } = await supabase
+    .from("blog_posts")
+    .update({
+      title: data.title,
+      slug: data.slug,
+      category: data.category || null,
+      excerpt: data.excerpt || null,
+      content: data.content,
+      cover_image: data.cover_image || null,
+      is_published: data.is_published,
+      published_at: data.is_published ? new Date().toISOString() : null,
+    })
+    .eq("id", postId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/blog");
+}
+
 export async function deletePost(postId: string): Promise<void> {
   const { supabase } = await verifyAdmin();
 
