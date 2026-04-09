@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Eye, EyeOff, Star, StarOff, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Star, StarOff, Trash2, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -155,6 +155,14 @@ export function PropiedadesTable({ properties: initialProperties }: Props) {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/dashboard/propiedades/${prop.id}/editar`}
+                  title="Editar propiedad"
+                  className="rounded-md border border-blue-200 bg-white p-1.5 text-blue-500 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                  aria-label={`Editar propiedad: ${prop.title}`}
+                >
+                  <Pencil className="size-3.5" aria-hidden="true" />
+                </Link>
                 <button
                   type="button"
                   disabled={isPending}
