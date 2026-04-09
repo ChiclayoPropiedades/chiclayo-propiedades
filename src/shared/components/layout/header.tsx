@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "@/shared/components/ui/sheet"
 import { createClient } from "@/shared/lib/supabase/client"
+import { PROFILE_UPDATED_EVENT } from "@/shared/lib/events"
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -80,7 +81,16 @@ export function Header() {
       getProfile()
     })
 
-    return () => subscription.unsubscribe()
+    // Escuchar cambios de perfil (avatar, nombre, etc.)
+    function onProfileUpdated() {
+      getProfile()
+    }
+    window.addEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated)
+
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated)
+    }
   }, [])
 
   async function handleLogout() {

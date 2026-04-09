@@ -5,6 +5,7 @@ import { UserRound, Save, CheckCircle, AlertCircle, Camera, Trash2 } from "lucid
 import Image from "next/image";
 import { createClient } from "@/shared/lib/supabase/client";
 import { updateProfile } from "@/features/dashboard/services/update-profile";
+import { emitProfileUpdated } from "@/shared/lib/events";
 
 interface ProfileFormState {
   full_name: string;
@@ -132,6 +133,7 @@ export default function PerfilPage() {
     } else {
       setForm((prev) => ({ ...prev, avatar_url: avatarUrl }));
       setResult({ type: "success", message: "Foto de perfil actualizada" });
+      emitProfileUpdated();
     }
 
     setUploading(false);
@@ -149,6 +151,7 @@ export default function PerfilPage() {
 
     setForm((prev) => ({ ...prev, avatar_url: "" }));
     setResult({ type: "success", message: "Foto de perfil eliminada" });
+    emitProfileUpdated();
     setUploading(false);
   }
 
@@ -164,6 +167,7 @@ export default function PerfilPage() {
       });
       if (res.success) {
         setResult({ type: "success", message: "Perfil actualizado correctamente." });
+        emitProfileUpdated();
       } else {
         setResult({
           type: "error",
