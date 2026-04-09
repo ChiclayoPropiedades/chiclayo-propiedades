@@ -6,6 +6,7 @@ import {
   Building2,
   UserRound,
   GraduationCap,
+  MessageSquare,
   ChevronRight,
 } from "lucide-react";
 
@@ -23,6 +24,11 @@ const sidebarLinks = [
     href: "/dashboard/propiedades",
     label: "Mis Propiedades",
     icon: Building2,
+  },
+  {
+    href: "/dashboard/leads",
+    label: "Mis Consultas",
+    icon: MessageSquare,
   },
   {
     href: "/dashboard/perfil",
