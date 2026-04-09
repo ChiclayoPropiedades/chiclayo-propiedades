@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Building2,
@@ -52,8 +53,8 @@ export default async function DashboardLayout({
   // Try to fetch display name from profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email")
-    .eq("id", user.id)
+    .select("full_name, avatar_url")
+    .eq("user_id", user.id)
     .single();
 
   const displayName =
@@ -70,15 +71,25 @@ export default async function DashboardLayout({
             {/* User info */}
             <div className="border-b border-gray-100 px-5 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-sm font-bold text-[#2563eb]">
-                  {displayName[0]?.toUpperCase() ?? "U"}
-                </div>
+                {profile?.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={displayName}
+                    width={40}
+                    height={40}
+                    className="size-10 shrink-0 rounded-full object-cover border border-gray-200"
+                  />
+                ) : (
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-sm font-bold text-[#2563eb]">
+                    {displayName[0]?.toUpperCase() ?? "U"}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-[#1f2937]">
                     {displayName}
                   </p>
                   <p className="truncate text-xs text-gray-400">
-                    {profile?.email ?? user.email}
+                    {user.email}
                   </p>
                 </div>
               </div>

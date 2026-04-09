@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import Image from "next/image"
 import { MenuIcon, User, LogOut, LayoutDashboard, Shield } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
@@ -29,6 +30,7 @@ const navLinks = [
 interface UserProfile {
   full_name: string
   role: string
+  avatar_url: string | null
 }
 
 function Logo() {
@@ -64,7 +66,7 @@ export function Header() {
 
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, role")
+        .select("full_name, role, avatar_url")
         .eq("user_id", user.id)
         .single()
 
@@ -138,9 +140,19 @@ export function Header() {
                 Panel
               </Link>
               <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5">
-                <div className="flex size-7 items-center justify-center rounded-full bg-[#2563eb] text-xs font-bold text-white">
-                  {profile.full_name.charAt(0).toUpperCase()}
-                </div>
+                {profile.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.full_name}
+                    width={28}
+                    height={28}
+                    className="size-7 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex size-7 items-center justify-center rounded-full bg-[#2563eb] text-xs font-bold text-white">
+                    {profile.full_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <span className="text-sm font-medium text-[#1f2937] max-w-[120px] truncate">
                   {profile.full_name}
                 </span>
@@ -191,9 +203,19 @@ export function Header() {
             {/* User info in mobile */}
             {profile && (
               <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-3 bg-[#eff6ff]">
-                <div className="flex size-8 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
-                  {profile.full_name.charAt(0).toUpperCase()}
-                </div>
+                {profile.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.full_name}
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex size-8 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
+                    {profile.full_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-[#1f2937]">{profile.full_name}</p>
                   <p className="text-xs text-gray-500 capitalize">{profile.role}</p>
