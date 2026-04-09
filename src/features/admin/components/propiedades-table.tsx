@@ -156,7 +156,7 @@ export function PropiedadesTable({ properties: initialProperties }: Props) {
             <TableCell>
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/dashboard/propiedades/${prop.id}/editar`}
+                  href={`/admin/propiedades/${prop.id}/editar`}
                   title="Editar propiedad"
                   className="rounded-md border border-blue-200 bg-white p-1.5 text-blue-500 transition-colors hover:border-blue-300 hover:bg-blue-50"
                   aria-label={`Editar propiedad: ${prop.title}`}
