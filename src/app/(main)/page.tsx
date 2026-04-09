@@ -77,14 +77,14 @@ function HeroSection() {
       className="relative min-h-[90vh] overflow-hidden flex items-center justify-center"
       aria-labelledby="hero-heading"
     >
-      {/* Background image de Chiclayo */}
+      {/* Background image de Chiclayo (foto real de la ciudad) */}
       <div
-        className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493882552576-fce827c6161e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"
+        className="absolute inset-0 bg-[url('https://horizons-cdn.hostinger.com/170c28dc-2f08-41f8-b898-3a166aeca6d3/recurso-1-ifv8K.png')] bg-cover bg-center"
         aria-hidden="true"
       />
       {/* Overlay oscuro para legibilidad */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-[#1e3a8a]/85 via-[#1e40af]/80 to-[#2563eb]/75"
+        className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/30"
         aria-hidden="true"
       />
 
