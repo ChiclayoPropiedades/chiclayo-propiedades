@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { MenuIcon } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { MenuIcon, User, LogOut, LayoutDashboard, Shield } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/components/ui/button"
@@ -14,6 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet"
+import { createClient } from "@/shared/lib/supabase/client"
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -24,6 +25,11 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/contacto", label: "Contacto" },
 ]
+
+interface UserProfile {
+  full_name: string
+  role: string
+}
 
 function Logo() {
   return (
@@ -40,7 +46,50 @@ function Logo() {
 
 export function Header() {
   const pathname = usePathname()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function getProfile() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("user_id", user.id)
+        .single()
+
+      setProfile(data)
+      setLoading(false)
+    }
+
+    getProfile()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      getProfile()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setProfile(null)
+    router.push("/")
+    router.refresh()
+  }
+
+  const isAdmin = profile?.role === "admin"
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -68,18 +117,58 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-[#2563eb] hover:text-[#1e40af] transition-colors"
-          >
-            Iniciar Sesión
-          </Link>
-          <Link
-            href="/signup"
-            className="inline-flex h-9 items-center justify-center rounded-lg bg-[#2563eb] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
-          >
-            Registrarse
-          </Link>
+          {loading ? (
+            <div className="h-9 w-24 animate-pulse rounded-lg bg-gray-100" />
+          ) : profile ? (
+            <>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                >
+                  <Shield className="size-4" />
+                  Admin
+                </Link>
+              )}
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2563eb] hover:text-[#1e40af] transition-colors"
+              >
+                <LayoutDashboard className="size-4" />
+                Panel
+              </Link>
+              <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5">
+                <div className="flex size-7 items-center justify-center rounded-full bg-[#2563eb] text-xs font-bold text-white">
+                  {profile.full_name.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm font-medium text-[#1f2937] max-w-[120px] truncate">
+                  {profile.full_name}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-red-600"
+              >
+                <LogOut className="size-4" />
+                Salir
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[#2563eb] hover:text-[#1e40af] transition-colors"
+              >
+                Iniciar Sesión
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex h-9 items-center justify-center rounded-lg bg-[#2563eb] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
+              >
+                Registrarse
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
@@ -98,6 +187,20 @@ export function Header() {
               </SheetTitle>
               <Logo />
             </SheetHeader>
+
+            {/* User info in mobile */}
+            {profile && (
+              <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-3 bg-[#eff6ff]">
+                <div className="flex size-8 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
+                  {profile.full_name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-[#1f2937]">{profile.full_name}</p>
+                  <p className="text-xs text-gray-500 capitalize">{profile.role}</p>
+                </div>
+              </div>
+            )}
+
             <nav
               className="flex flex-col gap-1 p-4"
               aria-label="Navegación móvil"
@@ -118,21 +221,54 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            <div className="flex flex-col gap-3 border-t border-gray-200 p-4">
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="flex h-10 items-center justify-center rounded-md border border-[#2563eb] text-sm font-medium text-[#2563eb] transition-colors hover:bg-[#eff6ff]"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setOpen(false)}
-                className="flex h-10 items-center justify-center rounded-md bg-[#2563eb] text-sm font-medium text-white transition-colors hover:bg-[#1e40af]"
-              >
-                Registrarse
-              </Link>
+
+            <div className="flex flex-col gap-2 border-t border-gray-200 p-4">
+              {profile ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex h-10 items-center justify-center gap-2 rounded-md border border-[#2563eb] text-sm font-medium text-[#2563eb] transition-colors hover:bg-[#eff6ff]"
+                  >
+                    <LayoutDashboard className="size-4" />
+                    Mi Panel
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setOpen(false)}
+                      className="flex h-10 items-center justify-center gap-2 rounded-md border border-red-300 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      <Shield className="size-4" />
+                      Administración
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => { setOpen(false); handleLogout(); }}
+                    className="flex h-10 items-center justify-center gap-2 rounded-md bg-gray-100 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                  >
+                    <LogOut className="size-4" />
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex h-10 items-center justify-center rounded-md border border-[#2563eb] text-sm font-medium text-[#2563eb] transition-colors hover:bg-[#eff6ff]"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="flex h-10 items-center justify-center rounded-md bg-[#2563eb] text-sm font-medium text-white transition-colors hover:bg-[#1e40af]"
+                  >
+                    Registrarse
+                  </Link>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>
