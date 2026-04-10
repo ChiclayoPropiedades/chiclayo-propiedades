@@ -1,222 +1,79 @@
-"use client"
-
-import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { motion, useInView } from "motion/react"
-import { ArrowRight, Building2, Users, TrendingUp } from "lucide-react"
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, delay, ease: "easeOut" as const },
-  }),
-}
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { type: "spring" as const, stiffness: 80, damping: 20, delay: 0.1 },
-  },
-}
-
-const stats = [
-  { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
-  { icon: Users, target: 200, suffix: "+", label: "Agentes" },
-  { icon: TrendingUp, target: 1200, suffix: "+", label: "Clientes felices" },
-]
-
-function CountUp({ target, suffix }: { target: number; suffix: string }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true })
-
-  useEffect(() => {
-    if (!isInView) return
-    const duration = 2000
-    const steps = 60
-    const increment = target / steps
-    let current = 0
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= target) {
-        setCount(target)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(current))
-      }
-    }, duration / steps)
-    return () => clearInterval(timer)
-  }, [isInView, target])
-
-  return (
-    <span ref={ref}>
-      {count.toLocaleString("es-PE")}{suffix}
-    </span>
-  )
-}
+import { Building2, TrendingUp, Users, ArrowRight } from "lucide-react"
 
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-svh overflow-hidden flex items-center justify-center"
+      className="relative min-h-[90vh] overflow-hidden flex items-center justify-center"
       aria-labelledby="hero-heading"
     >
-      {/* Background image */}
+      {/* Background image de Chiclayo (foto real de la ciudad) */}
       <div
-        className="absolute inset-0 bg-[url('https://horizons-cdn.hostinger.com/170c28dc-2f08-41f8-b898-3a166aeca6d3/recurso-1-ifv8K.png')] bg-cover bg-center scale-105"
+        className="absolute inset-0 bg-[url('https://horizons-cdn.hostinger.com/170c28dc-2f08-41f8-b898-3a166aeca6d3/recurso-1-ifv8K.png')] bg-cover bg-center"
+        aria-hidden="true"
+      />
+      {/* Overlay oscuro para legibilidad */}
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/30"
         aria-hidden="true"
       />
 
-      {/* Multi-layer overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/65 to-slate-950/85"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-transparent to-blue-950/40"
-        aria-hidden="true"
-      />
+      <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+        {/* Logo accent */}
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm">
+          <Building2 className="size-4" aria-hidden="true" />
+          Plataforma inmobiliaria N°1 en Chiclayo
+        </div>
 
-      {/* Decorative orbs - hidden on mobile for performance */}
-      <div
-        className="absolute -top-40 -left-40 hidden h-80 w-80 rounded-full bg-blue-500/10 blur-3xl animate-float-slow sm:block"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-40 -right-40 hidden h-96 w-96 rounded-full bg-amber-500/10 blur-3xl animate-float-slow-reverse sm:block"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-600/5 blur-3xl"
-        aria-hidden="true"
-      />
-
-      {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-20 text-center sm:px-6 sm:py-16 lg:px-8 lg:py-12">
-        {/* Logo */}
-        <motion.div
-          variants={scaleIn}
-          initial="hidden"
-          animate="visible"
-          className="mb-6 inline-block sm:mb-8"
-        >
-          <div className="relative mx-auto inline-flex items-center justify-center rounded-2xl bg-white/95 px-5 py-3 shadow-2xl shadow-black/20 backdrop-blur-sm ring-1 ring-white/20 sm:px-8 sm:py-5">
-            <Image
-              src="/images/logo-color.png"
-              alt="Chiclayo Propiedades"
-              width={280}
-              height={100}
-              className="h-14 w-auto sm:h-20 lg:h-24"
-              priority
-            />
-            <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
-          </div>
-        </motion.div>
-
-        {/* Badge */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.3}
-          className="mb-5 flex justify-center sm:mb-6"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full bg-blue-500/15 px-4 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-md ring-1 ring-blue-400/20 sm:px-5 sm:py-2 sm:text-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-300" />
-            </span>
-            Líderes en el mercado inmobiliario de Chiclayo
-          </span>
-        </motion.div>
-
-        {/* Heading */}
-        <motion.h1
+        <h1
           id="hero-heading"
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.5}
-          className="mx-auto max-w-5xl text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem]"
+          className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
         >
-          Encuentra el lugar perfecto
-          <span className="hidden sm:inline">
-            <br />
-          </span>
-          <span className="sm:hidden"> </span>
-          para tu{" "}
-          <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
-            próxima historia
-          </span>
-        </motion.h1>
+          Encuentra el lugar perfecto para tu{" "}
+          <span className="text-[#fbbf24]">próxima historia</span>
+        </h1>
 
-        {/* Subtitle */}
-        <motion.p
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.7}
-          className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-blue-100/90 sm:mt-6 sm:max-w-2xl sm:text-lg lg:text-xl"
-        >
-          Conectamos tus sueños con la realidad. Descubre propiedades exclusivas
-          y recibe asesoría de los mejores expertos de la región.
-        </motion.p>
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-100">
+          Conectamos tus sueños con la realidad. Miles de propiedades en venta y
+          alquiler en Chiclayo y Lambayeque te esperan.
+        </p>
 
-        {/* CTA Buttons */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.9}
-          className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
-        >
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/propiedades"
-            className="group inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 sm:h-13 sm:w-auto sm:px-8"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-[#1e40af] shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             Explorar Propiedades
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
           <Link
             href="/contacto"
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
-            Vender un Inmueble
+            Vender un inmueble
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
-            Registro de Agente Inmobiliario
+            Registro de agente
           </Link>
-        </motion.div>
+        </div>
 
         {/* Stats */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          custom={1.1}
-          className="mx-auto mt-8 grid max-w-xs grid-cols-3 gap-3 sm:mt-10 sm:max-w-2xl sm:gap-6"
-        >
-          {stats.map(({ icon: Icon, target, suffix, label }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center gap-1 rounded-xl bg-white/5 py-3 px-2 backdrop-blur-sm ring-1 ring-white/10 transition-colors hover:bg-white/10 sm:gap-2 sm:py-4 sm:px-3"
-            >
-              <Icon className="size-4 text-blue-300 sm:size-5" aria-hidden="true" />
-              <span className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">
-                <CountUp target={target} suffix={suffix} />
-              </span>
-              <span className="text-[10px] font-medium text-blue-200/80 sm:text-xs">{label}</span>
+        <div className="mx-auto mt-14 grid max-w-lg grid-cols-3 gap-6 sm:max-w-2xl sm:gap-8">
+          {[
+            { icon: Building2, value: "500+", label: "Propiedades" },
+            { icon: Users, value: "200+", label: "Agentes" },
+            { icon: TrendingUp, value: "1,200+", label: "Clientes felices" },
+          ].map(({ icon: Icon, value, label }) => (
+            <div key={label} className="flex flex-col items-center gap-1">
+              <Icon className="size-5 text-blue-200" aria-hidden="true" />
+              <span className="text-2xl font-bold text-white">{value}</span>
+              <span className="text-xs text-blue-200">{label}</span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
