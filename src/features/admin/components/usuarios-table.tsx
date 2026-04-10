@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -139,6 +140,15 @@ export function UsuariosTable({ users: initialUsers }: Props) {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
+                {/* Ver detalle */}
+                <Link
+                  href={`/admin/usuarios/${user.id}`}
+                  className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-[#2563eb]"
+                  title="Ver detalle"
+                >
+                  <Eye className="size-3.5" aria-hidden="true" />
+                </Link>
+
                 {/* Cambiar rol */}
                 <select
                   defaultValue={user.role ?? "user"}

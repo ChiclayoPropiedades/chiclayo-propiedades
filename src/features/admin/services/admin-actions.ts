@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/shared/lib/supabase/server";
+import { createAdminClient } from "@/shared/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -86,6 +87,17 @@ export interface AdminStats {
   totalPosts: number;
   totalTrainings: number;
   totalEnrollments: number;
+}
+
+export interface EnhancedAdminStats extends AdminStats {
+  totalAgents: number;
+  totalBasicUsers: number;
+  soldProperties: number;
+  contactedLeads: number;
+  closedLeads: number;
+  approvedSalesCount: number;
+  totalCommissions: number;
+  trainingRevenue: number;
 }
 
 export interface NewPostData {
@@ -460,6 +472,107 @@ export async function getAdminStats(): Promise<AdminStats> {
   };
 }
 
+// ─── Enhanced Stats ──────────────────────────────────────────────────────────
+
+export async function getEnhancedAdminStats(): Promise<EnhancedAdminStats> {
+  const { supabase } = await verifyAdmin();
+
+  const [
+    { count: totalUsers },
+    { count: totalAgents },
+    { count: totalBasicUsers },
+    { count: activeProperties },
+    { count: soldProperties },
+    { count: newLeads },
+    { count: contactedLeads },
+    { count: closedLeads },
+    { count: totalPosts },
+    { count: totalTrainings },
+    { count: totalEnrollments },
+    { data: commissionsData },
+    { data: paidEnrollments },
+  ] = await Promise.all([
+    supabase.from("profiles").select("*", { count: "exact", head: true }),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "agent"),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "user"),
+    supabase
+      .from("properties")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase
+      .from("properties")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "sold")
+      .eq("sale_approved", true),
+    supabase
+      .from("inquiries")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new"),
+    supabase
+      .from("inquiries")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "contacted"),
+    supabase
+      .from("inquiries")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "closed"),
+    supabase.from("blog_posts").select("*", { count: "exact", head: true }),
+    supabase.from("trainings").select("*", { count: "exact", head: true }),
+    supabase
+      .from("training_enrollments")
+      .select("*", { count: "exact", head: true })
+      .eq("payment_status", "paid"),
+    supabase
+      .from("properties")
+      .select("commission_amount")
+      .eq("sale_approved", true)
+      .not("commission_amount", "is", null),
+    supabase
+      .from("training_enrollments")
+      .select("training_id, trainings(price)")
+      .eq("payment_status", "paid"),
+  ]);
+
+  // Sum commissions
+  const totalCommissions = (commissionsData ?? []).reduce(
+    (sum, row) => sum + (row.commission_amount ?? 0),
+    0
+  );
+
+  // Sum training revenue
+  const trainingRevenue = (paidEnrollments ?? []).reduce((sum, row) => {
+    const training = Array.isArray(row.trainings)
+      ? row.trainings[0]
+      : row.trainings;
+    return sum + ((training as { price: number } | null)?.price ?? 0);
+  }, 0);
+
+  const approvedSalesCount = soldProperties ?? 0;
+
+  return {
+    totalUsers: totalUsers ?? 0,
+    totalAgents: totalAgents ?? 0,
+    totalBasicUsers: totalBasicUsers ?? 0,
+    activeProperties: activeProperties ?? 0,
+    soldProperties: soldProperties ?? 0,
+    newLeads: newLeads ?? 0,
+    contactedLeads: contactedLeads ?? 0,
+    closedLeads: closedLeads ?? 0,
+    totalPosts: totalPosts ?? 0,
+    totalTrainings: totalTrainings ?? 0,
+    totalEnrollments: totalEnrollments ?? 0,
+    approvedSalesCount,
+    totalCommissions: Math.round(totalCommissions * 100) / 100,
+    trainingRevenue: Math.round(trainingRevenue * 100) / 100,
+  };
+}
+
 // ─── Servicios CRUD ───────────────────────────────────────────────────────────
 
 export async function createService(formData: FormData) {
@@ -508,6 +621,45 @@ export async function deleteProperty(id: string) {
   const { error } = await supabase.from("properties").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/admin/propiedades");
+  return { success: true };
+}
+
+// ─── Crear Usuarios ──────────────────────────────────────────────────────────
+
+export async function createUser(data: {
+  email: string;
+  full_name: string;
+  role: string;
+  phone?: string;
+}): Promise<{ success?: boolean; error?: string }> {
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  // Crear usuario en Supabase Auth (email_confirm: true = ya verificado)
+  const { data: authData, error: authError } =
+    await adminSupabase.auth.admin.createUser({
+      email: data.email,
+      email_confirm: true,
+      user_metadata: { full_name: data.full_name },
+    });
+
+  if (authError) return { error: authError.message };
+
+  // Crear perfil con rol y datos adicionales
+  const { error: profileError } = await adminSupabase.from("profiles").upsert(
+    {
+      user_id: authData.user.id,
+      full_name: data.full_name,
+      phone: data.phone || null,
+      role: data.role,
+      is_active: true,
+    },
+    { onConflict: "user_id" }
+  );
+
+  if (profileError) return { error: profileError.message };
+
+  revalidatePath("/admin/usuarios");
   return { success: true };
 }
 

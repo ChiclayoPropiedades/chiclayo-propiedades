@@ -7,37 +7,20 @@ import {
   UserRound,
   GraduationCap,
   MessageSquare,
-  ChevronRight,
   LogOut,
-  Home,
 } from "lucide-react";
 
 import { createClient } from "@/shared/lib/supabase/server";
+import { DashboardSidebar } from "@/features/dashboard/components/dashboard-sidebar";
 
-const sidebarLinks = [
-  {
-    href: "/dashboard",
-    label: "Resumen",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/dashboard/propiedades",
-    label: "Mis Propiedades",
-    icon: Building2,
-  },
-  {
-    href: "/dashboard/leads",
-    label: "Mis Consultas",
-    icon: MessageSquare,
-  },
-  {
-    href: "/dashboard/perfil",
-    label: "Mi Perfil",
-    icon: UserRound,
-  },
+const mobileLinks = [
+  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
+  { href: "/dashboard/propiedades", label: "Propiedades", icon: Building2 },
+  { href: "/dashboard/leads", label: "Consultas", icon: MessageSquare },
+  { href: "/dashboard/perfil", label: "Perfil", icon: UserRound },
   {
     href: "/dashboard/capacitaciones",
-    label: "Mis Capacitaciones",
+    label: "Cursos",
     icon: GraduationCap,
   },
 ];
@@ -72,89 +55,13 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar — desktop */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200 bg-white md:flex">
-        {/* Logo */}
-        <div className="flex h-16 items-center border-b border-gray-100 px-5">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/images/logo-color.png"
-              alt="Chiclayo Propiedades"
-              width={160}
-              height={40}
-              className="h-9 w-auto"
-            />
-          </Link>
-        </div>
-
-        {/* User info */}
-        <div className="border-b border-gray-100 px-5 py-4">
-          <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={displayName}
-                width={40}
-                height={40}
-                className="size-10 shrink-0 rounded-full border border-gray-200 object-cover"
-              />
-            ) : (
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-sm font-bold text-[#2563eb]">
-                {displayName[0]?.toUpperCase() ?? "U"}
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#1f2937]">
-                {displayName}
-              </p>
-              <p className="truncate text-xs text-gray-400">{user.email}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav
-          className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
-          aria-label="Navegación del panel"
-        >
-          {sidebarLinks.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-[#eff6ff] hover:text-[#2563eb]"
-            >
-              <span className="flex items-center gap-2.5">
-                <Icon className="size-4 shrink-0" aria-hidden="true" />
-                {label}
-              </span>
-              <ChevronRight
-                className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100"
-                aria-hidden="true"
-              />
-            </Link>
-          ))}
-        </nav>
-
-        {/* Bottom actions */}
-        <div className="border-t border-gray-100 p-3">
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="mb-1 flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-            >
-              <LayoutDashboard className="size-4" aria-hidden="true" />
-              Panel Admin
-            </Link>
-          )}
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-          >
-            <Home className="size-4" aria-hidden="true" />
-            Ir al sitio
-          </Link>
-        </div>
-      </aside>
+      {/* Sidebar — desktop (colapsable) */}
+      <DashboardSidebar
+        displayName={displayName}
+        email={user.email ?? ""}
+        avatarUrl={profile?.avatar_url ?? null}
+        isAdmin={isAdmin}
+      />
 
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -195,7 +102,7 @@ export default async function DashboardLayout({
           className="flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 md:hidden"
           aria-label="Navegación del panel (móvil)"
         >
-          {sidebarLinks.map(({ href, label, icon: Icon }) => (
+          {mobileLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
