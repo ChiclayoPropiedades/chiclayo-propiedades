@@ -645,11 +645,51 @@ export async function recalculateRankings(): Promise<void> {
 export async function approveSale(propertyId: string): Promise<{ success?: boolean; error?: string }> {
   const { supabase } = await verifyAdmin();
 
+  // Obtener datos de la propiedad para calcular comisión
+  const { data: property } = await supabase
+    .from("properties")
+    .select("sale_price, currency")
+    .eq("id", propertyId)
+    .eq("status", "sold")
+    .single();
+
+  if (!property) return { error: "Propiedad no encontrada" };
+
+  // Obtener configuración de comisión
+  const { data: settingsData } = await supabase
+    .from("platform_settings")
+    .select("key, value");
+
+  const settings: Record<string, string> = {};
+  for (const row of settingsData ?? []) {
+    settings[row.key] = row.value;
+  }
+
+  const commissionPct = parseFloat(settings.commission_percentage ?? "5");
+  const commissionCurrency = settings.commission_currency ?? "PEN";
+  const usdToPen = parseFloat(settings.usd_to_pen_rate ?? "3.7");
+
+  // Calcular comisión
+  let saleAmount = property.sale_price ?? 0;
+
+  // Convertir si la venta es en USD y la comisión en PEN (o viceversa)
+  if (property.currency === "USD" && commissionCurrency === "PEN") {
+    saleAmount = saleAmount * usdToPen;
+  } else if (property.currency === "PEN" && commissionCurrency === "USD") {
+    saleAmount = saleAmount / usdToPen;
+  }
+
+  const commissionAmount = Math.round(saleAmount * (commissionPct / 100) * 100) / 100;
+
+  // Aprobar venta y guardar comisión
   const { error } = await supabase
     .from("properties")
-    .update({ sale_approved: true })
-    .eq("id", propertyId)
-    .eq("status", "sold");
+    .update({
+      sale_approved: true,
+      commission_amount: commissionAmount,
+      commission_currency: commissionCurrency,
+    })
+    .eq("id", propertyId);
 
   if (error) return { error: error.message };
 

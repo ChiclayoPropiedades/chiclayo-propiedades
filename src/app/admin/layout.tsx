@@ -9,6 +9,7 @@ import {
   GraduationCap,
   Briefcase,
   Trophy,
+  Settings,
 } from "lucide-react";
 
 import { createClient } from "@/shared/lib/supabase/server";
@@ -22,6 +23,7 @@ const sidebarLinks = [
   { href: "/admin/capacitaciones", label: "Capacitaciones", icon: GraduationCap },
   { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
   { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
 
 export default async function AdminLayout({

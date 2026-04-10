@@ -18,6 +18,8 @@ import {
   getTrainings,
 } from "@/features/trainings/services/get-trainings";
 import { courseJsonLd } from "@/shared/lib/structured-data";
+import { isStripeConfigured } from "@/shared/lib/stripe";
+import { EnrollButton } from "@/features/trainings/components/enroll-button";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -269,16 +271,13 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                 </ul>
 
                 {/* CTA */}
-                <Link
-                  href="#"
-                  className="flex h-11 w-full items-center justify-center rounded-lg bg-[#2563eb] text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
-                  aria-label={`Inscribirse en ${training.title}`}
-                >
-                  Inscribirse ahora
-                </Link>
+                <EnrollButton
+                  trainingId={training.id}
+                  isStripeConfigured={isStripeConfigured()}
+                />
 
                 <p className="mt-3 text-center text-xs text-gray-400">
-                  Pago seguro. Te contactaremos para confirmar.
+                  Pago seguro con Stripe. Recibirás confirmación por email.
                 </p>
               </div>
             </aside>

@@ -22,6 +22,8 @@ export interface Property {
   sale_price: number | null;
   sale_date: string | null;
   sale_approved: boolean;
+  commission_amount: number | null;
+  commission_currency: string | null;
   created_at: string;
   updated_at: string;
   property_images?: PropertyImage[];
