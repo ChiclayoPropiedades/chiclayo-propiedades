@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
-import { MenuIcon, User, LogOut, LayoutDashboard, Shield } from "lucide-react"
+import { MenuIcon, LogOut, LayoutDashboard, Shield } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/components/ui/button"

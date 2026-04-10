@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { MapPin, Phone, Mail } from "lucide-react"
+import { MapPin, Phone, Mail, ArrowRight } from "lucide-react"
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -37,54 +37,41 @@ function TikTokIcon({ className }: { className?: string }) {
 const quickLinks = [
   { href: "/propiedades", label: "Propiedades" },
   { href: "/servicios", label: "Servicios" },
+  { href: "/capacitaciones", label: "Capacitaciones" },
   { href: "/blog", label: "Blog" },
-  { href: "/ranking", label: "Ranking de Asesores" },
+  { href: "/ranking", label: "Ranking" },
   { href: "/contacto", label: "Contacto" },
 ]
 
 const socialLinks = [
-  {
-    href: "https://facebook.com/chiclayopropiedades",
-    label: "Facebook",
-    Icon: FacebookIcon,
-  },
-  {
-    href: "https://instagram.com/chiclayopropiedades",
-    label: "Instagram",
-    Icon: InstagramIcon,
-  },
-  {
-    href: "https://youtube.com/@chiclayopropiedades",
-    label: "YouTube",
-    Icon: YoutubeIcon,
-  },
-  {
-    href: "https://tiktok.com/@chiclayopropiedades",
-    label: "TikTok",
-    Icon: TikTokIcon,
-  },
+  { href: "https://facebook.com/chiclayopropiedades", label: "Facebook", Icon: FacebookIcon },
+  { href: "https://instagram.com/chiclayopropiedades", label: "Instagram", Icon: InstagramIcon },
+  { href: "https://youtube.com/@chiclayopropiedades", label: "YouTube", Icon: YoutubeIcon },
+  { href: "https://tiktok.com/@chiclayopropiedades", label: "TikTok", Icon: TikTokIcon },
 ]
 
 export function Footer() {
   return (
-    <footer className="bg-[#0f1f33] text-gray-300" aria-labelledby="footer-heading">
-      <h2 id="footer-heading" className="sr-only">
-        Pie de página
-      </h2>
+    <footer className="bg-[#0a1628] text-gray-300" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">Pie de página</h2>
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* Separator line */}
+      <div className="h-px bg-gradient-to-r from-transparent via-[#b8860b]/30 to-transparent" />
+
+      <div className="mx-auto max-w-7xl px-5 pt-14 pb-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Columna 1: Logo + descripción + redes */}
-          <div className="flex flex-col gap-4">
+          {/* Col 1: Logo + descripción + redes */}
+          <div className="flex flex-col gap-5">
             <Image
-              src="/images/logo-white.png"
+              src="/images/logo-color.png"
               alt="Chiclayo Propiedades"
-              width={140}
-              height={50}
-              className="h-10 w-auto"
+              width={160}
+              height={60}
+              className="h-12 w-auto brightness-200"
             />
             <p className="text-sm leading-relaxed text-gray-400">
-              Tu socio inmobiliario de confianza en Chiclayo y Lambayeque. Conectamos personas con sus hogares ideales.
+              Tu socio inmobiliario de confianza en Chiclayo y Lambayeque.
+              Conectamos personas con sus hogares ideales.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map(({ href, label, Icon }) => (
@@ -94,7 +81,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex size-8 items-center justify-center rounded-full bg-white/10 text-gray-300 transition-colors hover:bg-[#2563eb] hover:text-white"
+                  className="flex size-9 items-center justify-center rounded-lg bg-white/5 text-gray-400 ring-1 ring-white/10 transition-all hover:bg-[#b8860b] hover:text-white hover:ring-[#b8860b]"
                 >
                   <Icon className="size-4" />
                 </a>
@@ -102,18 +89,19 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Columna 2: Enlaces rápidos */}
+          {/* Col 2: Enlaces rápidos */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[#b8860b]">
               Enlaces rápidos
             </h3>
-            <ul className="flex flex-col gap-2" role="list">
+            <ul className="flex flex-col gap-3" role="list">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-400 transition-colors hover:text-white"
+                    className="group flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
                   >
+                    <ArrowRight className="size-3 text-gray-600 transition-all group-hover:text-[#b8860b] group-hover:translate-x-0.5" aria-hidden="true" />
                     {link.label}
                   </Link>
                 </li>
@@ -121,85 +109,79 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Columna 3: Contacto */}
+          {/* Col 3: Contacto */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[#b8860b]">
               Contacto
             </h3>
-            <ul className="flex flex-col gap-3" role="list">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
+            <ul className="flex flex-col gap-4" role="list">
+              <li className="flex items-start gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10">
+                  <MapPin className="size-4 text-[#b8860b]" aria-hidden="true" />
+                </div>
                 <span className="text-sm text-gray-400">
                   Av. Luis Gonzales 456, Chiclayo, Lambayeque
                 </span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
-                <a
-                  href="tel:+51928216206"
-                  className="text-sm text-gray-400 transition-colors hover:text-white"
-                >
+              <li className="flex items-center gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10">
+                  <Phone className="size-4 text-[#b8860b]" aria-hidden="true" />
+                </div>
+                <a href="tel:+51928216206" className="text-sm text-gray-400 transition-colors hover:text-white">
                   +51 928 216 206
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Mail className="size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
-                <a
-                  href="mailto:info@chiclayopropiedades.com"
-                  className="text-sm text-gray-400 transition-colors hover:text-white"
-                >
+              <li className="flex items-center gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10">
+                  <Mail className="size-4 text-[#b8860b]" aria-hidden="true" />
+                </div>
+                <a href="mailto:info@chiclayopropiedades.com" className="text-sm text-gray-400 transition-colors hover:text-white">
                   info@chiclayopropiedades.com
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Columna 4: Newsletter */}
+          {/* Col 4: Horario */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
-              Newsletter
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[#b8860b]">
+              Horario de atención
             </h3>
-            <p className="mb-4 text-sm text-gray-400">
-              Recibe las últimas propiedades y noticias del mercado inmobiliario.
-            </p>
-            <form
-              action="#"
-              className="flex flex-col gap-2"
-              aria-label="Suscripción al newsletter"
+            <ul className="flex flex-col gap-3 text-sm text-gray-400">
+              <li className="flex justify-between">
+                <span>Lunes - Viernes</span>
+                <span className="font-medium text-white">9:00 - 18:00</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Sábado</span>
+                <span className="font-medium text-white">9:00 - 13:00</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Domingo</span>
+                <span className="text-gray-500">Cerrado</span>
+              </li>
+            </ul>
+            <a
+              href="https://wa.me/51928216206"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] text-sm font-semibold text-white transition-all hover:bg-[#1da851] hover:scale-[1.02]"
             >
-              <input
-                type="email"
-                placeholder="tu@email.com"
-                required
-                className="h-9 rounded-lg border border-white/20 bg-white/10 px-3 text-sm text-white placeholder:text-gray-500 outline-none transition-colors focus:border-[#2563eb] focus:bg-white/15"
-                aria-label="Correo electrónico para newsletter"
-              />
-              <button
-                type="submit"
-                className="h-9 rounded-lg bg-[#2563eb] text-sm font-medium text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
-              >
-                Suscribirse
-              </button>
-            </form>
+              Contactar por WhatsApp
+            </a>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 sm:flex-row">
           <p className="text-xs text-gray-500">
             &copy; 2026 Chiclayo Propiedades. Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/privacidad"
-              className="text-xs text-gray-500 transition-colors hover:text-gray-300"
-            >
+          <div className="flex items-center gap-6">
+            <Link href="/privacidad" className="text-xs text-gray-500 transition-colors hover:text-gray-300">
               Política de Privacidad
             </Link>
-            <Link
-              href="/terminos"
-              className="text-xs text-gray-500 transition-colors hover:text-gray-300"
-            >
+            <Link href="/terminos" className="text-xs text-gray-500 transition-colors hover:text-gray-300">
               Términos de Servicio
             </Link>
           </div>
