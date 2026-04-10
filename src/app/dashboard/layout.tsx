@@ -7,6 +7,12 @@ import {
   UserRound,
   GraduationCap,
   MessageSquare,
+  Users,
+  FileText,
+  Briefcase,
+  Trophy,
+  Settings,
+  Home,
   LogOut,
 } from "lucide-react";
 
@@ -18,11 +24,19 @@ const mobileLinks = [
   { href: "/dashboard/propiedades", label: "Propiedades", icon: Building2 },
   { href: "/dashboard/leads", label: "Consultas", icon: MessageSquare },
   { href: "/dashboard/perfil", label: "Perfil", icon: UserRound },
-  {
-    href: "/dashboard/capacitaciones",
-    label: "Cursos",
-    icon: GraduationCap,
-  },
+  { href: "/dashboard/capacitaciones", label: "Cursos", icon: GraduationCap },
+];
+
+const mobileAdminLinks = [
+  { href: "/admin", label: "Admin", icon: LayoutDashboard },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/admin/propiedades", label: "Props", icon: Home },
+  { href: "/admin/leads", label: "Leads", icon: MessageSquare },
+  { href: "/admin/blog", label: "Blog", icon: FileText },
+  { href: "/admin/capacitaciones", label: "Cursos", icon: GraduationCap },
+  { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
+  { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+  { href: "/admin/configuracion", label: "Config", icon: Settings },
 ];
 
 export default async function DashboardLayout({
@@ -76,25 +90,15 @@ export default async function DashboardLayout({
               className="h-7 w-auto"
             />
           </Link>
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="rounded-lg px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
-              >
-                Admin
-              </Link>
-            )}
-            <form action="/api/auth/signout" method="POST">
-              <button
-                type="submit"
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                title="Cerrar sesión"
-              >
-                <LogOut className="size-4" />
-              </button>
-            </form>
-          </div>
+          <form action="/api/auth/signout" method="POST">
+            <button
+              type="submit"
+              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              title="Cerrar sesión"
+            >
+              <LogOut className="size-4" />
+            </button>
+          </form>
         </header>
 
         {/* Mobile nav tabs */}
@@ -112,11 +116,26 @@ export default async function DashboardLayout({
               <span>{label}</span>
             </Link>
           ))}
+          {isAdmin && (
+            <>
+              <div className="mx-1 h-6 w-px shrink-0 bg-gray-200" />
+              {mobileAdminLinks.map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  <span>{label}</span>
+                </Link>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-5xl">{children}</div>
+          <div className="mx-auto max-w-6xl">{children}</div>
         </main>
       </div>
     </div>
