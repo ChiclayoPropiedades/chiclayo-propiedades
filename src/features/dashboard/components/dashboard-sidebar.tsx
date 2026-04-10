@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
-const sidebarLinks = [
+// Links para usuarios normales y agentes
+const userLinks = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
   { href: "/dashboard/propiedades", label: "Mis Propiedades", icon: Building2 },
   { href: "/dashboard/leads", label: "Mis Consultas", icon: MessageSquare },
@@ -33,8 +34,9 @@ const sidebarLinks = [
   },
 ];
 
+// Links para superadmin — sin redundancias
 const adminLinks = [
-  { href: "/admin", label: "Dashboard Admin", icon: LayoutDashboard },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
   { href: "/admin/propiedades", label: "Propiedades", icon: Home },
   { href: "/admin/leads", label: "Leads", icon: MessageSquare },
@@ -43,6 +45,7 @@ const adminLinks = [
   { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
   { href: "/admin/ranking", label: "Ranking", icon: Trophy },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
+  { href: "/dashboard/perfil", label: "Mi Perfil", icon: UserRound },
 ];
 
 interface DashboardSidebarProps {
@@ -149,7 +152,7 @@ export function DashboardSidebar({
         className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
         aria-label="Navegación del panel"
       >
-        {sidebarLinks.map(({ href, label, icon: Icon }) => (
+        {(isAdmin ? adminLinks : userLinks).map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -173,42 +176,6 @@ export function DashboardSidebar({
             )}
           </Link>
         ))}
-
-        {/* Admin section */}
-        {isAdmin && (
-          <>
-            <div className="my-2 border-t border-gray-200" />
-            {!isCollapsed && (
-              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                Administración
-              </p>
-            )}
-            {adminLinks.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                title={isCollapsed ? label : undefined}
-                className={cn(
-                  "group flex items-center rounded-lg text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600",
-                  isCollapsed
-                    ? "justify-center px-2 py-2.5"
-                    : "justify-between px-3 py-2.5"
-                )}
-              >
-                <span className="flex items-center gap-2.5">
-                  <Icon className="size-4 shrink-0" aria-hidden="true" />
-                  {!isCollapsed && label}
-                </span>
-                {!isCollapsed && (
-                  <ChevronRight
-                    className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-hidden="true"
-                  />
-                )}
-              </Link>
-            ))}
-          </>
-        )}
       </nav>
 
       {/* Bottom actions */}

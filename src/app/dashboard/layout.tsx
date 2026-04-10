@@ -19,7 +19,8 @@ import {
 import { createClient } from "@/shared/lib/supabase/server";
 import { DashboardSidebar } from "@/features/dashboard/components/dashboard-sidebar";
 
-const mobileLinks = [
+// Mobile nav para usuarios normales
+const mobileUserLinks = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
   { href: "/dashboard/propiedades", label: "Propiedades", icon: Building2 },
   { href: "/dashboard/leads", label: "Consultas", icon: MessageSquare },
@@ -27,8 +28,9 @@ const mobileLinks = [
   { href: "/dashboard/capacitaciones", label: "Cursos", icon: GraduationCap },
 ];
 
+// Mobile nav para superadmin — sin redundancias
 const mobileAdminLinks = [
-  { href: "/admin", label: "Admin", icon: LayoutDashboard },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
   { href: "/admin/propiedades", label: "Props", icon: Home },
   { href: "/admin/leads", label: "Leads", icon: MessageSquare },
@@ -37,6 +39,7 @@ const mobileAdminLinks = [
   { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
   { href: "/admin/ranking", label: "Ranking", icon: Trophy },
   { href: "/admin/configuracion", label: "Config", icon: Settings },
+  { href: "/dashboard/perfil", label: "Perfil", icon: UserRound },
 ];
 
 export default async function DashboardLayout({
@@ -66,6 +69,7 @@ export default async function DashboardLayout({
     "Usuario";
 
   const isAdmin = profile?.role === "admin";
+  const mobileLinks = isAdmin ? mobileAdminLinks : mobileUserLinks;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -116,21 +120,6 @@ export default async function DashboardLayout({
               <span>{label}</span>
             </Link>
           ))}
-          {isAdmin && (
-            <>
-              <div className="mx-1 h-6 w-px shrink-0 bg-gray-200" />
-              {mobileAdminLinks.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
-                >
-                  <Icon className="size-4" aria-hidden="true" />
-                  <span>{label}</span>
-                </Link>
-              ))}
-            </>
-          )}
         </nav>
 
         {/* Content */}
