@@ -34,18 +34,25 @@ export default async function EditarPropiedadPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id")
+    .select("id, role")
     .eq("user_id", user.id)
     .single();
 
   if (!profile) redirect("/login");
 
-  const { data: property } = await supabase
+  const isAdmin = profile.role === "admin";
+
+  // Admin puede editar cualquier propiedad, agente solo las suyas
+  const query = supabase
     .from("properties")
     .select("*, property_images(*)")
-    .eq("id", id)
-    .eq("agent_id", profile.id)
-    .single();
+    .eq("id", id);
+
+  if (!isAdmin) {
+    query.eq("agent_id", profile.id);
+  }
+
+  const { data: property } = await query.single();
 
   if (!property) notFound();
 
