@@ -62,9 +62,9 @@ export function Footer() {
             <Image
               src="/images/logo-black.png"
               alt="Chiclayo Propiedades"
-              width={140}
-              height={50}
-              className="h-10 w-auto invert"
+              width={145}
+              height={59}
+              className="invert"
             />
             <p className="text-sm leading-relaxed text-gray-400">
               Tu socio inmobiliario de confianza en Chiclayo y Lambayeque.
