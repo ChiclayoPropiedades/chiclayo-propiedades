@@ -32,7 +32,7 @@ const stats = [
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-[90vh] overflow-hidden flex items-center justify-center"
+      className="relative min-h-svh overflow-hidden flex items-center justify-center"
       aria-labelledby="hero-heading"
     >
       {/* Background image */}
@@ -51,13 +51,13 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      {/* Decorative orbs */}
+      {/* Decorative orbs - hidden on mobile for performance */}
       <div
-        className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl animate-float-slow"
+        className="absolute -top-40 -left-40 hidden h-80 w-80 rounded-full bg-blue-500/10 blur-3xl animate-float-slow sm:block"
         aria-hidden="true"
       />
       <div
-        className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl animate-float-slow-reverse"
+        className="absolute -bottom-40 -right-40 hidden h-96 w-96 rounded-full bg-amber-500/10 blur-3xl animate-float-slow-reverse sm:block"
         aria-hidden="true"
       />
       <div
@@ -66,21 +66,21 @@ export function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 text-center sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-20 text-center sm:px-6 sm:py-16 lg:px-8 lg:py-12">
         {/* Logo */}
         <motion.div
           variants={scaleIn}
           initial="hidden"
           animate="visible"
-          className="mb-8 inline-block"
+          className="mb-6 inline-block sm:mb-8"
         >
-          <div className="relative mx-auto inline-flex items-center justify-center rounded-2xl bg-white/95 px-8 py-5 shadow-2xl shadow-black/20 backdrop-blur-sm ring-1 ring-white/20">
+          <div className="relative mx-auto inline-flex items-center justify-center rounded-2xl bg-white/95 px-5 py-3 shadow-2xl shadow-black/20 backdrop-blur-sm ring-1 ring-white/20 sm:px-8 sm:py-5">
             <Image
               src="/images/logo-color.png"
               alt="Chiclayo Propiedades"
               width={280}
               height={100}
-              className="h-20 w-auto sm:h-24"
+              className="h-14 w-auto sm:h-20 lg:h-24"
               priority
             />
             <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
@@ -93,9 +93,9 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={0.3}
-          className="mb-6 flex justify-center"
+          className="mb-5 flex justify-center sm:mb-6"
         >
-          <span className="inline-flex items-center gap-2 rounded-full bg-blue-500/15 px-5 py-2 text-sm font-medium text-blue-100 backdrop-blur-md ring-1 ring-blue-400/20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-blue-500/15 px-4 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-md ring-1 ring-blue-400/20 sm:px-5 sm:py-2 sm:text-sm">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-300" />
@@ -111,10 +111,13 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={0.5}
-          className="mx-auto max-w-5xl text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]"
+          className="mx-auto max-w-5xl text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem]"
         >
           Encuentra el lugar perfecto
-          <br />
+          <span className="hidden sm:inline">
+            <br />
+          </span>
+          <span className="sm:hidden"> </span>
           para tu{" "}
           <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
             próxima historia
@@ -127,7 +130,7 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={0.7}
-          className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-100/90 sm:text-xl"
+          className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-blue-100/90 sm:mt-6 sm:max-w-2xl sm:text-lg lg:text-xl"
         >
           Conectamos tus sueños con la realidad. Descubre propiedades exclusivas
           y recibe asesoría de los mejores expertos de la región.
@@ -139,24 +142,24 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={0.9}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
         >
           <Link
             href="/propiedades"
-            className="group inline-flex h-13 items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50"
+            className="group inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 sm:h-13 sm:w-auto sm:px-8"
           >
             Explorar Propiedades
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </Link>
           <Link
             href="/contacto"
-            className="inline-flex h-13 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-8 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
           >
             Vender un Inmueble
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-13 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-8 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
           >
             Registro de Agente Inmobiliario
           </Link>
@@ -168,21 +171,20 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={1.1}
-          className="mx-auto mt-10 grid max-w-lg grid-cols-3 gap-4 sm:max-w-2xl sm:gap-6"
+          className="mx-auto mt-8 grid max-w-xs grid-cols-3 gap-3 sm:mt-10 sm:max-w-2xl sm:gap-6"
         >
           {stats.map(({ icon: Icon, value, label }) => (
             <div
               key={label}
-              className="flex flex-col items-center gap-2 rounded-xl bg-white/5 py-4 px-3 backdrop-blur-sm ring-1 ring-white/10 transition-colors hover:bg-white/10"
+              className="flex flex-col items-center gap-1 rounded-xl bg-white/5 py-3 px-2 backdrop-blur-sm ring-1 ring-white/10 transition-colors hover:bg-white/10 sm:gap-2 sm:py-4 sm:px-3"
             >
-              <Icon className="size-5 text-blue-300" aria-hidden="true" />
-              <span className="text-2xl font-bold text-white sm:text-3xl">{value}</span>
-              <span className="text-xs font-medium text-blue-200/80">{label}</span>
+              <Icon className="size-4 text-blue-300 sm:size-5" aria-hidden="true" />
+              <span className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">{value}</span>
+              <span className="text-[10px] font-medium text-blue-200/80 sm:text-xs">{label}</span>
             </div>
           ))}
         </motion.div>
       </div>
-
     </section>
   )
 }
