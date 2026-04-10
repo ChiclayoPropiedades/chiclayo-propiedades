@@ -52,13 +52,10 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#0a1628] text-gray-300" aria-labelledby="footer-heading">
+    <footer className="flex min-h-svh flex-col justify-center bg-[#0a1628] text-gray-300" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Pie de página</h2>
 
-      {/* Separator line */}
-      <div className="h-px bg-gradient-to-r from-transparent via-[#b8860b]/30 to-transparent" />
-
-      <div className="mx-auto max-w-7xl px-5 pt-14 pb-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Col 1: Logo + descripción + redes */}
           <div className="flex flex-col gap-5">
