@@ -9,7 +9,7 @@ const benefits = [
 export function NewsletterSection() {
   return (
     <section
-      className="relative overflow-hidden bg-[#1e3a5f] py-16 sm:py-20"
+      className="relative flex min-h-svh items-center overflow-hidden bg-[#1e3a5f] pb-0 pt-12 sm:pt-16"
       aria-labelledby="newsletter-heading"
     >
       {/* Decorative background */}

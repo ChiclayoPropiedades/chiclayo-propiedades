@@ -13,7 +13,7 @@ export async function FeaturedPropertiesSection() {
 
   return (
     <section
-      className="bg-[#eff6ff] py-16 sm:py-20"
+      className="flex min-h-svh items-center bg-[#eff6ff] py-12 sm:py-16"
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">

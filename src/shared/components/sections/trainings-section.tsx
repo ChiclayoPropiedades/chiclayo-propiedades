@@ -54,7 +54,7 @@ export async function TrainingsSection() {
 
   return (
     <section
-      className="bg-[#f8fafc] py-16 sm:py-20"
+      className="flex min-h-svh items-center bg-[#f8fafc] py-12 sm:py-16"
       aria-labelledby="trainings-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">

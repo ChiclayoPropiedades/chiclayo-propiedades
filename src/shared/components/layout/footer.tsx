@@ -67,7 +67,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#1f2937] text-gray-300" aria-labelledby="footer-heading">
+    <footer className="bg-[#0f1f33] text-gray-300" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
         Pie de página
       </h2>

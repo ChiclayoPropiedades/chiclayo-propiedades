@@ -31,7 +31,7 @@ const topics = [
 export function NewsSection() {
   return (
     <section
-      className="relative overflow-hidden bg-white py-16 sm:py-20"
+      className="relative flex min-h-svh items-center overflow-hidden bg-white py-12 sm:py-16"
       aria-labelledby="news-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">

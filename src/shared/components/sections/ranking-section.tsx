@@ -4,7 +4,7 @@ import { ArrowRight, Award, Trophy, Medal, Crown } from "lucide-react"
 export function RankingSection() {
   return (
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#0f1f33] py-16 sm:py-20"
+      className="relative flex min-h-svh items-center overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#0f1f33] py-12 sm:py-16"
       aria-labelledby="ranking-heading"
     >
       {/* Decorative */}
