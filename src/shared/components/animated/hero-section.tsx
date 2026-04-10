@@ -4,7 +4,7 @@ import { Building2, TrendingUp, Users, ArrowRight } from "lucide-react"
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-[90vh] overflow-hidden flex items-center justify-center"
+      className="relative min-h-svh overflow-hidden flex items-center justify-center"
       aria-labelledby="hero-heading"
     >
       {/* Background image de Chiclayo (foto real de la ciudad) */}
