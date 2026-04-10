@@ -1,66 +1,80 @@
 import Link from "next/link"
-import { Newspaper, ArrowRight, BookOpen, TrendingUp, Lightbulb } from "lucide-react"
+import { ArrowRight, TrendingUp, Lightbulb, BookOpen, FileText, Newspaper } from "lucide-react"
 
 const topics = [
   {
     icon: TrendingUp,
     title: "Tendencias del mercado",
-    description: "Análisis del mercado inmobiliario en Chiclayo y Lambayeque.",
+    description: "Análisis actualizado del mercado inmobiliario en Chiclayo y Lambayeque.",
+    color: "from-[#1e3a5f] to-[#2a4a6f]",
   },
   {
     icon: Lightbulb,
     title: "Consejos de inversión",
-    description: "Guías para tomar las mejores decisiones inmobiliarias.",
+    description: "Guías prácticas para tomar las mejores decisiones inmobiliarias.",
+    color: "from-[#b8860b] to-[#d4a017]",
   },
   {
     icon: BookOpen,
     title: "Guías para compradores",
-    description: "Todo lo que necesitas saber antes de comprar tu propiedad.",
+    description: "Todo lo que necesitas saber antes de comprar tu primera propiedad.",
+    color: "from-[#1e3a5f] to-[#2a4a6f]",
+  },
+  {
+    icon: FileText,
+    title: "Noticias del sector",
+    description: "Las últimas novedades y regulaciones del sector inmobiliario peruano.",
+    color: "from-[#b8860b] to-[#d4a017]",
   },
 ]
 
 export function NewsSection() {
   return (
     <section
-      className="bg-white py-16 sm:py-20"
+      className="relative overflow-hidden bg-white py-16 sm:py-20"
       aria-labelledby="news-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <div className="mb-10 text-center">
-          <p className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#2563eb]">
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#b8860b]">
             Blog inmobiliario
           </p>
           <h2
             id="news-heading"
-            className="text-3xl font-bold text-[#1f2937] sm:text-4xl"
+            className="text-3xl font-bold text-[#1e3a5f] sm:text-4xl"
           >
             Últimas Noticias y Consejos
           </h2>
-          <p className="mx-auto mt-2 max-w-xl text-base text-gray-600">
+          <p className="mx-auto mt-3 max-w-xl text-base text-gray-600">
             Mantente al día con el mercado inmobiliario de Chiclayo y Lambayeque.
           </p>
         </div>
 
-        {/* Topic cards en vez de empty state vacío */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {topics.map(({ icon: Icon, title, description }) => (
+        {/* Topic cards */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {topics.map(({ icon: Icon, title, description, color }) => (
             <div
               key={title}
-              className="group flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-8 text-center transition-all hover:border-blue-100 hover:bg-[#eff6ff]/50 hover:shadow-sm"
+              className="group relative flex flex-col items-start gap-4 rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
-              <div className="flex size-12 items-center justify-center rounded-xl bg-[#eff6ff] transition-colors group-hover:bg-[#2563eb]/10">
-                <Icon className="size-6 text-[#2563eb]" aria-hidden="true" />
+              {/* Top accent */}
+              <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r ${color}`} />
+
+              <div className={`flex size-12 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-lg`}>
+                <Icon className="size-6 text-white" aria-hidden="true" />
               </div>
-              <h3 className="text-base font-semibold text-[#1f2937]">{title}</h3>
-              <p className="text-sm text-gray-500">{description}</p>
+              <h3 className="text-base font-bold text-[#1e3a5f]">{title}</h3>
+              <p className="text-sm leading-relaxed text-gray-500">{description}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-8 text-center">
+        {/* CTA */}
+        <div className="mt-10 text-center">
           <Link
             href="/blog"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2563eb] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-8 text-sm font-semibold text-white shadow-lg shadow-[#1e3a5f]/20 transition-all hover:bg-[#0f1f33] hover:scale-[1.02]"
           >
             <Newspaper className="size-4" aria-hidden="true" />
             Visitar el Blog
