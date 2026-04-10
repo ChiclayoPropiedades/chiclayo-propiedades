@@ -125,6 +125,25 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
   }
+}
+
+/* Hero decorative animations */
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -30px); }
+}
+
+@keyframes float-slow-reverse {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 30px); }
+}
+
+@utility animate-float-slow {
+  animation: float-slow 15s ease-in-out infinite;
+}
+
+@utility animate-float-slow-reverse {
+  animation: float-slow-reverse 18s ease-in-out infinite;
 }

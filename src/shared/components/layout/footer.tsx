@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { MapPin, Phone, Mail } from "lucide-react"
 
 function FacebookIcon({ className }: { className?: string }) {
@@ -75,14 +76,13 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Columna 1: Logo + descripción + redes */}
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col leading-none">
-              <span className="text-lg font-black tracking-widest text-white uppercase">
-                Chiclayo
-              </span>
-              <span className="text-xs font-semibold tracking-[0.3em] text-[#b8860b] uppercase">
-                Propiedades
-              </span>
-            </div>
+            <Image
+              src="/images/logo-white.png"
+              alt="Chiclayo Propiedades"
+              width={140}
+              height={50}
+              className="h-10 w-auto"
+            />
             <p className="text-sm leading-relaxed text-gray-400">
               Tu socio inmobiliario de confianza en Chiclayo y Lambayeque. Conectamos personas con sus hogares ideales.
             </p>

@@ -36,13 +36,15 @@ interface UserProfile {
 
 function Logo() {
   return (
-    <Link href="/" className="flex flex-col items-center leading-none select-none">
-      <span className="text-lg font-black tracking-widest text-[#1f2937] uppercase">
-        Chiclayo
-      </span>
-      <span className="text-xs font-semibold tracking-[0.3em] text-[#b8860b] uppercase">
-        Propiedades
-      </span>
+    <Link href="/" className="select-none">
+      <Image
+        src="/images/logo-color.png"
+        alt="Chiclayo Propiedades"
+        width={160}
+        height={60}
+        className="h-12 w-auto"
+        priority
+      />
     </Link>
   )
 }
