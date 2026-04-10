@@ -1,5 +1,6 @@
 import { organizationJsonLd } from "@/shared/lib/structured-data"
 import { HeroSection } from "@/shared/components/animated/hero-section"
+import { ScrollReveal } from "@/shared/components/animated/scroll-reveal"
 import { AboutSection } from "@/shared/components/sections/about-section"
 import { FeaturedPropertiesSection } from "@/shared/components/sections/featured-properties-section"
 import { RankingSection } from "@/shared/components/sections/ranking-section"
@@ -9,32 +10,28 @@ import { NewsletterSection } from "@/shared/components/sections/newsletter-secti
 
 export default async function HomePage() {
   return (
-    <div className="snap-y snap-proximity">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
       />
-      <div className="snap-start">
-        <HeroSection />
-      </div>
-      <div className="snap-start">
-        <AboutSection />
-      </div>
-      <div className="snap-start">
+      <HeroSection />
+      <AboutSection />
+      <ScrollReveal>
         <FeaturedPropertiesSection />
-      </div>
-      <div className="snap-start">
+      </ScrollReveal>
+      <ScrollReveal>
         <RankingSection />
-      </div>
-      <div className="snap-start">
+      </ScrollReveal>
+      <ScrollReveal>
         <TrainingsSection />
-      </div>
-      <div className="snap-start">
+      </ScrollReveal>
+      <ScrollReveal>
         <NewsSection />
-      </div>
-      <div className="snap-start">
+      </ScrollReveal>
+      <ScrollReveal>
         <NewsletterSection />
-      </div>
-    </div>
+      </ScrollReveal>
+    </>
   )
 }
