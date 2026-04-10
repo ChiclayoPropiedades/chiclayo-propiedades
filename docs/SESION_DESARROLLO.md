@@ -104,42 +104,45 @@ Lee todos los .md y dime qué sigue según el plan.
 | 1.17 | CSS animations (orbs, float) | ✅ | @keyframes float-slow y float-slow-reverse en globals.css |
 | 1.18 | **HeroSection moderno** | ❌ PENDIENTE | Se intentó rediseñar pero el cliente no aprobó. **REVERTIDO al diseño original V1.0.** Necesita un nuevo diseño aprobado por el cliente |
 
-### ETAPA 2: Configuraciones Supabase ❌ PENDIENTE
-
-| # | Tarea | Estado | Dónde |
-|---|-------|--------|-------|
-| 2.1 | Cambiar Site URL | ❌ | Supabase > Auth > URL Configuration > cambiar localhost:3000 por chiclayo-propiedades.vercel.app |
-| 2.2 | Agregar Redirect URLs | ❌ | Agregar: chiclayo-propiedades.vercel.app/** y localhost:3000/** |
-| 2.3 | Email Confirm signup en español | ❌ | Supabase > Auth > Email Templates > Subject: "Confirma tu registro en Chiclayo Propiedades" |
-| 2.4 | Email Reset password en español | ❌ | Supabase > Auth > Email Templates > Subject: "Recupera tu contraseña - Chiclayo Propiedades" |
-
-### ETAPA 3: Limpieza de Datos ❌ PENDIENTE
+### ETAPA 2: Configuraciones Supabase ✅ COMPLETADA (10 Abril 2026)
 
 | # | Tarea | Estado | Detalle |
 |---|-------|--------|---------|
-| 3.1 | Borrar propiedades de ejemplo | ❌ | DELETE de properties y property_images de prueba en Supabase |
-| 3.2 | Crear 1 capacitación ejemplo | ❌ | Via admin panel con todos los campos |
-| 3.3 | Crear 1 artículo blog ejemplo | ❌ | Via admin panel, editable/borrable |
-| 3.4 | Verificar servicios | ❌ | Asegurar datos correctos |
-| 3.5 | Limpiar property_images huérfanas | ❌ | Borrar imágenes sin propiedad |
+| 2.1 | Cambiar Site URL | ✅ | Ya estaba configurado: https://chiclayo-propiedades.vercel.app |
+| 2.2 | Agregar Redirect URLs | ✅ | chiclayo-propiedades.vercel.app/** y localhost:3000/** via Management API |
+| 2.3 | Email Confirm signup en español | ✅ | Subject + body en español via Management API |
+| 2.4 | Email Reset password en español | ✅ | Subject + body en español via Management API |
+| 2.5 | Crear .env.local | ✅ | Con SUPABASE_URL, ANON_KEY, APP_URL, APP_NAME |
+| 2.6 | Emails adicionales en español | ✅ | Invitación, magic link, cambio de correo, cambio de contraseña, todos en español |
 
-### ETAPA 4: Ranking por Ventas Cerradas ❌ PENDIENTE
+### ETAPA 3: Limpieza de Datos ✅ COMPLETADA (10 Abril 2026)
 
-| # | Tarea | Estado | Tipo |
-|---|-------|--------|------|
-| 4.1 | Agregar campo status a properties | ❌ | DB: ALTER TABLE (active, sold, inactive) |
-| 4.2 | Agregar campo sale_price a properties | ❌ | DB: ALTER TABLE |
-| 4.3 | Agregar campo sale_date a properties | ❌ | DB: ALTER TABLE |
-| 4.4 | Agregar campo sale_approved a properties | ❌ | DB: ALTER TABLE |
-| 4.5 | Agregar sales_count a agent_rankings | ❌ | DB: ALTER TABLE |
-| 4.6 | Agregar total_sales_amount a agent_rankings | ❌ | DB: ALTER TABLE |
-| 4.7 | Server Action: markPropertyAsSold() | ❌ | Backend |
-| 4.8 | Server Action: approveSale() | ❌ | Backend |
-| 4.9 | Actualizar recalculateRankings() | ❌ | Backend: score = monto_total_vendido |
-| 4.10 | UI: Botón "Marcar como vendida" en dashboard | ❌ | Frontend |
-| 4.11 | UI: Tabla de aprobación de ventas en admin | ❌ | Frontend |
-| 4.12 | UI: Nueva página de ranking con ventas | ❌ | Frontend |
-| 4.13 | Crear migration SQL | ❌ | supabase/migrations/ |
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 3.1 | Borrar propiedades de ejemplo | ✅ | 11 properties + 11 property_images eliminadas. Rankings reseteados a 0 |
+| 3.2 | Crear 1 capacitación ejemplo | ✅ | "Curso de Tasación Inmobiliaria" - S/199, presencial, con contenido completo en español |
+| 3.3 | Crear 1 artículo blog ejemplo | ✅ | "5 Consejos para Comprar tu Primera Casa en Chiclayo" - categoría guías, publicado |
+| 3.4 | Verificar servicios | ✅ | 10 servicios OK. Corregido "Property Management" → "Administración de propiedades" |
+| 3.5 | Limpiar datos huérfanos | ✅ | Sin imágenes huérfanas. Integridad verificada |
+
+### ETAPA 4: Ranking por Ventas Cerradas ✅ COMPLETADA (10 Abril 2026)
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 4.1 | Migración SQL (status, sale_price, sale_date, sale_approved) | ✅ | ALTER TABLE properties + agent_rankings via Supabase Management API |
+| 4.2 | Índices para consultas de ventas | ✅ | idx_properties_sale_pending, idx_properties_sale_approved |
+| 4.3 | Types TypeScript actualizados | ✅ | Property + AgentRanking con nuevos campos |
+| 4.4 | Server Action: markPropertyAsSold() | ✅ | Asesor marca vendida con precio, pendiente aprobación |
+| 4.5 | Server Action: approveSale() + rejectSale() | ✅ | Admin aprueba/rechaza, recalcula ranking automáticamente |
+| 4.6 | Server Action: getPendingSales() | ✅ | Query ventas pendientes de aprobación |
+| 4.7 | Nuevo recalculateRankings() | ✅ | score = monto_total_vendido (USD→PEN con tasa 3.7) |
+| 4.8 | Componente MarkSoldButton | ✅ | Botón + form inline con precio de venta |
+| 4.9 | Componente SoldBadge | ✅ | Badges: Activa, Vendida, Pendiente aprobación, Inactiva |
+| 4.10 | Componente SalesApprovalTable | ✅ | Tabla con aprobar/rechazar para admin |
+| 4.11 | Dashboard propiedades actualizado | ✅ | Botón "Marcar vendida", badges de estado, precio de venta |
+| 4.12 | Admin ranking actualizado | ✅ | Sección ventas pendientes + ranking por monto vendido |
+| 4.13 | Ranking público actualizado | ✅ | Columnas: ventas cerradas, monto vendido, propiedades |
+| 4.14 | Homepage ranking con datos reales | ✅ | Podio conectado a DB, muestra agentes reales con ventas |
 
 ### ETAPA 5: Migración de Imágenes ❌ PENDIENTE
 

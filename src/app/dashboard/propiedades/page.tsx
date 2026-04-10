@@ -1,9 +1,11 @@
 import { type Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Home, MapPin, Eye, EyeOff, Pencil } from "lucide-react";
+import { Plus, Home, MapPin, Eye, Pencil } from "lucide-react";
 import { createClient } from "@/shared/lib/supabase/server";
 import { formatPrice } from "@/shared/lib/format";
+import { SoldBadge } from "@/features/properties/components/sold-badge";
+import { MarkSoldButton } from "@/features/properties/components/mark-sold-button";
 
 export const metadata: Metadata = {
   title: "Mis Propiedades",
@@ -27,7 +29,9 @@ export default async function MisPropiedadesPage() {
 
   const { data: properties } = await supabase
     .from("properties")
-    .select("id, title, slug, price, currency, operation, type, district, is_active, featured, created_at")
+    .select(
+      "id, title, slug, price, currency, operation, type, district, is_active, featured, status, sale_price, sale_approved, created_at"
+    )
     .eq("agent_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -37,7 +41,9 @@ export default async function MisPropiedadesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1f2937]">Mis Propiedades</h1>
+          <h1 className="text-2xl font-bold text-[#1f2937]">
+            Mis Propiedades
+          </h1>
           <p className="text-sm text-gray-500">
             Gestiona tus publicaciones inmobiliarias
           </p>
@@ -73,22 +79,33 @@ export default async function MisPropiedadesPage() {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <th className="px-4 py-3 font-medium text-gray-600">Propiedad</th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 sm:table-cell">Precio</th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 md:table-cell">Ubicación</th>
+                <th className="px-4 py-3 font-medium text-gray-600">
+                  Propiedad
+                </th>
+                <th className="hidden px-4 py-3 font-medium text-gray-600 sm:table-cell">
+                  Precio
+                </th>
+                <th className="hidden px-4 py-3 font-medium text-gray-600 md:table-cell">
+                  Ubicación
+                </th>
                 <th className="px-4 py-3 font-medium text-gray-600">Estado</th>
-                <th className="px-4 py-3 font-medium text-gray-600">Acciones</th>
+                <th className="px-4 py-3 font-medium text-gray-600">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {myProperties.map((property) => (
-                <tr key={property.id} className="transition-colors hover:bg-gray-50">
+                <tr
+                  key={property.id}
+                  className="transition-colors hover:bg-gray-50"
+                >
                   <td className="px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate font-medium text-[#1f2937]">
                         {property.title}
                       </p>
-                      <p className="text-xs text-gray-400 capitalize">
+                      <p className="text-xs capitalize text-gray-400">
                         {property.type} en {property.operation}
                       </p>
                     </div>
@@ -97,6 +114,11 @@ export default async function MisPropiedadesPage() {
                     <span className="font-semibold text-[#2563eb]">
                       {formatPrice(property.price, property.currency)}
                     </span>
+                    {property.sale_price && (
+                      <p className="text-xs text-green-600">
+                        Venta: {formatPrice(property.sale_price, property.currency)}
+                      </p>
+                    )}
                   </td>
                   <td className="hidden px-4 py-3 md:table-cell">
                     <span className="flex items-center gap-1 text-gray-500">
@@ -105,20 +127,13 @@ export default async function MisPropiedadesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {property.is_active ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                        <Eye className="size-3" />
-                        Activa
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
-                        <EyeOff className="size-3" />
-                        Inactiva
-                      </span>
-                    )}
+                    <SoldBadge
+                      status={property.status ?? "active"}
+                      saleApproved={property.sale_approved ?? false}
+                    />
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/propiedades/${property.slug}`}
                         className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#2563eb]"
@@ -126,13 +141,24 @@ export default async function MisPropiedadesPage() {
                       >
                         <Eye className="size-4" />
                       </Link>
-                      <Link
-                        href={`/dashboard/propiedades/${property.id}/editar`}
-                        className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#2563eb]"
-                        title="Editar"
-                      >
-                        <Pencil className="size-4" />
-                      </Link>
+                      {(property.status ?? "active") !== "sold" && (
+                        <>
+                          <Link
+                            href={`/dashboard/propiedades/${property.id}/editar`}
+                            className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#2563eb]"
+                            title="Editar"
+                          >
+                            <Pencil className="size-4" />
+                          </Link>
+                          {property.operation === "venta" && (
+                            <MarkSoldButton
+                              propertyId={property.id}
+                              currentPrice={property.price}
+                              currency={property.currency}
+                            />
+                          )}
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

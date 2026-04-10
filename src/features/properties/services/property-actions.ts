@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/shared/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 function generateSlug(title: string): string {
@@ -89,4 +90,53 @@ export async function getPropertyById(id: string) {
     .eq("id", id)
     .single();
   return data;
+}
+
+export async function markPropertyAsSold(propertyId: string, salePrice: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const { error } = await supabase
+    .from("properties")
+    .update({
+      status: "sold",
+      sale_price: salePrice,
+      sale_date: new Date().toISOString(),
+      sale_approved: false,
+      is_active: false,
+    })
+    .eq("id", propertyId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/propiedades");
+  revalidatePath("/admin/ranking");
+  return { success: true };
+}
+
+export async function togglePropertyStatus(
+  propertyId: string,
+  status: "active" | "inactive"
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const { error } = await supabase
+    .from("properties")
+    .update({
+      status,
+      is_active: status === "active",
+    })
+    .eq("id", propertyId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/propiedades");
+  return { success: true };
 }

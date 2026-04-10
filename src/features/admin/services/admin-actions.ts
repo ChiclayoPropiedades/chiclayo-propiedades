@@ -546,7 +546,7 @@ export async function deleteTraining(id: string) {
 export async function recalculateRankings(): Promise<void> {
   const { supabase } = await verifyAdmin();
 
-  // Obtener agentes con sus conteos
+  // Obtener propiedades activas por agente
   const { data: agentProps, error: propsError } = await supabase
     .from("properties")
     .select("agent_id")
@@ -554,6 +554,16 @@ export async function recalculateRankings(): Promise<void> {
 
   if (propsError) throw new Error(propsError.message);
 
+  // Obtener ventas aprobadas por agente (con precio y moneda)
+  const { data: approvedSales, error: salesError } = await supabase
+    .from("properties")
+    .select("agent_id, sale_price, currency")
+    .eq("status", "sold")
+    .eq("sale_approved", true);
+
+  if (salesError) throw new Error(salesError.message);
+
+  // Obtener consultas por agente
   const { data: agentInquiries, error: inqError } = await supabase
     .from("inquiries")
     .select("agent_id")
@@ -561,7 +571,7 @@ export async function recalculateRankings(): Promise<void> {
 
   if (inqError) throw new Error(inqError.message);
 
-  // Agregar conteos por agente
+  // Conteos por agente
   const propsByAgent: Record<string, number> = {};
   for (const row of agentProps ?? []) {
     if (row.agent_id) {
@@ -576,9 +586,28 @@ export async function recalculateRankings(): Promise<void> {
     }
   }
 
+  // Ventas aprobadas: contar y sumar montos (convertir USD a PEN con tasa ~3.7)
+  const salesCountByAgent: Record<string, number> = {};
+  const salesTotalByAgent: Record<string, number> = {};
+  const USD_TO_PEN = 3.7;
+
+  for (const sale of approvedSales ?? []) {
+    if (sale.agent_id && sale.sale_price) {
+      salesCountByAgent[sale.agent_id] =
+        (salesCountByAgent[sale.agent_id] ?? 0) + 1;
+      const amountInPEN =
+        sale.currency === "USD"
+          ? sale.sale_price * USD_TO_PEN
+          : sale.sale_price;
+      salesTotalByAgent[sale.agent_id] =
+        (salesTotalByAgent[sale.agent_id] ?? 0) + amountInPEN;
+    }
+  }
+
   const allAgentIds = new Set([
     ...Object.keys(propsByAgent),
     ...Object.keys(inqByAgent),
+    ...Object.keys(salesCountByAgent),
   ]);
 
   const period = new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -586,7 +615,11 @@ export async function recalculateRankings(): Promise<void> {
   for (const agentId of allAgentIds) {
     const propsCount = propsByAgent[agentId] ?? 0;
     const inqCount = inqByAgent[agentId] ?? 0;
-    const score = propsCount * 10 + inqCount * 5;
+    const salesCount = salesCountByAgent[agentId] ?? 0;
+    const totalSalesAmount = salesTotalByAgent[agentId] ?? 0;
+
+    // Score = monto total vendido (posición por ventas)
+    const score = Math.round(totalSalesAmount);
 
     await supabase.from("agent_rankings").upsert(
       {
@@ -594,6 +627,8 @@ export async function recalculateRankings(): Promise<void> {
         score,
         properties_count: propsCount,
         inquiries_count: inqCount,
+        sales_count: salesCount,
+        total_sales_amount: Math.round(totalSalesAmount),
         period,
       },
       { onConflict: "agent_id,period" }
@@ -602,4 +637,64 @@ export async function recalculateRankings(): Promise<void> {
 
   revalidatePath("/admin/ranking");
   revalidatePath("/ranking");
+  revalidatePath("/");
+}
+
+// ─── Aprobación de Ventas ────────────────────────────────────────────────────
+
+export async function approveSale(propertyId: string): Promise<{ success?: boolean; error?: string }> {
+  const { supabase } = await verifyAdmin();
+
+  const { error } = await supabase
+    .from("properties")
+    .update({ sale_approved: true })
+    .eq("id", propertyId)
+    .eq("status", "sold");
+
+  if (error) return { error: error.message };
+
+  // Recalcular rankings automáticamente
+  await recalculateRankings();
+
+  revalidatePath("/admin/ranking");
+  revalidatePath("/ranking");
+  revalidatePath("/dashboard/propiedades");
+  return { success: true };
+}
+
+export async function rejectSale(propertyId: string): Promise<{ success?: boolean; error?: string }> {
+  const { supabase } = await verifyAdmin();
+
+  const { error } = await supabase
+    .from("properties")
+    .update({
+      status: "active",
+      sale_price: null,
+      sale_date: null,
+      sale_approved: false,
+      is_active: true,
+    })
+    .eq("id", propertyId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/ranking");
+  revalidatePath("/dashboard/propiedades");
+  return { success: true };
+}
+
+export async function getPendingSales() {
+  const { supabase } = await verifyAdmin();
+
+  const { data, error } = await supabase
+    .from("properties")
+    .select(
+      "id, title, price, currency, sale_price, sale_date, agent:profiles!agent_id(full_name, phone)"
+    )
+    .eq("status", "sold")
+    .eq("sale_approved", false)
+    .order("sale_date", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }

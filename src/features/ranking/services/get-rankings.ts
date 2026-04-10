@@ -7,7 +7,7 @@ export async function getRankings(): Promise<AgentRanking[]> {
     const { data, error } = await supabase
       .from("agent_rankings")
       .select(
-        `id, agent_id, score, properties_count, inquiries_count, period,
+        `id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period,
         agent:profiles!agent_id(full_name, avatar_url, phone)`
       )
       .order("score", { ascending: false });

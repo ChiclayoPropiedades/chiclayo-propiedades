@@ -4,6 +4,8 @@ export interface AgentRanking {
   score: number;
   properties_count: number;
   inquiries_count: number;
+  sales_count: number;
+  total_sales_amount: number;
   period: string;
   agent?: {
     full_name: string;

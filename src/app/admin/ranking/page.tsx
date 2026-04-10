@@ -1,5 +1,10 @@
 import { createClient } from "@/shared/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,6 +14,9 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { RecalcularRankingButton } from "@/features/admin/components/recalcular-ranking-button";
+import { SalesApprovalTable } from "@/features/admin/components/sales-approval-table";
+import { getPendingSales } from "@/features/admin/services/admin-actions";
+import { formatPrice } from "@/shared/lib/format";
 
 interface RankingRow {
   id: string;
@@ -16,6 +24,8 @@ interface RankingRow {
   score: number;
   properties_count: number;
   inquiries_count: number;
+  sales_count: number;
+  total_sales_amount: number;
   period: string;
   agent: { full_name: string | null; phone: string | null } | null;
 }
@@ -26,7 +36,7 @@ async function getRankings(): Promise<RankingRow[]> {
   const { data, error } = await supabase
     .from("agent_rankings")
     .select(
-      "id, agent_id, score, properties_count, inquiries_count, period, agent:profiles(full_name, phone)"
+      "id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period, agent:profiles(full_name, phone)"
     )
     .order("score", { ascending: false });
 
@@ -34,12 +44,17 @@ async function getRankings(): Promise<RankingRow[]> {
 
   return (data ?? []).map((row) => ({
     ...row,
+    sales_count: (row as Record<string, unknown>).sales_count as number ?? 0,
+    total_sales_amount: (row as Record<string, unknown>).total_sales_amount as number ?? 0,
     agent: Array.isArray(row.agent) ? row.agent[0] ?? null : row.agent,
   })) as RankingRow[];
 }
 
 export default async function AdminRankingPage() {
-  const rankings = await getRankings();
+  const [rankings, pendingSales] = await Promise.all([
+    getRankings(),
+    getPendingSales(),
+  ]);
   const currentPeriod = new Date().toISOString().slice(0, 7);
 
   const periodRankings = rankings.filter((r) => r.period === currentPeriod);
@@ -49,9 +64,11 @@ export default async function AdminRankingPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#1f2937]">Ranking de Agentes</h2>
+          <h2 className="text-2xl font-bold text-[#1f2937]">
+            Ranking de Agentes
+          </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Recalcula y gestiona el ranking de agentes inmobiliarios
+            Ranking basado en ventas cerradas y monto total vendido
           </p>
         </div>
         <RecalcularRankingButton />
@@ -59,12 +76,27 @@ export default async function AdminRankingPage() {
 
       {/* Info del algoritmo */}
       <div className="rounded-lg border border-[#eff6ff] bg-[#eff6ff] p-4">
-        <p className="text-sm font-medium text-[#2563eb]">Algoritmo de puntuación</p>
+        <p className="text-sm font-medium text-[#2563eb]">
+          Algoritmo de puntuación
+        </p>
         <p className="mt-1 text-xs text-[#1e40af]">
-          Cada propiedad activa suma <strong>10 puntos</strong>. Cada consulta recibida suma{" "}
-          <strong>5 puntos</strong>. El período es mensual (YYYY-MM).
+          La posición se determina por el <strong>monto total vendido</strong>{" "}
+          (en soles). Las ventas en dólares se convierten a soles (tasa ~3.7).
+          Solo se cuentan ventas <strong>aprobadas por el administrador</strong>.
         </p>
       </div>
+
+      {/* Ventas pendientes de aprobación */}
+      <Card className="border-amber-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-amber-700">
+            Ventas pendientes de aprobación ({pendingSales.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SalesApprovalTable sales={pendingSales} />
+        </CardContent>
+      </Card>
 
       {/* Ranking actual */}
       <Card className="border-gray-200">
@@ -76,18 +108,31 @@ export default async function AdminRankingPage() {
         <CardContent className="p-0">
           {periodRankings.length === 0 ? (
             <p className="px-6 py-10 text-center text-sm text-gray-400">
-              No hay rankings para el período actual. Haz clic en &quot;Recalcular Rankings&quot; para generarlos.
+              No hay rankings para el período actual. Haz clic en
+              &quot;Recalcular Rankings&quot; para generarlos.
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-200 bg-gray-50">
-                  <TableHead className="text-xs font-medium text-gray-500">#</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Agente</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Teléfono</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Propiedades</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Consultas</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Puntuación</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    #
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Agente
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Ventas
+                  </TableHead>
+                  <TableHead className="hidden text-xs font-medium text-gray-500 sm:table-cell">
+                    Monto vendido
+                  </TableHead>
+                  <TableHead className="hidden text-xs font-medium text-gray-500 md:table-cell">
+                    Propiedades
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Puntuación
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -108,21 +153,32 @@ export default async function AdminRankingPage() {
                         {index + 1}
                       </span>
                     </TableCell>
-                    <TableCell className="font-medium text-[#1f2937]">
-                      {row.agent?.full_name ?? "Agente desconocido"}
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-[#1f2937]">
+                          {row.agent?.full_name ?? "Agente desconocido"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {row.agent?.phone ?? "—"}
+                        </p>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {row.agent?.phone ?? <span className="text-gray-300">—</span>}
+                    <TableCell className="text-center text-sm font-semibold text-green-700">
+                      {row.sales_count}
                     </TableCell>
-                    <TableCell className="text-center text-sm text-gray-700">
+                    <TableCell className="hidden text-sm text-gray-700 sm:table-cell">
+                      {row.total_sales_amount > 0
+                        ? formatPrice(row.total_sales_amount, "PEN")
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm text-gray-500 md:table-cell">
                       {row.properties_count}
-                    </TableCell>
-                    <TableCell className="text-center text-sm text-gray-700">
-                      {row.inquiries_count}
                     </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center rounded-full border border-[#2563eb]/20 bg-[#eff6ff] px-2.5 py-0.5 text-sm font-bold text-[#2563eb]">
-                        {row.score} pts
+                        {row.total_sales_amount > 0
+                          ? formatPrice(row.total_sales_amount, "PEN")
+                          : "0 pts"}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -145,11 +201,21 @@ export default async function AdminRankingPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-200 bg-gray-50">
-                  <TableHead className="text-xs font-medium text-gray-500">Período</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Agente</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Propiedades</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Consultas</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">Puntuación</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Período
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Agente
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Ventas
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Monto vendido
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-gray-500">
+                    Puntuación
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -161,14 +227,18 @@ export default async function AdminRankingPage() {
                     <TableCell className="font-medium text-[#1f2937]">
                       {row.agent?.full_name ?? "Agente desconocido"}
                     </TableCell>
-                    <TableCell className="text-center text-sm text-gray-500">
-                      {row.properties_count}
+                    <TableCell className="text-center text-sm text-green-600">
+                      {row.sales_count}
                     </TableCell>
-                    <TableCell className="text-center text-sm text-gray-500">
-                      {row.inquiries_count}
+                    <TableCell className="text-sm text-gray-500">
+                      {row.total_sales_amount > 0
+                        ? formatPrice(row.total_sales_amount, "PEN")
+                        : "—"}
                     </TableCell>
                     <TableCell className="text-sm font-medium text-gray-700">
-                      {row.score} pts
+                      {row.total_sales_amount > 0
+                        ? formatPrice(row.total_sales_amount, "PEN")
+                        : "0 pts"}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -18,6 +18,10 @@ export interface Property {
   lng: number | null;
   is_active: boolean;
   featured: boolean;
+  status: 'active' | 'sold' | 'inactive';
+  sale_price: number | null;
+  sale_date: string | null;
+  sale_approved: boolean;
   created_at: string;
   updated_at: string;
   property_images?: PropertyImage[];
