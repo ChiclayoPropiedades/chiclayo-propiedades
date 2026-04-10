@@ -29,9 +29,7 @@ export default async function HomePage() {
       <ScrollReveal>
         <NewsSection />
       </ScrollReveal>
-      <ScrollReveal>
-        <NewsletterSection />
-      </ScrollReveal>
+      <NewsletterSection />
     </>
   )
 }

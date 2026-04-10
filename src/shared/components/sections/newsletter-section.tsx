@@ -9,42 +9,42 @@ const benefits = [
 export function NewsletterSection() {
   return (
     <section
-      className="relative flex min-h-svh items-center overflow-hidden bg-[#1e3a5f] pb-0 pt-12 sm:pt-16"
+      className="relative min-h-svh overflow-hidden bg-[#0a1628] flex flex-col justify-center py-16 sm:py-20"
       aria-labelledby="newsletter-heading"
     >
       {/* Decorative background */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE0djRoLTJ2LTRoMnptMC0ySDM0VjhoMnY0em0wIDE0di00SDM0djRoMnpNMzQgMjZoMnY0aC0ydi00em0wIDZoMnY0aC0ydi00em0wIDZoMnY0aC0ydi00em0wLTMwaC0yVjhoMnY0eiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" aria-hidden="true" />
-      <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[#b8860b]/10 blur-3xl" aria-hidden="true" />
-      <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" aria-hidden="true" />
+      <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[#b8860b]/8 blur-3xl" aria-hidden="true" />
+      <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-400/8 blur-3xl" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: Text + Benefits */}
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-[#b8860b]/20 px-4 py-1.5 text-sm font-medium text-[#d4a017] ring-1 ring-[#b8860b]/30">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#b8860b]/20 px-5 py-2 text-sm font-medium text-[#d4a017] ring-1 ring-[#b8860b]/30">
               <Bell className="size-4" aria-hidden="true" />
               Mantente informado
             </div>
             <h2
               id="newsletter-heading"
-              className="text-3xl font-bold text-white sm:text-4xl"
+              className="text-4xl font-bold text-white sm:text-5xl"
             >
               No te pierdas ninguna{" "}
               <span className="text-[#d4a017]">oportunidad</span>
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-blue-100/80 sm:text-lg">
+            <p className="mt-5 text-lg leading-relaxed text-gray-300 sm:text-xl">
               Suscríbete y recibe las mejores propiedades, noticias y consejos
               inmobiliarios directamente en tu correo.
             </p>
 
             {/* Benefits list */}
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-8 flex flex-col gap-4">
               {benefits.map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-3">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#b8860b]/20">
-                    <Icon className="size-4 text-[#d4a017]" aria-hidden="true" />
+                <div key={text} className="flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#b8860b]/15 ring-1 ring-[#b8860b]/20">
+                    <Icon className="size-5 text-[#d4a017]" aria-hidden="true" />
                   </div>
-                  <span className="text-sm text-blue-100/90">{text}</span>
+                  <span className="text-base text-gray-200">{text}</span>
                 </div>
               ))}
             </div>
@@ -52,10 +52,10 @@ export function NewsletterSection() {
 
           {/* Right: Form card */}
           <div className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm sm:p-10">
-            <h3 className="mb-2 text-xl font-bold text-white">
+            <h3 className="mb-3 text-2xl font-bold text-white">
               Suscríbete gratis
             </h3>
-            <p className="mb-6 text-sm text-blue-200/70">
+            <p className="mb-8 text-base text-gray-300">
               Únete a cientos de inversionistas y compradores que ya reciben nuestro boletín semanal.
             </p>
 
@@ -68,7 +68,7 @@ export function NewsletterSection() {
                 type="text"
                 name="name"
                 placeholder="Tu nombre"
-                className="h-12 w-full rounded-xl border border-white/15 bg-white/10 px-4 text-sm text-white placeholder:text-blue-200/50 outline-none transition-colors focus:border-[#b8860b]/50 focus:bg-white/15 focus:ring-2 focus:ring-[#b8860b]/20"
+                className="h-13 w-full rounded-xl border border-white/15 bg-white/10 px-5 text-base text-white placeholder:text-gray-400 outline-none transition-colors focus:border-[#b8860b]/50 focus:bg-white/15 focus:ring-2 focus:ring-[#b8860b]/20"
                 aria-label="Nombre"
               />
               <input
@@ -76,19 +76,19 @@ export function NewsletterSection() {
                 name="email"
                 required
                 placeholder="Tu correo electrónico"
-                className="h-12 w-full rounded-xl border border-white/15 bg-white/10 px-4 text-sm text-white placeholder:text-blue-200/50 outline-none transition-colors focus:border-[#b8860b]/50 focus:bg-white/15 focus:ring-2 focus:ring-[#b8860b]/20"
+                className="h-13 w-full rounded-xl border border-white/15 bg-white/10 px-5 text-base text-white placeholder:text-gray-400 outline-none transition-colors focus:border-[#b8860b]/50 focus:bg-white/15 focus:ring-2 focus:ring-[#b8860b]/20"
                 aria-label="Correo electrónico"
               />
               <button
                 type="submit"
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#b8860b] to-[#d4a017] text-sm font-semibold text-white shadow-lg shadow-[#b8860b]/20 transition-all hover:shadow-xl hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b8860b]/50"
+                className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#b8860b] to-[#d4a017] text-base font-semibold text-white shadow-lg shadow-[#b8860b]/20 transition-all hover:shadow-xl hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b8860b]/50"
               >
                 Suscribirme
-                <ArrowRight className="size-4" aria-hidden="true" />
+                <ArrowRight className="size-5" aria-hidden="true" />
               </button>
             </form>
 
-            <p className="mt-4 text-center text-xs text-blue-200/50">
+            <p className="mt-5 text-center text-sm text-gray-400">
               Sin spam. Puedes cancelar en cualquier momento.
             </p>
           </div>
