@@ -32,7 +32,7 @@ interface DashboardProperty {
   bathrooms?: number | null;
   area_m2?: number | null;
   created_at: string;
-  agent?: { full_name: string; email: string; phone: string | null } | { full_name: string; email: string; phone: string | null }[];
+  agent?: { full_name: string; phone: string | null } | { full_name: string; phone: string | null }[];
   property_images?: { url: string; is_cover: boolean }[];
 }
 
@@ -42,8 +42,8 @@ interface Props {
 }
 
 function getAgent(agent: DashboardProperty["agent"]) {
-  if (!agent) return { full_name: "", email: "", phone: null };
-  if (Array.isArray(agent)) return agent[0] ?? { full_name: "", email: "", phone: null };
+  if (!agent) return { full_name: "", phone: null };
+  if (Array.isArray(agent)) return agent[0] ?? { full_name: "", phone: null };
   return agent;
 }
 
@@ -143,9 +143,11 @@ export function DashboardPropertiesView({ properties, isAdmin }: Props) {
                           <p className="truncate text-sm font-medium text-gray-700">
                             {agent.full_name}
                           </p>
-                          <p className="truncate text-xs text-gray-400">
-                            {agent.email}
-                          </p>
+                          {agent.phone && (
+                            <p className="truncate text-xs text-gray-400">
+                              {agent.phone}
+                            </p>
+                          )}
                         </div>
                       </td>
                     )}

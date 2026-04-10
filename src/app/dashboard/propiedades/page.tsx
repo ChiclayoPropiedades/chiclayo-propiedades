@@ -30,7 +30,7 @@ export default async function MisPropiedadesPage() {
   const query = supabase
     .from("properties")
     .select(
-      "id, title, slug, price, currency, operation, type, district, is_active, featured, status, sale_price, sale_approved, bedrooms, bathrooms, area_m2, created_at, agent:profiles!agent_id(full_name, email, phone), property_images(url, is_cover)"
+      "id, title, slug, price, currency, operation, type, district, is_active, featured, status, sale_price, sale_approved, bedrooms, bathrooms, area_m2, created_at, agent:profiles!agent_id(full_name, phone), property_images(url, is_cover)"
     )
     .order("created_at", { ascending: false });
 
