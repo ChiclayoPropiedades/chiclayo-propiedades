@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, BookOpen, Calendar, MapPin, User } from "lucide-react"
+import { ArrowRight, BookOpen, Calendar, MapPin, User, GraduationCap, Clock } from "lucide-react"
 import { createClient } from "@/shared/lib/supabase/server"
 
 interface Training {
@@ -54,18 +54,19 @@ export async function TrainingsSection() {
 
   return (
     <section
-      className="bg-[#eff6ff] py-16 sm:py-20"
+      className="bg-[#f8fafc] py-16 sm:py-20"
       aria-labelledby="trainings-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between">
+        {/* Header */}
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#2563eb]">
+            <p className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#b8860b]">
               Formación profesional
             </p>
             <h2
               id="trainings-heading"
-              className="text-3xl font-bold text-[#1f2937]"
+              className="text-3xl font-bold text-[#1e3a5f] sm:text-4xl"
             >
               Capacitaciones
             </h2>
@@ -76,7 +77,7 @@ export async function TrainingsSection() {
           </div>
           <Link
             href="/capacitaciones"
-            className="hidden items-center gap-1.5 text-sm font-semibold text-[#2563eb] hover:text-[#1e40af] transition-colors sm:flex"
+            className="hidden items-center gap-1.5 text-sm font-semibold text-[#1e3a5f] hover:text-[#b8860b] transition-colors sm:inline-flex"
           >
             Ver todas
             <ArrowRight className="size-4" aria-hidden="true" />
@@ -88,55 +89,68 @@ export async function TrainingsSection() {
             {trainings.map((training) => (
               <article
                 key={training.id}
-                className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
-                <div className="flex flex-1 flex-col gap-3 p-5">
-                  {training.modality && (
-                    <span className="inline-flex w-fit items-center rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#2563eb]">
-                      {training.modality}
-                    </span>
-                  )}
-                  <div>
-                    <p className="text-xl font-bold text-[#2563eb]">
+                {/* Top accent line */}
+                <div className="h-1 bg-gradient-to-r from-[#1e3a5f] via-[#b8860b] to-[#1e3a5f]" />
+
+                <div className="flex flex-1 flex-col gap-4 p-6">
+                  {/* Modality + Price row */}
+                  <div className="flex items-center justify-between">
+                    {training.modality && (
+                      <span className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold ${
+                        training.modality.toLowerCase() === "presencial"
+                          ? "bg-[#1e3a5f] text-white"
+                          : "bg-[#b8860b]/10 text-[#b8860b] ring-1 ring-[#b8860b]/20"
+                      }`}>
+                        {training.modality}
+                      </span>
+                    )}
+                    <p className="text-xl font-bold text-[#b8860b]">
                       {formatTrainingPrice(training.price, training.currency)}
                     </p>
-                    <h3 className="mt-1 text-base font-semibold leading-snug text-[#1f2937]">
-                      {training.title}
-                    </h3>
                   </div>
 
+                  {/* Title */}
+                  <h3 className="text-lg font-bold leading-snug text-[#1f2937] transition-colors group-hover:text-[#1e3a5f]">
+                    {training.title}
+                  </h3>
+
+                  {/* Description */}
                   {training.description && (
                     <p className="line-clamp-2 text-sm text-gray-500">
                       {training.description}
                     </p>
                   )}
 
-                  <div className="mt-auto flex flex-col gap-1.5 text-xs text-gray-500">
+                  {/* Details */}
+                  <div className="mt-auto flex flex-col gap-2 border-t border-gray-100 pt-4 text-sm text-gray-600">
                     {training.start_date && (
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="size-3.5 text-[#2563eb]" aria-hidden="true" />
+                      <span className="flex items-center gap-2">
+                        <Calendar className="size-4 text-[#1e3a5f]" aria-hidden="true" />
                         {formatTrainingDate(training.start_date)}
                       </span>
                     )}
                     {training.location && (
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="size-3.5 text-[#2563eb]" aria-hidden="true" />
+                      <span className="flex items-center gap-2">
+                        <MapPin className="size-4 text-[#1e3a5f]" aria-hidden="true" />
                         {training.location}
                       </span>
                     )}
                     {training.instructor && (
-                      <span className="flex items-center gap-1.5">
-                        <User className="size-3.5 text-[#2563eb]" aria-hidden="true" />
+                      <span className="flex items-center gap-2">
+                        <User className="size-4 text-[#1e3a5f]" aria-hidden="true" />
                         {training.instructor}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="border-t border-gray-100 px-5 py-3">
+                {/* CTA */}
+                <div className="px-6 pb-6">
                   <Link
                     href={`/capacitaciones/${training.slug}`}
-                    className="flex h-9 w-full items-center justify-center rounded-lg bg-[#2563eb] text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/50"
+                    className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e3a5f] text-sm font-semibold text-white transition-all hover:bg-[#0f1f33] hover:shadow-lg"
                   >
                     Más información
                   </Link>
@@ -145,24 +159,47 @@ export async function TrainingsSection() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-4 py-16 text-center">
-            <BookOpen className="size-12 text-gray-300" aria-hidden="true" />
-            <p className="text-gray-500">
-              No hay capacitaciones disponibles en este momento.
-            </p>
-            <Link
-              href="/capacitaciones"
-              className="text-sm font-semibold text-[#2563eb] hover:underline underline-offset-2"
-            >
-              Ver próximas capacitaciones
-            </Link>
+          /* Empty state profesional */
+          <div className="rounded-2xl border border-gray-100 bg-white p-8 sm:p-12">
+            <div className="mx-auto max-w-lg text-center">
+              <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-[#1e3a5f]/5">
+                <GraduationCap className="size-8 text-[#1e3a5f]" aria-hidden="true" />
+              </div>
+              <h3 className="text-xl font-bold text-[#1f2937]">
+                Nuevas capacitaciones próximamente
+              </h3>
+              <p className="mt-3 text-base text-gray-500">
+                Estamos preparando cursos y talleres especializados para impulsar tu carrera en el sector inmobiliario.
+              </p>
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {[
+                  { icon: GraduationCap, text: "Cursos certificados" },
+                  { icon: Clock, text: "Modalidad flexible" },
+                  { icon: User, text: "Instructores expertos" },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex flex-col items-center gap-2 rounded-xl bg-[#f8fafc] p-4">
+                    <Icon className="size-5 text-[#b8860b]" aria-hidden="true" />
+                    <span className="text-xs font-medium text-gray-600">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8">
+                <Link
+                  href="/capacitaciones"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-6 text-sm font-semibold text-white transition-all hover:bg-[#0f1f33]"
+                >
+                  <BookOpen className="size-4" aria-hidden="true" />
+                  Ver capacitaciones
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
         <div className="mt-6 sm:hidden">
           <Link
             href="/capacitaciones"
-            className="flex items-center justify-center gap-1.5 text-sm font-semibold text-[#2563eb] hover:text-[#1e40af] transition-colors"
+            className="flex items-center justify-center gap-1.5 text-sm font-semibold text-[#1e3a5f] hover:text-[#b8860b] transition-colors"
           >
             Ver todas las capacitaciones
             <ArrowRight className="size-4" aria-hidden="true" />
