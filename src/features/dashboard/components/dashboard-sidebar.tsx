@@ -13,6 +13,11 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Home,
+  Users,
+  FileText,
+  Briefcase,
+  Trophy,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -26,6 +31,18 @@ const sidebarLinks = [
     label: "Mis Capacitaciones",
     icon: GraduationCap,
   },
+];
+
+const adminLinks = [
+  { href: "/admin", label: "Dashboard Admin", icon: LayoutDashboard },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/admin/propiedades", label: "Propiedades", icon: Home },
+  { href: "/admin/leads", label: "Leads", icon: MessageSquare },
+  { href: "/admin/blog", label: "Blog", icon: FileText },
+  { href: "/admin/capacitaciones", label: "Capacitaciones", icon: GraduationCap },
+  { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
+  { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
 
 interface DashboardSidebarProps {
@@ -156,25 +173,46 @@ export function DashboardSidebar({
             )}
           </Link>
         ))}
+
+        {/* Admin section */}
+        {isAdmin && (
+          <>
+            <div className="my-2 border-t border-gray-200" />
+            {!isCollapsed && (
+              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                Administración
+              </p>
+            )}
+            {adminLinks.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                title={isCollapsed ? label : undefined}
+                className={cn(
+                  "group flex items-center rounded-lg text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600",
+                  isCollapsed
+                    ? "justify-center px-2 py-2.5"
+                    : "justify-between px-3 py-2.5"
+                )}
+              >
+                <span className="flex items-center gap-2.5">
+                  <Icon className="size-4 shrink-0" aria-hidden="true" />
+                  {!isCollapsed && label}
+                </span>
+                {!isCollapsed && (
+                  <ChevronRight
+                    className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100"
+                    aria-hidden="true"
+                  />
+                )}
+              </Link>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* Bottom actions */}
       <div className="border-t border-gray-100 p-3">
-        {isAdmin && (
-          <Link
-            href="/admin"
-            title={isCollapsed ? "Panel Admin" : undefined}
-            className={cn(
-              "mb-1 flex items-center rounded-lg text-sm font-medium text-red-600 transition-colors hover:bg-red-50",
-              isCollapsed
-                ? "justify-center px-2 py-2.5"
-                : "gap-2.5 px-3 py-2.5"
-            )}
-          >
-            <LayoutDashboard className="size-4" aria-hidden="true" />
-            {!isCollapsed && "Panel Admin"}
-          </Link>
-        )}
         <Link
           href="/"
           title={isCollapsed ? "Ir al sitio" : undefined}
