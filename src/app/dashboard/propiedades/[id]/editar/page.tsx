@@ -3,7 +3,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/shared/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { PropertyForm } from "@/features/properties/components/property-form";
 import { updateProperty } from "@/features/properties/services/property-actions";
 
@@ -15,7 +20,9 @@ interface EditarPropiedadPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditarPropiedadPage({ params }: EditarPropiedadPageProps) {
+export default async function EditarPropiedadPage({
+  params,
+}: EditarPropiedadPageProps) {
   const { id } = await params;
 
   const supabase = await createClient();
@@ -35,7 +42,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
 
   const { data: property } = await supabase
     .from("properties")
-    .select("*")
+    .select("*, property_images(*)")
     .eq("id", id)
     .eq("agent_id", profile.id)
     .single();
@@ -43,6 +50,15 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
   if (!property) notFound();
 
   const boundUpdateProperty = updateProperty.bind(null, id);
+
+  const images = (property.property_images ?? []).map(
+    (img: { id: string; url: string; display_order: number; is_cover: boolean }) => ({
+      id: img.id,
+      url: img.url,
+      display_order: img.display_order,
+      is_cover: img.is_cover,
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -56,7 +72,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
         </Link>
         <h1 className="text-2xl font-bold text-[#1f2937]">Editar Propiedad</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Modifica los datos de tu propiedad publicada
+          Modifica los datos y fotos de tu propiedad
         </p>
       </div>
 
@@ -69,6 +85,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
         <CardContent>
           <PropertyForm
             initialData={{
+              id: property.id,
               title: property.title,
               description: property.description,
               price: property.price,
@@ -82,6 +99,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
               district: property.district,
               city: property.city,
             }}
+            initialImages={images}
             action={boundUpdateProperty}
           />
         </CardContent>
