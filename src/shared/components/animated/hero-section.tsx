@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, useInView } from "motion/react"
-import { ArrowRight, Building2, Users, TrendingUp, ChevronDown } from "lucide-react"
+import { ArrowRight, Building2, Users, TrendingUp } from "lucide-react"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -12,6 +13,15 @@ const fadeInUp = {
     y: 0,
     transition: { duration: 0.7, delay, ease: "easeOut" as const },
   }),
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.85 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 80, damping: 20, delay: 0.1 },
+  },
 }
 
 const stats = [
@@ -58,28 +68,68 @@ export function HeroSection() {
     >
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-[url('https://horizons-cdn.hostinger.com/170c28dc-2f08-41f8-b898-3a166aeca6d3/recurso-1-ifv8K.png')] bg-cover bg-center"
+        className="absolute inset-0 bg-[url('https://horizons-cdn.hostinger.com/170c28dc-2f08-41f8-b898-3a166aeca6d3/recurso-1-ifv8K.png')] bg-cover bg-center scale-105"
         aria-hidden="true"
       />
 
-      {/* Overlay elegante */}
-      <div className="absolute inset-0 bg-black/65" aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" aria-hidden="true" />
+      {/* Multi-layer overlay */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/65 to-slate-950/85"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-transparent to-blue-950/40"
+        aria-hidden="true"
+      />
+
+      {/* Decorative orbs - hidden on mobile for performance */}
+      <div
+        className="absolute -top-40 -left-40 hidden h-80 w-80 rounded-full bg-blue-500/10 blur-3xl animate-float-slow sm:block"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute -bottom-40 -right-40 hidden h-96 w-96 rounded-full bg-amber-500/10 blur-3xl animate-float-slow-reverse sm:block"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-600/5 blur-3xl"
+        aria-hidden="true"
+      />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-5 py-20 text-center sm:px-6 sm:py-16 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-20 text-center sm:px-6 sm:py-16 lg:px-8 lg:py-12">
+        {/* Logo */}
+        <motion.div
+          variants={scaleIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-6 inline-block sm:mb-8"
+        >
+          <div className="relative mx-auto inline-flex items-center justify-center rounded-2xl bg-white/95 px-5 py-3 shadow-2xl shadow-black/20 backdrop-blur-sm ring-1 ring-white/20 sm:px-8 sm:py-5">
+            <Image
+              src="/images/logo-color.png"
+              alt="Chiclayo Propiedades"
+              width={280}
+              height={100}
+              className="h-14 w-auto sm:h-20 lg:h-24"
+              priority
+            />
+            <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+          </div>
+        </motion.div>
+
         {/* Badge */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          custom={0.1}
-          className="mb-8 flex justify-center"
+          custom={0.3}
+          className="mb-5 flex justify-center sm:mb-6"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-medium text-white/90 backdrop-blur-md">
+          <span className="inline-flex items-center gap-2 rounded-full bg-blue-500/15 px-4 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-md ring-1 ring-blue-400/20 sm:px-5 sm:py-2 sm:text-sm">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#b8860b] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#d4a017]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-300" />
             </span>
             Líderes en el mercado inmobiliario de Chiclayo
           </span>
@@ -91,14 +141,18 @@ export function HeroSection() {
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          custom={0.3}
-          className="mx-auto max-w-4xl text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          custom={0.5}
+          className="mx-auto max-w-5xl text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem]"
         >
           Encuentra el lugar perfecto
-          <span className="hidden sm:inline"><br /></span>
+          <span className="hidden sm:inline">
+            <br />
+          </span>
           <span className="sm:hidden"> </span>
           para tu{" "}
-          <span className="text-[#d4a017]">próxima historia</span>
+          <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+            próxima historia
+          </span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -106,45 +160,40 @@ export function HeroSection() {
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          custom={0.5}
-          className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg"
+          custom={0.7}
+          className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-blue-100/90 sm:mt-6 sm:max-w-2xl sm:text-lg lg:text-xl"
         >
           Conectamos tus sueños con la realidad. Descubre propiedades exclusivas
           y recibe asesoría de los mejores expertos de la región.
         </motion.p>
 
-        {/* CTA principal */}
+        {/* CTA Buttons */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          custom={0.7}
-          className="mt-10 flex flex-col items-center gap-6"
+          custom={0.9}
+          className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
         >
           <Link
             href="/propiedades"
-            className="group inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#b8860b] px-10 text-base font-semibold text-white shadow-lg shadow-[#b8860b]/25 transition-all duration-300 hover:bg-[#d4a017] hover:shadow-xl hover:shadow-[#b8860b]/30 hover:scale-[1.03]"
+            className="group inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 sm:h-13 sm:w-auto sm:px-8"
           >
             Explorar Propiedades
-            <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </Link>
-
-          {/* Links secundarios */}
-          <div className="flex items-center gap-8">
-            <Link
-              href="/contacto"
-              className="text-sm font-medium text-white/60 underline underline-offset-4 decoration-white/20 transition-colors hover:text-white hover:decoration-white/50"
-            >
-              Vender un Inmueble
-            </Link>
-            <span className="text-white/20">|</span>
-            <Link
-              href="/signup"
-              className="text-sm font-medium text-white/60 underline underline-offset-4 decoration-white/20 transition-colors hover:text-white hover:decoration-white/50"
-            >
-              Registro de Agente
-            </Link>
-          </div>
+          <Link
+            href="/contacto"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
+          >
+            Vender un Inmueble
+          </Link>
+          <Link
+            href="/signup"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:h-13 sm:w-auto sm:px-8"
+          >
+            Registro de Agente Inmobiliario
+          </Link>
         </motion.div>
 
         {/* Stats */}
@@ -152,33 +201,23 @@ export function HeroSection() {
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          custom={0.9}
-          className="mx-auto mt-16 flex max-w-md items-center justify-center gap-0 divide-x divide-white/15 sm:max-w-xl"
+          custom={1.1}
+          className="mx-auto mt-8 grid max-w-xs grid-cols-3 gap-3 sm:mt-10 sm:max-w-2xl sm:gap-6"
         >
           {stats.map(({ icon: Icon, target, suffix, label }) => (
             <div
               key={label}
-              className="flex flex-1 flex-col items-center gap-1 px-4 py-2 sm:px-8"
+              className="flex flex-col items-center gap-1 rounded-xl bg-white/5 py-3 px-2 backdrop-blur-sm ring-1 ring-white/10 transition-colors hover:bg-white/10 sm:gap-2 sm:py-4 sm:px-3"
             >
-              <Icon className="size-4 text-[#d4a017] sm:size-5" aria-hidden="true" />
-              <span className="text-2xl font-bold text-white sm:text-3xl">
+              <Icon className="size-4 text-blue-300 sm:size-5" aria-hidden="true" />
+              <span className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">
                 <CountUp target={target} suffix={suffix} />
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-white/50 sm:text-xs">{label}</span>
+              <span className="text-[10px] font-medium text-blue-200/80 sm:text-xs">{label}</span>
             </div>
           ))}
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <ChevronDown className="size-6 animate-bounce text-white/30" aria-hidden="true" />
-      </motion.div>
     </section>
   )
 }
