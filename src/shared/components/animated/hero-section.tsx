@@ -111,9 +111,11 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={0.5}
-          className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          className="mx-auto max-w-5xl text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]"
         >
-          Encuentra el lugar perfecto para tu{" "}
+          Encuentra el lugar perfecto
+          <br />
+          para tu{" "}
           <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
             próxima historia
           </span>
