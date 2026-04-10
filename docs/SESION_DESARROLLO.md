@@ -187,6 +187,18 @@ Lee todos los .md y dime qué sigue según el plan.
 | 6.5.9 | Fix 404 al editar | ✅ | Admin puede editar propiedad de cualquier agente sin 404 |
 | 6.5.10 | Título dinámico | ✅ | Admin ve "Todas las Propiedades", agente ve "Mis Propiedades" |
 
+### ETAPA 6.6: Mejoras Superadmin ❌ PENDIENTE (Próxima sesión)
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 6.6.1 | Logo centrado en sidebar | ❌ | Centrar logo en sidebar del dashboard |
+| 6.6.2 | Sidebar colapsable | ❌ | Botón con flechas para colapsar/expandir sidebar (solo íconos cuando colapsado) |
+| 6.6.3 | CRUD usuarios completo | ❌ | Crear usuarios desde admin (email, nombre, rol, teléfono). Actualmente solo edit/delete/toggle |
+| 6.6.4 | Ver publicaciones de cualquier usuario | ❌ | Desde admin, click en usuario → ver sus propiedades, leads, ventas |
+| 6.6.5 | Métricas del dueño | ❌ | Cards: total vendedores, asesores, compradores, propiedades activas/vendidas, leads nuevos/cerrados, ventas aprobadas, comisiones totales, ingresos por capacitaciones |
+| 6.6.6 | Dashboard admin con gráficas | ❌ | Gráficas de leads por mes, propiedades por tipo, ventas por período |
+| 6.6.7 | Fix: bug 0 propiedades en dashboard | ✅ | Campo email no existe en profiles, removido del select join |
+
 ### ETAPA 7: Resend (Emails Transaccionales) ❌ PENDIENTE
 
 | # | Tarea | Estado |
