@@ -4,27 +4,43 @@
 
 ---
 
-## ADMIN (Administrador)
+## SUPERADMIN (Administrador)
 
-**Acceso:** `/admin`
+**Acceso:** `/admin` y `/dashboard` (tiene acceso total a ambos paneles)
 **Credenciales de prueba:** test@chiclayopropiedades.com / Test1234!
 
+### Panel Admin (`/admin`)
 | Página | Ruta | Qué puede hacer |
 |--------|------|-----------------|
 | Dashboard Admin | `/admin` | Vista general con estadísticas |
 | Usuarios | `/admin/usuarios` | Ver, editar roles, activar/desactivar usuarios |
-| Propiedades | `/admin/propiedades` | Ver todas las propiedades de todos los agentes, editar, eliminar |
-| Leads/Consultas | `/admin/leads` | Ver todas las consultas recibidas, cambiar estado (nueva/contactada/cerrada) |
+| Propiedades | `/admin/propiedades` | Ver todas, editar, eliminar, activar/desactivar, destacar |
+| Leads/Consultas | `/admin/leads` | Ver todas las consultas, cambiar estado (nueva/contactada/cerrada) |
 | Blog | `/admin/blog` | Crear, editar, eliminar artículos del blog |
 | Capacitaciones | `/admin/capacitaciones` | Crear, editar, eliminar cursos/capacitaciones |
 | Servicios | `/admin/servicios` | Editar servicios que se muestran en la web |
 | **Ranking** | `/admin/ranking` | **Aprobar/rechazar ventas**, recalcular ranking, ver historial |
+| **Configuración** | `/admin/configuracion` | Comisión (%), moneda, tasa USD/PEN, estado Stripe |
 
-### Flujo de aprobación de ventas (NUEVO):
+### Dashboard como Superadmin (`/dashboard`)
+| Página | Ruta | Qué puede hacer |
+|--------|------|-----------------|
+| Todas las Propiedades | `/dashboard/propiedades` | Ve TODAS las propiedades de toda la plataforma (no solo las suyas) |
+| Toggle Cards/Tabla | `/dashboard/propiedades` | Alternar entre vista cards (grid visual) y tabla compacta |
+| Datos del agente | `/dashboard/propiedades` | Ve nombre + email del agente que publicó cada propiedad |
+| Editar cualquier propiedad | `/dashboard/propiedades/[id]/editar` | Puede editar propiedades de cualquier agente (sin restricción) |
+| Crear propiedad | `/dashboard/propiedades/nueva` | Publicar propiedades como admin |
+
+### Flujo de aprobación de ventas:
 1. El asesor marca una propiedad como "vendida" con el precio de venta
 2. La venta aparece en **Admin > Ranking > "Ventas pendientes de aprobación"**
 3. El admin verifica y hace click en **Aprobar** o **Rechazar**
-4. Al aprobar, el ranking se recalcula automáticamente
+4. Al aprobar: comisión se calcula automáticamente + ranking se recalcula
+
+### Flujo de comisiones:
+1. Admin configura el % de comisión en **Admin > Configuración**
+2. Al aprobar una venta, la comisión se calcula: `precio_venta × porcentaje`
+3. Si la venta es en USD y la comisión en PEN, se convierte con la tasa configurada
 
 ---
 

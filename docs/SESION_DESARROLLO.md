@@ -178,10 +178,14 @@ Lee todos los .md y dime qué sigue según el plan.
 |---|-------|--------|---------|
 | 6.5.1 | Dashboard layout independiente | ✅ | Sin header/footer público, sidebar propio con logo |
 | 6.5.2 | Admin ve TODAS las propiedades | ✅ | Dashboard muestra propiedades de toda la plataforma si es admin |
-| 6.5.3 | Admin edita cualquier propiedad | ✅ | Sin restricción de owner, con gestión de imágenes |
-| 6.5.4 | Nombre del agente visible | ✅ | Admin ve qué agente publicó cada propiedad |
+| 6.5.3 | Admin edita cualquier propiedad | ✅ | Sin restricción de owner (eliminado filtro agent_id condicional) |
+| 6.5.4 | Datos del agente visibles | ✅ | Nombre + email del agente en cards y tabla |
 | 6.5.5 | Link Panel Admin en sidebar | ✅ | Solo visible para usuarios con rol admin |
 | 6.5.6 | Datos reales poblados | ✅ | 5 propiedades realistas de Chiclayo con imágenes |
+| 6.5.7 | Toggle vista Cards/Tabla | ✅ | Botones para alternar entre vista cards (grid) y tabla compacta |
+| 6.5.8 | PropertyCardDashboard | ✅ | Card con imagen, badges, acciones hover (ver/editar), agente, mark sold |
+| 6.5.9 | Fix 404 al editar | ✅ | Admin puede editar propiedad de cualquier agente sin 404 |
+| 6.5.10 | Título dinámico | ✅ | Admin ve "Todas las Propiedades", agente ve "Mis Propiedades" |
 
 ### ETAPA 7: Resend (Emails Transaccionales) ❌ PENDIENTE
 
