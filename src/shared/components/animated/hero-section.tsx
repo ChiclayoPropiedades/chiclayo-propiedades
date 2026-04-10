@@ -43,11 +43,11 @@ export function HeroSection() {
 
       {/* Multi-layer overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-900/50 to-slate-950/80"
+        className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/65 to-slate-950/85"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-blue-950/30 via-transparent to-blue-950/30"
+        className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-transparent to-blue-950/40"
         aria-hidden="true"
       />
 
