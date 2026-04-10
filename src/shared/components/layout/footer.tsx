@@ -62,13 +62,15 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Col 1: Logo + descripción + redes */}
           <div className="flex flex-col gap-5">
-            <Image
-              src="/images/logo-premium.jpg"
-              alt="Chiclayo Propiedades"
-              width={180}
-              height={180}
-              className="h-20 w-auto rounded-xl"
-            />
+            <div className="inline-flex rounded-xl bg-white px-5 py-3">
+              <Image
+                src="/images/logo-color.png"
+                alt="Chiclayo Propiedades"
+                width={130}
+                height={48}
+                className="h-9 w-auto"
+              />
+            </div>
             <p className="text-sm leading-relaxed text-gray-400">
               Tu socio inmobiliario de confianza en Chiclayo y Lambayeque.
               Conectamos personas con sus hogares ideales.
