@@ -66,7 +66,7 @@ export function DashboardSidebar({
       {/* Toggle button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3 top-20 z-10 flex size-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-600"
+        className="absolute -right-3 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-600"
         title={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
       >
         {isCollapsed ? (
