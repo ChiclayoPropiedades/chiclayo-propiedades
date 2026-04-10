@@ -62,8 +62,8 @@ export function Footer() {
             <Image
               src="/images/logo-black.png"
               alt="Chiclayo Propiedades"
-              width={145}
-              height={59}
+              width={240}
+              height={98}
               className="invert"
             />
             <p className="text-sm leading-relaxed text-gray-400">
