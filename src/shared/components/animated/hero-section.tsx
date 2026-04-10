@@ -168,7 +168,7 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
           custom={1.1}
-          className="mx-auto mt-16 grid max-w-lg grid-cols-3 gap-4 sm:max-w-2xl sm:gap-6"
+          className="mx-auto mt-10 grid max-w-lg grid-cols-3 gap-4 sm:max-w-2xl sm:gap-6"
         >
           {stats.map(({ icon: Icon, value, label }) => (
             <div
