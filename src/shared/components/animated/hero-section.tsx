@@ -1,8 +1,9 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "motion/react"
+import { motion, useInView } from "motion/react"
 import { ArrowRight, Building2, Users, TrendingUp } from "lucide-react"
 
 const fadeInUp = {
@@ -24,10 +25,40 @@ const scaleIn = {
 }
 
 const stats = [
-  { icon: Building2, value: "500+", label: "Propiedades" },
-  { icon: Users, value: "200+", label: "Agentes" },
-  { icon: TrendingUp, value: "1,200+", label: "Clientes felices" },
+  { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
+  { icon: Users, target: 200, suffix: "+", label: "Agentes" },
+  { icon: TrendingUp, target: 1200, suffix: "+", label: "Clientes felices" },
 ]
+
+function CountUp({ target, suffix }: { target: number; suffix: string }) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLSpanElement>(null)
+  const isInView = useInView(ref, { once: true })
+
+  useEffect(() => {
+    if (!isInView) return
+    const duration = 2000
+    const steps = 60
+    const increment = target / steps
+    let current = 0
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= target) {
+        setCount(target)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(current))
+      }
+    }, duration / steps)
+    return () => clearInterval(timer)
+  }, [isInView, target])
+
+  return (
+    <span ref={ref}>
+      {count.toLocaleString("es-PE")}{suffix}
+    </span>
+  )
+}
 
 export function HeroSection() {
   return (
@@ -173,13 +204,15 @@ export function HeroSection() {
           custom={1.1}
           className="mx-auto mt-8 grid max-w-xs grid-cols-3 gap-3 sm:mt-10 sm:max-w-2xl sm:gap-6"
         >
-          {stats.map(({ icon: Icon, value, label }) => (
+          {stats.map(({ icon: Icon, target, suffix, label }) => (
             <div
               key={label}
               className="flex flex-col items-center gap-1 rounded-xl bg-white/5 py-3 px-2 backdrop-blur-sm ring-1 ring-white/10 transition-colors hover:bg-white/10 sm:gap-2 sm:py-4 sm:px-3"
             >
               <Icon className="size-4 text-blue-300 sm:size-5" aria-hidden="true" />
-              <span className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">{value}</span>
+              <span className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">
+                <CountUp target={target} suffix={suffix} />
+              </span>
               <span className="text-[10px] font-medium text-blue-200/80 sm:text-xs">{label}</span>
             </div>
           ))}
