@@ -21,19 +21,27 @@ export default async function MisPropiedadesPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id")
+    .select("id, role")
     .eq("user_id", user.id)
     .single();
 
   if (!profile) redirect("/login");
 
-  const { data: properties } = await supabase
+  const isAdmin = profile.role === "admin";
+
+  // Admin ve TODAS las propiedades, agente solo las suyas
+  const query = supabase
     .from("properties")
     .select(
-      "id, title, slug, price, currency, operation, type, district, is_active, featured, status, sale_price, sale_approved, created_at"
+      "id, title, slug, price, currency, operation, type, district, is_active, featured, status, sale_price, sale_approved, created_at, agent:profiles!agent_id(full_name)"
     )
-    .eq("agent_id", profile.id)
     .order("created_at", { ascending: false });
+
+  if (!isAdmin) {
+    query.eq("agent_id", profile.id);
+  }
+
+  const { data: properties } = await query;
 
   const myProperties = properties ?? [];
 
@@ -107,6 +115,15 @@ export default async function MisPropiedadesPage() {
                       </p>
                       <p className="text-xs capitalize text-gray-400">
                         {property.type} en {property.operation}
+                        {isAdmin && (property as Record<string, unknown>).agent && (
+                          <span className="ml-1 text-blue-500">
+                            · {(() => {
+                              const agent = (property as Record<string, unknown>).agent;
+                              if (Array.isArray(agent)) return (agent[0] as Record<string, string>)?.full_name ?? "";
+                              return (agent as Record<string, string>)?.full_name ?? "";
+                            })()}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </td>

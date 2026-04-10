@@ -144,32 +144,44 @@ Lee todos los .md y dime qué sigue según el plan.
 | 4.13 | Ranking público actualizado | ✅ | Columnas: ventas cerradas, monto vendido, propiedades |
 | 4.14 | Homepage ranking con datos reales | ✅ | Podio conectado a DB, muestra agentes reales con ventas |
 
-### ETAPA 5: Migración de Imágenes ❌ PENDIENTE
+### ETAPA 5: Upload de Imágenes ✅ COMPLETADA (10 Abril 2026)
 
-| # | Tarea | Estado |
-|---|-------|--------|
-| 5.1 | Descargar 11 imágenes de Hostinger | ❌ |
-| 5.2 | Subir a Supabase Storage (property-images) | ❌ |
-| 5.3 | Actualizar URLs en tabla property_images | ❌ |
-| 5.4 | Verificar/crear bucket property-images | ❌ |
-| 5.5 | Configurar RLS del bucket | ❌ |
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 5.1 | Componente PropertyImageUpload | ✅ | 3 métodos: file picker, drag & drop, URL externa |
+| 5.2 | Server actions de imágenes | ✅ | uploadPropertyImage, addPropertyImageUrl, removePropertyImage, setPropertyCoverImage |
+| 5.3 | Integración en PropertyForm | ✅ | Crear: guarda propiedad primero → muestra uploader. Editar: todo junto |
+| 5.4 | Admin editar con imágenes | ✅ | Admin puede editar cualquier propiedad con gestión de imágenes |
+| 5.5 | Validación | ✅ | JPG/PNG/WebP, máx 5MB, máx 10 imágenes, portada configurable |
 
-### ETAPA 6: Stripe (Pasarela de Pago) ❌ PENDIENTE
+### ETAPA 6: Stripe + Comisiones ✅ COMPLETADA (10 Abril 2026)
 
-| # | Tarea | Estado | Dependencia |
-|---|-------|--------|-------------|
-| 6.1 | npm install stripe @stripe/stripe-js | ❌ | Cliente debe crear cuenta Stripe |
-| 6.2 | Crear src/shared/lib/stripe.ts | ❌ | |
-| 6.3 | Server Action: createCheckoutSession() | ❌ | |
-| 6.4 | Implementar webhook stripe/route.ts | ❌ | Actualmente vacío (retorna 200) |
-| 6.5 | Botón "Inscribirse" funcional | ❌ | |
-| 6.6 | Mejorar página stripe-success | ❌ | |
-| 6.7 | Mejorar página stripe-cancel | ❌ | |
-| 6.8 | Variables de entorno en Vercel | ❌ | |
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 6.1 | Instalar Stripe SDK | ✅ | npm install stripe |
+| 6.2 | Cliente Stripe | ✅ | src/shared/lib/stripe.ts con detección automática de credenciales |
+| 6.3 | Server Action: createCheckoutSession() | ✅ | Precio dinámico o stripe_price_id, metadata con user_id y training_id |
+| 6.4 | Webhook completo | ✅ | Verificación de firma, idempotencia, crea enrollment automáticamente |
+| 6.5 | Botón EnrollButton | ✅ | Muestra "Pagos no disponibles" sin credenciales, funcional con credenciales |
+| 6.6 | Tabla platform_settings | ✅ | Configuración de comisión %, moneda, tasa USD/PEN |
+| 6.7 | Página /admin/configuracion | ✅ | Formulario para editar comisión, moneda, tasa, estado de Stripe |
+| 6.8 | Comisión automática en approveSale | ✅ | Se calcula al aprobar venta, con conversión USD↔PEN |
+| 6.9 | Para activar Stripe | ⏳ | Solo agregar en Vercel: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET |
 | **Info del cliente para Stripe:** | | | |
 | RUC | 20615657540 | | |
 | DNI | 47913462 | | |
 | Banco | Interbank (soles y dólares) | | |
+
+### ETAPA 6.5: Admin Superadmin ✅ COMPLETADA (10 Abril 2026)
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 6.5.1 | Dashboard layout independiente | ✅ | Sin header/footer público, sidebar propio con logo |
+| 6.5.2 | Admin ve TODAS las propiedades | ✅ | Dashboard muestra propiedades de toda la plataforma si es admin |
+| 6.5.3 | Admin edita cualquier propiedad | ✅ | Sin restricción de owner, con gestión de imágenes |
+| 6.5.4 | Nombre del agente visible | ✅ | Admin ve qué agente publicó cada propiedad |
+| 6.5.5 | Link Panel Admin en sidebar | ✅ | Solo visible para usuarios con rol admin |
+| 6.5.6 | Datos reales poblados | ✅ | 5 propiedades realistas de Chiclayo con imágenes |
 
 ### ETAPA 7: Resend (Emails Transaccionales) ❌ PENDIENTE
 
