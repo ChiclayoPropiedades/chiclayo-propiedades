@@ -32,7 +32,7 @@ const stats = [
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-[100vh] overflow-hidden flex items-center justify-center"
+      className="relative min-h-[90vh] overflow-hidden flex items-center justify-center"
       aria-labelledby="hero-heading"
     >
       {/* Background image */}
@@ -66,7 +66,7 @@ export function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-16 text-center sm:px-6 sm:pt-20 lg:px-8 lg:pt-24">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 text-center sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
         {/* Logo */}
         <motion.div
           variants={scaleIn}
@@ -183,11 +183,6 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Bottom gradient fade */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent"
-        aria-hidden="true"
-      />
     </section>
   )
 }
