@@ -145,13 +145,9 @@ export function Header() {
                 </Link>
               )}
               <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2563eb] hover:text-[#1e40af] transition-colors"
+                href={isAdmin ? "/admin" : "/dashboard"}
+                className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 transition-colors hover:border-[#2563eb] hover:bg-[#eff6ff]"
               >
-                <LayoutDashboard className="size-4" />
-                Panel
-              </Link>
-              <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5">
                 {profile.avatar_url ? (
                   <Image
                     src={profile.avatar_url}
@@ -168,7 +164,7 @@ export function Header() {
                 <span className="text-sm font-medium text-[#1f2937] max-w-[120px] truncate">
                   {profile.full_name}
                 </span>
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-red-600"
