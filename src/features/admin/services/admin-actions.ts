@@ -800,23 +800,51 @@ export async function deleteUser(profileId: string) {
   await verifyAdmin();
   const adminSupabase = createAdminClient();
 
-  // Obtener user_id para eliminar de auth también
+  // Obtener user_id
   const { data: profile } = await adminSupabase
     .from("profiles")
     .select("user_id")
     .eq("id", profileId)
     .single();
 
-  // Eliminar profile
+  if (!profile) return { error: "Usuario no encontrado" };
+
+  // 1. Eliminar imágenes de propiedades del usuario
+  const { data: properties } = await adminSupabase
+    .from("properties")
+    .select("id")
+    .eq("agent_id", profileId);
+
+  for (const prop of properties ?? []) {
+    await adminSupabase.from("property_images").delete().eq("property_id", prop.id);
+  }
+
+  // 2. Eliminar propiedades
+  await adminSupabase.from("properties").delete().eq("agent_id", profileId);
+
+  // 3. Eliminar blog posts
+  await adminSupabase.from("blog_posts").delete().eq("author_id", profileId);
+
+  // 4. Eliminar rankings
+  await adminSupabase.from("agent_rankings").delete().eq("agent_id", profileId);
+
+  // 5. Eliminar suscripciones
+  await adminSupabase.from("agent_subscriptions").delete().eq("profile_id", profileId);
+
+  // 6. Eliminar enrollments
+  await adminSupabase.from("training_enrollments").delete().eq("user_id", profile.user_id);
+
+  // 7. Eliminar profile
   const { error } = await adminSupabase.from("profiles").delete().eq("id", profileId);
   if (error) return { error: error.message };
 
-  // Eliminar de auth.users
-  if (profile?.user_id) {
-    await adminSupabase.auth.admin.deleteUser(profile.user_id);
-  }
+  // 8. Eliminar de auth.users
+  await adminSupabase.auth.admin.deleteUser(profile.user_id);
 
   revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/propiedades");
+  revalidatePath("/admin/blog");
+  revalidatePath("/admin/ranking");
   return { success: true };
 }
 
