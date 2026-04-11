@@ -31,6 +31,8 @@ interface PublicationRequest {
   used?: boolean;
   expires_at?: string | null;
   is_expired?: boolean;
+  property_id?: string | null;
+  property_title?: string | null;
   created_at: string;
   user_name: string;
   user_phone: string | null;
@@ -98,6 +100,7 @@ export function PublicationRequestsTable({ requests }: Props) {
         <TableRow className="border-gray-200 bg-gray-50">
           <TableHead className="text-xs font-medium text-gray-500">Usuario</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Plan</TableHead>
+          <TableHead className="text-xs font-medium text-gray-500">Propiedad</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Monto</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Estado</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Expira</TableHead>
@@ -125,6 +128,13 @@ export function PublicationRequestsTable({ requests }: Props) {
               >
                 {req.plan_name}
               </Badge>
+            </TableCell>
+            <TableCell className="text-sm text-gray-700">
+              {req.property_title ? (
+                <span className="font-medium">{req.property_title}</span>
+              ) : (
+                <span className="text-gray-300">Sin publicar</span>
+              )}
             </TableCell>
             <TableCell className="font-semibold text-[#1f2937]">
               {formatPrice(req.plan_price, req.currency)}

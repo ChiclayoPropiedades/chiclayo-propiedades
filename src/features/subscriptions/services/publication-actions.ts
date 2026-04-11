@@ -82,6 +82,22 @@ export async function getAllPublicationRequests() {
     )
     .order("created_at", { ascending: false });
 
+  // Obtener títulos de propiedades vinculadas
+  const propertyIds = (data ?? [])
+    .map((r) => r.property_id)
+    .filter(Boolean) as string[];
+
+  let propertyMap = new Map<string, string>();
+  if (propertyIds.length > 0) {
+    const { data: properties } = await adminSupabase
+      .from("properties")
+      .select("id, title")
+      .in("id", propertyIds);
+    for (const p of properties ?? []) {
+      propertyMap.set(p.id, p.title);
+    }
+  }
+
   return (data ?? []).map((r) => {
     const user = Array.isArray(r.user) ? r.user[0] : r.user;
     const isExpired = r.expires_at ? new Date(r.expires_at) < new Date() : false;
@@ -90,6 +106,7 @@ export async function getAllPublicationRequests() {
       user_name: user?.full_name ?? "Sin nombre",
       user_phone: user?.phone ?? null,
       is_expired: isExpired,
+      property_title: r.property_id ? propertyMap.get(r.property_id) ?? null : null,
     };
   });
 }
