@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Building2, TrendingUp, Users, ArrowRight } from "lucide-react"
+import { AnimatedCounter } from "./animated-counter"
 
 export function HeroSection() {
   return (
@@ -21,13 +22,13 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         {/* Logo */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Image
             src="/images/logo-hero.png"
             alt="Chiclayo Propiedades"
-            width={200}
-            height={80}
-            className="mx-auto h-16 w-auto sm:h-20 drop-shadow-lg"
+            width={400}
+            height={160}
+            className="mx-auto h-28 w-auto sm:h-36 lg:h-44 drop-shadow-2xl"
             priority
           />
         </div>
@@ -74,15 +75,17 @@ export function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto mt-14 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
+        <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
           {[
-            { icon: Building2, value: "500+", label: "Propiedades" },
-            { icon: Users, value: "200+", label: "Agentes" },
-            { icon: TrendingUp, value: "1,200+", label: "Clientes felices" },
-          ].map(({ icon: Icon, value, label }) => (
+            { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
+            { icon: Users, target: 200, suffix: "+", label: "Agentes" },
+            { icon: TrendingUp, target: 1200, suffix: "+", label: "Clientes felices" },
+          ].map(({ icon: Icon, target, suffix, label }) => (
             <div key={label} className="flex flex-col items-center gap-1">
               <Icon className="size-5 text-blue-200" aria-hidden="true" />
-              <span className="text-2xl font-bold text-white">{value}</span>
+              <span className="text-2xl font-bold text-white">
+                <AnimatedCounter target={target} suffix={suffix} />
+              </span>
               <span className="text-xs text-blue-200">{label}</span>
             </div>
           ))}
