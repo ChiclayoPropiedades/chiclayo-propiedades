@@ -13,6 +13,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Home,
+  Wallet,
   Users,
   FileText,
   Briefcase,
@@ -44,6 +45,7 @@ const adminLinks = [
   { href: "/admin/capacitaciones", label: "Capacitaciones", icon: GraduationCap },
   { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
   { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+  { href: "/admin/finanzas", label: "Finanzas", icon: Wallet },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
   { href: "/dashboard/perfil", label: "Mi Perfil", icon: UserRound },
 ];

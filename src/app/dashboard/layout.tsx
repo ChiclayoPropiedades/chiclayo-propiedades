@@ -13,6 +13,7 @@ import {
   Trophy,
   Settings,
   Home,
+  Wallet,
   LogOut,
 } from "lucide-react";
 
@@ -38,6 +39,7 @@ const mobileAdminLinks = [
   { href: "/admin/capacitaciones", label: "Cursos", icon: GraduationCap },
   { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
   { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+  { href: "/admin/finanzas", label: "Finanzas", icon: Wallet },
   { href: "/admin/configuracion", label: "Config", icon: Settings },
   { href: "/dashboard/perfil", label: "Perfil", icon: UserRound },
 ];
