@@ -77,19 +77,43 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
 
 export async function getFeaturedProperties(): Promise<Property[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  // Primero traer destacadas
+  const { data: featured } = await supabase
     .from("properties")
     .select("*, property_images(*)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
     .limit(6);
-  if (error) throw error;
 
   const { hiddenProfileIds, expiredPropertyIds } = await getHiddenProfileIds();
-  return ((data ?? []) as Property[]).filter(
+
+  let results = ((featured ?? []) as Property[]).filter(
     (p) => !hiddenProfileIds.has(p.agent_id) && !expiredPropertyIds.has(p.id)
   );
+
+  // Si hay menos de 6 destacadas, completar con las más recientes
+  if (results.length < 6) {
+    const featuredIds = new Set(results.map((p) => p.id));
+    const { data: recent } = await supabase
+      .from("properties")
+      .select("*, property_images(*)")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    const recentFiltered = ((recent ?? []) as Property[]).filter(
+      (p) =>
+        !featuredIds.has(p.id) &&
+        !hiddenProfileIds.has(p.agent_id) &&
+        !expiredPropertyIds.has(p.id)
+    );
+
+    results = [...results, ...recentFiltered].slice(0, 6);
+  }
+
+  return results;
 }
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
