@@ -1,9 +1,13 @@
-import { createClient } from "@/shared/lib/supabase/server";
 import { AgentRanking } from "../types";
 
 export async function getRankings(): Promise<AgentRanking[]> {
   try {
-    const supabase = await createClient();
+    // Usar admin client para bypass RLS (visitantes anónimos no pueden leer suscripciones)
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     // Traer rankings existentes
     const { data: rankingData } = await supabase
@@ -14,7 +18,7 @@ export async function getRankings(): Promise<AgentRanking[]> {
       )
       .order("score", { ascending: false });
 
-    // Traer TODOS los agentes activos con suscripción vigente
+    // Traer TODOS los agentes activos
     const { data: allAgents } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, phone, role, is_active")
@@ -31,17 +35,16 @@ export async function getRankings(): Promise<AgentRanking[]> {
 
     const activeSubIds = new Set((activeSubs ?? []).map((s) => s.profile_id));
 
-    // Filtrar rankings: solo agentes activos con rol agent Y suscripción vigente
+    // Filtrar rankings: solo agentes activos con suscripción vigente
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const validRankings = ((rankingData ?? []) as any[]).filter((r) => {
       const agent = Array.isArray(r.agent) ? r.agent[0] : r.agent;
       return agent?.role === "agent" && agent?.is_active !== false && activeSubIds.has(r.agent_id);
     }) as AgentRanking[];
 
-    // IDs de agentes que ya tienen ranking
     const rankedIds = new Set(validRankings.map((r) => r.agent_id));
 
-    // Agentes sin ranking pero con suscripción activa → agregarlos con score 0
+    // Agentes sin ranking pero con suscripción activa
     const unranked = (allAgents ?? [])
       .filter((a) => !rankedIds.has(a.id) && activeSubIds.has(a.id))
       .map((a) => ({
