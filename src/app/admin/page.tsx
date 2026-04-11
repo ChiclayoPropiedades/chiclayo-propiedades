@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Users,
   UserCheck,
@@ -12,6 +13,12 @@ import {
   Trophy,
   DollarSign,
   Banknote,
+  Bell,
+  UserPlus,
+  FileCheck,
+  Clock,
+  ChevronRight,
+  AlertCircle,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -33,6 +40,7 @@ import {
   getPropertiesByType,
   getSalesByPeriod,
 } from "@/features/admin/services/chart-data-actions";
+import { getAdminNotifications } from "@/features/admin/services/notifications-actions";
 import { LeadsByMonthChart } from "@/features/admin/components/charts/leads-by-month-chart";
 import { PropertiesByTypeChart } from "@/features/admin/components/charts/properties-by-type-chart";
 import { SalesByPeriodChart } from "@/features/admin/components/charts/sales-by-period-chart";
@@ -85,16 +93,71 @@ function StatCard({
 }
 
 export default async function AdminDashboardPage() {
-  const [stats, inquiries, leadsByMonth, propertiesByType, salesByPeriod] =
+  const [stats, inquiries, leadsByMonth, propertiesByType, salesByPeriod, notifications] =
     await Promise.all([
       getEnhancedAdminStats(),
       getAdminInquiries(),
       getLeadsByMonth(),
       getPropertiesByType(),
       getSalesByPeriod(),
+      getAdminNotifications(),
     ]);
 
   const recentLeads = inquiries.slice(0, 5);
+  const totalPending =
+    notifications.pendingRoleUpgrades +
+    notifications.pendingPublicationRequests +
+    notifications.pendingEnrollments +
+    notifications.pendingSales +
+    notifications.newLeads;
+
+  const notificationItems = [
+    {
+      count: notifications.pendingRoleUpgrades,
+      label: "Solicitudes de cambio de rol",
+      href: "/admin/usuarios",
+      icon: UserPlus,
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+      border: "border-purple-200",
+    },
+    {
+      count: notifications.pendingPublicationRequests,
+      label: "Solicitudes de publicacion",
+      href: "/admin/propiedades",
+      icon: FileCheck,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+    },
+    {
+      count: notifications.pendingEnrollments,
+      label: "Inscripciones pendientes de pago",
+      href: "/admin/capacitaciones",
+      icon: GraduationCap,
+      color: "text-teal-600",
+      bg: "bg-teal-50",
+      border: "border-teal-200",
+    },
+    {
+      count: notifications.pendingSales,
+      label: "Ventas pendientes de aprobacion",
+      href: "/admin/ranking",
+      icon: Trophy,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+    },
+    {
+      count: notifications.newLeads,
+      label: "Leads nuevos sin atender",
+      href: "/admin/leads",
+      icon: MessageSquare,
+      color: "text-green-600",
+      bg: "bg-green-50",
+      border: "border-green-200",
+    },
+  ].filter((item) => item.count > 0);
 
   return (
     <div className="space-y-8">
@@ -104,6 +167,52 @@ export default async function AdminDashboardPage() {
           Resumen general de la plataforma
         </p>
       </div>
+
+      {/* NOTIFICACIONES / SOLICITUDES PENDIENTES */}
+      {totalPending > 0 && (
+        <Card className="overflow-hidden rounded-xl border-amber-200 shadow-sm">
+          <CardHeader className="border-b border-amber-100 bg-amber-50/50 pb-3">
+            <CardTitle className="flex items-center gap-2.5 text-base font-bold text-amber-800">
+              <div className="relative flex size-8 items-center justify-center rounded-lg bg-amber-100">
+                <Bell className="size-4 text-amber-600" />
+                <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                  {totalPending}
+                </span>
+              </div>
+              Solicitudes pendientes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="divide-y divide-gray-100 p-0">
+            {notificationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-gray-50"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`flex size-9 items-center justify-center rounded-lg ${item.bg}`}>
+                      <Icon className={`size-4.5 ${item.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#1f2937]">
+                        {item.count} {item.label}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full ${item.bg} ${item.border} border px-2.5 py-0.5 text-xs font-bold ${item.color}`}>
+                      {item.count}
+                    </span>
+                    <ChevronRight className="size-4 text-gray-300" />
+                  </div>
+                </Link>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       {/* USUARIOS */}
       <div>
