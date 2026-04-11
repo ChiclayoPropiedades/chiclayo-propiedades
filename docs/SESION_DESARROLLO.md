@@ -215,15 +215,31 @@ Lee todos los .md y dime qué sigue según el plan.
 | 6.6.22 | Auditoría documentada | ✅ | docs/AUDITORIA_COMPLETA.md con todos los hallazgos |
 | 6.6.23 | Limpieza DB | ✅ | Rankings, teléfono Jorge, rol Test Admin |
 
-### ETAPA 7: Resend (Emails Transaccionales) ❌ PENDIENTE
+### ETAPA 7: Emails + MercadoPago + Mobile ✅ COMPLETADA (Sesión 4 - 11 Abril 2026)
 
-| # | Tarea | Estado |
-|---|-------|--------|
-| 7.1 | npm install resend | ❌ |
-| 7.2 | Crear src/shared/lib/email.ts | ❌ |
-| 7.3 | Email al asesor cuando hay lead | ❌ |
-| 7.4 | Email de bienvenida al registrarse | ❌ |
-| 7.5 | Email de confirmación de pago | ❌ |
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.1 | MercadoPago Checkout Pro | ✅ | SDK instalado, preferencias para capacitaciones y suscripción |
+| 7.2 | Webhook MercadoPago | ✅ | /api/webhooks/mercadopago con validación x-signature HMAC SHA256 |
+| 7.3 | UI dual pagos | ✅ | Botones MercadoPago (principal) + Stripe (secundario) en EnrollButton y SubscriptionWall |
+| 7.4 | Emails transaccionales (Brevo/Gmail) | ✅ | Dual provider: Brevo API REST + Gmail OAuth2, credenciales en DB |
+| 7.5 | Email: lead notification | ✅ | Notifica al agente cuando llega un lead por su propiedad |
+| 7.6 | Email: welcome | ✅ | Bienvenida al registrarse con link al dashboard |
+| 7.7 | Email: training confirmation | ✅ | Confirmación de pago de capacitación con detalles del curso |
+| 7.8 | Email: subscription confirmation | ✅ | Confirmación de suscripción agente con fecha de expiración |
+| 7.9 | Email settings editables | ✅ | Admin configura credenciales Brevo/Gmail desde /admin/configuracion |
+| 7.10 | Botón enviar email de prueba | ✅ | Verifica conexión del proveedor seleccionado |
+| 7.11 | WhatsApp como método de pago | ✅ | Botón verde redirige a wa.me con mensaje predeterminado, configurable |
+| 7.12 | Suscripción gratis (toggle) | ✅ | Admin activa/desactiva desde configuración, agente puede auto-activar |
+| 7.13 | Desactivar suscripción | ✅ | Admin puede desactivar suscripción desde Finanzas |
+| 7.14 | Admin config MercadoPago/Stripe | ✅ | Instrucciones paso a paso + webhook URL en configuración |
+| 7.15 | Blog markdown renderizado | ✅ | react-markdown + @tailwindcss/typography en blog y capacitaciones |
+| 7.16 | Tablas admin sin truncar | ✅ | Títulos completos + botón editar (lápiz) en blog y capacitaciones |
+| 7.17 | Admin mobile nav | ✅ | Tabs scrollables con 10 secciones para admin en móvil |
+| 7.18 | Perfil avatar responsive | ✅ | Stack vertical + centrado en móvil, horizontal en desktop |
+| 7.19 | Mobile audit completo | ✅ | 11 archivos: grids, paddings, gaps, imágenes, tablas optimizados |
+| 7.20 | DB: mp_payment_id | ✅ | Campos MercadoPago en training_enrollments y agent_subscriptions |
+| 7.21 | DB: email settings | ✅ | 7 keys de email + 3 keys WhatsApp + free_subscription en platform_settings |
 
 ### ETAPA 8: Dominio y Producción ❌ PENDIENTE
 
@@ -239,12 +255,11 @@ Lee todos los .md y dime qué sigue según el plan.
 | # | Tarea | Estado |
 |---|-------|--------|
 | 9.1 | Mapa Leaflet en detalle de propiedad | ❌ |
-| 9.2 | Revisión visual página por página | ❌ |
-| 9.3 | Notificaciones push en tiempo real | ❌ |
-| 9.4 | Dashboard analytics con gráficas | ❌ |
-| 9.5 | Búsqueda avanzada con mapa | ❌ |
-| 9.6 | Sistema de favoritos | ❌ |
-| 9.7 | Comparador de propiedades | ❌ |
+| 9.2 | Notificaciones push en tiempo real | ❌ |
+| 9.3 | Búsqueda avanzada con mapa | ❌ |
+| 9.4 | Sistema de favoritos | ❌ |
+| 9.5 | Comparador de propiedades | ❌ |
+| 9.6 | HeroSection rediseño (pendiente aprobación cliente) | ❌ |
 
 ---
 
@@ -293,21 +308,20 @@ chiclayo-propiedades/
 
 ## Notas Importantes para la Próxima Sesión
 
-1. **El HeroSection está en su versión original V1.0.** El cliente no aprobó los rediseños. Necesita un nuevo enfoque aprobado antes de cambiar.
+1. **El HeroSection está en su versión original V1.0.** Pendiente rediseño con aprobación del cliente.
 
-2. **No cambiar nada sin aprobación del cliente.** Mostrar mockups o descripciones antes de implementar.
+2. **Los commits deben ser como ChiclayoPropiedades.**
 
-3. **El footer ya tiene min-h-svh.** Todas las secciones ocupan pantalla completa.
-
-4. **Motion ya está instalado** pero el hero no lo usa (fue revertido). Las demás secciones sí usan ScrollReveal.
-
-5. **Los commits deben ser como ChiclayoPropiedades** (no como erwindeveloper) para que Vercel no los bloquee.
-
-6. **Verificar siempre antes de push:**
+3. **Build necesita más memoria** (react-markdown es pesado):
    ```bash
-   npm run build
-   npm run typecheck
+   NODE_OPTIONS="--max-old-space-size=4096" npm run build
    ```
+
+4. **Emails configurables desde /admin/configuracion** (no desde Vercel). Se guardan en platform_settings.
+
+5. **MercadoPago y Stripe** necesitan credenciales en Vercel (env vars). WhatsApp pago funciona sin credenciales.
+
+6. **Suscripción gratis** tiene toggle en configuración. Desactivar cuando se configure pasarela.
 
 7. **El cliente quiere:**
    - Diseño profesional y premium
