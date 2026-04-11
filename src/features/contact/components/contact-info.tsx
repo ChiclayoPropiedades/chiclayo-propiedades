@@ -25,7 +25,7 @@ function InfoCard({ icon, title, children }: InfoCardProps) {
 const socialLinks = [
   {
     name: "Facebook",
-    href: "https://facebook.com/chiclayopropiedades",
+    href: "https://www.facebook.com/chiclayopropiedades",
     icon: (
       <svg
         className="size-5"
@@ -40,7 +40,7 @@ const socialLinks = [
   },
   {
     name: "Instagram",
-    href: "https://instagram.com/chiclayopropiedades",
+    href: "https://www.instagram.com/chiclayopropiedades",
     icon: (
       <svg
         className="size-5"
@@ -55,7 +55,7 @@ const socialLinks = [
   },
   {
     name: "YouTube",
-    href: "https://youtube.com/@chiclayopropiedades",
+    href: "https://www.youtube.com/@CHICLAYOPROPIEDADES",
     icon: (
       <svg
         className="size-5"
@@ -70,7 +70,7 @@ const socialLinks = [
   },
   {
     name: "TikTok",
-    href: "https://tiktok.com/@chiclayopropiedades",
+    href: "https://www.tiktok.com/@chiclayopropiedades",
     icon: (
       <svg
         className="size-5"
@@ -103,9 +103,9 @@ export function ContactInfo() {
           title="Dirección"
         >
           <address className="not-italic">
-            Av. Luis Gonzales 456
+            Plaza Bolognesi, Av. Francisco Bolognesi 536
             <br />
-            Chiclayo, Lambayeque, Perú
+            Stand 302A, Chiclayo, Lambayeque, Perú
           </address>
         </InfoCard>
 

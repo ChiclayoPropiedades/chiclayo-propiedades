@@ -44,10 +44,10 @@ const quickLinks = [
 ]
 
 const socialLinks = [
-  { href: "https://facebook.com/chiclayopropiedades", label: "Facebook", Icon: FacebookIcon },
-  { href: "https://instagram.com/chiclayopropiedades", label: "Instagram", Icon: InstagramIcon },
-  { href: "https://youtube.com/@chiclayopropiedades", label: "YouTube", Icon: YoutubeIcon },
-  { href: "https://tiktok.com/@chiclayopropiedades", label: "TikTok", Icon: TikTokIcon },
+  { href: "https://www.facebook.com/chiclayopropiedades", label: "Facebook", Icon: FacebookIcon },
+  { href: "https://www.instagram.com/chiclayopropiedades", label: "Instagram", Icon: InstagramIcon },
+  { href: "https://www.youtube.com/@CHICLAYOPROPIEDADES", label: "YouTube", Icon: YoutubeIcon },
+  { href: "https://www.tiktok.com/@chiclayopropiedades", label: "TikTok", Icon: TikTokIcon },
 ]
 
 export function Footer() {
@@ -117,7 +117,7 @@ export function Footer() {
                   <MapPin className="size-4 text-[#b8860b]" aria-hidden="true" />
                 </div>
                 <span className="text-sm text-gray-400">
-                  Av. Luis Gonzales 456, Chiclayo, Lambayeque
+                  Plaza Bolognesi, Av. Francisco Bolognesi 536 Stand 302A, Chiclayo
                 </span>
               </li>
               <li className="flex items-center gap-3">

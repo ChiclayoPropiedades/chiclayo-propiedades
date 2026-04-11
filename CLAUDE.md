@@ -136,7 +136,7 @@ import type { Property } from "@/features/properties/types"
 ## Datos del Negocio
 
 - **Empresa:** Chiclayo Propiedades
-- **Direccion:** Av. Luis Gonzales 456, Chiclayo, Lambayeque, Peru
+- **Direccion:** Plaza Bolognesi, Av. Francisco Bolognesi 536 Stand 302A, Chiclayo, Lambayeque, Peru
 - **Telefono:** +51 928 216 206
 - **Email:** info@chiclayopropiedades.com
 - **Moneda:** Soles (S/) y Dolares ($)

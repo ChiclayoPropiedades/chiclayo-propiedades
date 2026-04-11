@@ -8,7 +8,7 @@ export function organizationJsonLd() {
     email: 'info@chiclayopropiedades.com',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Av. Luis Gonzales 456',
+      streetAddress: 'Av. Francisco Bolognesi 536 Stand 302A',
       addressLocality: 'Chiclayo',
       addressRegion: 'Lambayeque',
       addressCountry: 'PE',
