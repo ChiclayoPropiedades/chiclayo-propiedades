@@ -47,8 +47,10 @@ export interface EnrollmentRecord {
 
 export interface FullEnrollmentRecord {
   id: string;
+  profile_id: string;
   training_id: string;
   training_title: string;
+  training_slug: string | null;
   training_price: number;
   training_currency: string;
   user_name: string;
@@ -201,7 +203,7 @@ export async function getAllEnrollments(): Promise<FullEnrollmentRecord[]> {
   const { data, error } = await adminSupabase
     .from("training_enrollments")
     .select(
-      "id, training_id, payment_status, enrolled_at, amount_paid, training:trainings(title, price, currency), user:profiles!user_id(full_name, phone)"
+      "id, user_id, training_id, payment_status, enrolled_at, amount_paid, training:trainings(title, slug, price, currency), user:profiles!user_id(id, full_name, phone)"
     )
     .order("enrolled_at", { ascending: false });
 
@@ -214,8 +216,10 @@ export async function getAllEnrollments(): Promise<FullEnrollmentRecord[]> {
     const user = Array.isArray(row.user) ? row.user[0] : row.user;
     return {
       id: row.id,
+      profile_id: user?.id ?? row.user_id,
       training_id: row.training_id,
       training_title: training?.title ?? "Sin titulo",
+      training_slug: training?.slug ?? null,
       training_price: training?.price ?? 0,
       training_currency: training?.currency ?? "PEN",
       user_name: user?.full_name ?? "Sin nombre",

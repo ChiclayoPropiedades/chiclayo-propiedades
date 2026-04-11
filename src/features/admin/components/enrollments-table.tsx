@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CheckCircle, XCircle, Loader2, Phone, Clock, CircleCheck, CircleX, GraduationCap } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle, XCircle, Loader2, Phone, Clock, CircleCheck, CircleX, GraduationCap, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice } from "@/shared/lib/format";
 import {
@@ -11,8 +12,10 @@ import {
 
 interface Enrollment {
   id: string;
+  profile_id: string;
   training_id: string;
   training_title: string;
+  training_slug: string | null;
   training_price: number;
   training_currency: string;
   user_name: string;
@@ -243,10 +246,26 @@ function EnrollmentRow({ enrollment }: { enrollment: Enrollment }) {
   return (
     <tr className="text-[#1f2937] transition-colors hover:bg-blue-50/30">
       <td className="max-w-[220px] px-5 py-3.5">
-        <p className="truncate font-semibold">{enrollment.training_title}</p>
+        {enrollment.training_slug ? (
+          <Link
+            href={`/capacitaciones/${enrollment.training_slug}`}
+            className="group flex items-center gap-1 truncate font-semibold text-[#2563eb] hover:underline"
+          >
+            {enrollment.training_title}
+            <ExternalLink className="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+          </Link>
+        ) : (
+          <p className="truncate font-semibold">{enrollment.training_title}</p>
+        )}
       </td>
       <td className="px-5 py-3.5">
-        <p className="font-medium">{enrollment.user_name}</p>
+        <Link
+          href={`/admin/usuarios/${enrollment.profile_id}`}
+          className="group flex items-center gap-1 font-medium text-[#2563eb] hover:underline"
+        >
+          {enrollment.user_name}
+          <ExternalLink className="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+        </Link>
       </td>
       <td className="px-5 py-3.5 text-gray-500">
         {enrollment.user_phone ? (
