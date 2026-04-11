@@ -136,17 +136,17 @@ async function verifyAdmin() {
 // ─── Usuarios ─────────────────────────────────────────────────────────────────
 
 export async function getUsers(): Promise<AdminProfile[]> {
-  const { supabase } = await verifyAdmin();
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await adminSupabase
     .from("profiles")
     .select("id, user_id, full_name, phone, avatar_url, bio, role, is_active")
     .order("full_name", { ascending: true });
 
   if (error) throw new Error(error.message);
 
-  // Obtener emails desde auth.users via admin client
-  const adminSupabase = createAdminClient();
+  // Obtener emails desde auth.users
   const { data: authUsers } = await adminSupabase.auth.admin.listUsers();
 
   const emailMap = new Map<string, string>();
