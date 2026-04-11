@@ -22,7 +22,7 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         {/* Logo */}
-        <div className="mb-4">
+        <div className="mb-2">
           <Image
             src="/images/logo-hero.png"
             alt="Chiclayo Propiedades"
@@ -34,25 +34,25 @@ export function HeroSection() {
         </div>
 
         {/* Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm">
           <Building2 className="size-4" aria-hidden="true" />
           Plataforma inmobiliaria N°1 en Chiclayo
         </div>
 
         <h1
           id="hero-heading"
-          className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
+          className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl"
         >
           Encuentra el lugar perfecto para tu{" "}
           <span className="text-[#fbbf24]">próxima historia</span>
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-100">
+        <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg">
           Conectamos tus sueños con la realidad. Miles de propiedades en venta y
           alquiler en Chiclayo y Lambayeque te esperan.
         </p>
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/propiedades"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-[#1e40af] shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
