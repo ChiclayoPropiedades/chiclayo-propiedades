@@ -37,7 +37,7 @@ function ServiceSection({
         alt={imageAlt}
         fill
         sizes="(max-width: 1024px) 100vw, 50vw"
-        className="object-cover object-top"
+        className="object-cover"
       />
       {/* Overlay sutil para profundidad */}
       <div
@@ -164,8 +164,8 @@ export default function ServiciosPage() {
             icon={<UserCheck className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={asesoresItems}
             imagePosition="left"
-            imageSrc="https://images.unsplash.com/photo-1770199105692-9e52ff137cad?w=1200&q=80&auto=format&fit=crop"
-            imageAlt="Agente inmobiliaria profesional con llaves y carpeta"
+            imageSrc="/images/servicios/agente-inmobiliaria.jpg"
+            imageAlt="Retrato de agente inmobiliaria mirando a la camara con pareja feliz al fondo"
           />
         </div>
 
