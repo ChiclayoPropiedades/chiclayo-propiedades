@@ -32,6 +32,7 @@ export interface AdminProperty {
   is_active: boolean;
   featured: boolean;
   created_at: string;
+  agent?: { full_name: string; phone: string | null } | { full_name: string; phone: string | null }[];
 }
 
 export interface AdminInquiry {
@@ -242,7 +243,7 @@ export async function getAdminProperties(): Promise<AdminProperty[]> {
   const { data, error } = await supabase
     .from("properties")
     .select(
-      "id, agent_id, title, slug, price, currency, operation, type, district, city, is_active, featured, created_at"
+      "id, agent_id, title, slug, price, currency, operation, type, district, city, is_active, featured, created_at, agent:profiles!agent_id(full_name, phone)"
     )
     .order("created_at", { ascending: false });
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Save, Loader2, KeyRound, Eye, EyeOff } from "lucide-react";
+import { useState, useTransition, useRef } from "react";
+import Image from "next/image";
+import { Save, Loader2, KeyRound, Eye, EyeOff, Camera, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -11,6 +12,7 @@ import {
   updateUserProfile,
   resetUserPassword,
 } from "@/features/admin/services/admin-actions";
+import { createClient } from "@/shared/lib/supabase/client";
 
 interface EditUserFormProps {
   profileId: string;
@@ -21,6 +23,7 @@ interface EditUserFormProps {
     bio: string;
     role: string;
     email: string;
+    avatar_url: string;
   };
 }
 
@@ -33,6 +36,40 @@ export function EditUserForm({
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(initialData.avatar_url);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("Máximo 2MB"); return; }
+
+    setUploading(true);
+    const supabase = createClient();
+    const ext = file.name.split(".").pop();
+    const path = `${userId}/avatar.${ext}`;
+
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) { toast.error("Error al subir imagen"); setUploading(false); return; }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    const url = urlData.publicUrl + "?t=" + Date.now();
+
+    await supabase.from("profiles").update({ avatar_url: url }).eq("id", profileId);
+    setAvatarUrl(url);
+    toast.success("Foto actualizada");
+    setUploading(false);
+  }
+
+  async function handleRemoveAvatar() {
+    setUploading(true);
+    const supabase = createClient();
+    await supabase.from("profiles").update({ avatar_url: null }).eq("id", profileId);
+    setAvatarUrl("");
+    toast.success("Foto eliminada");
+    setUploading(false);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -83,6 +120,29 @@ export function EditUserForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Avatar */}
+          <div className="flex items-center gap-4">
+            {avatarUrl ? (
+              <Image src={avatarUrl} alt="Avatar" width={64} height={64} className="size-16 rounded-full object-cover border border-gray-200" />
+            ) : (
+              <div className="flex size-16 items-center justify-center rounded-full bg-[#eff6ff] text-xl font-bold text-[#2563eb]">
+                {initialData.full_name.charAt(0).toUpperCase() || "?"}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1e40af] disabled:opacity-60">
+                <Camera className="size-3.5" />
+                {avatarUrl ? "Cambiar" : "Subir foto"}
+              </button>
+              {avatarUrl && (
+                <button type="button" onClick={handleRemoveAvatar} disabled={uploading} className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-60">
+                  <Trash2 className="size-3.5" />
+                </button>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="full_name">Nombre completo</Label>

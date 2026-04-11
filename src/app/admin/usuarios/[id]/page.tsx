@@ -170,6 +170,7 @@ export default async function AdminUserDetailPage({
           bio: profile.bio ?? "",
           role: profile.role ?? "user",
           email: userEmail,
+          avatar_url: profile.avatar_url ?? "",
         }}
       />
 
