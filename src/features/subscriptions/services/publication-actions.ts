@@ -179,6 +179,41 @@ export async function deletePublicationRequest(
   return { success: true };
 }
 
+// ─── Admin: Desactivar solicitud (oculta propiedad sin borrar) ───────────────
+
+export async function deactivatePublicationRequest(
+  requestId: string
+): Promise<{ success?: boolean; error?: string }> {
+  const adminSupabase = createAdminClient();
+
+  // Obtener propiedad vinculada
+  const { data: req } = await adminSupabase
+    .from("publication_requests")
+    .select("property_id")
+    .eq("id", requestId)
+    .single();
+
+  // Desactivar la propiedad (no eliminar)
+  if (req?.property_id) {
+    await adminSupabase
+      .from("properties")
+      .update({ is_active: false })
+      .eq("id", req.property_id);
+  }
+
+  // Marcar solicitud como rechazada
+  const { error } = await adminSupabase
+    .from("publication_requests")
+    .update({ status: "rejected", updated_at: new Date().toISOString() })
+    .eq("id", requestId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/propiedades");
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
 // ─── Admin: Cambiar plan de solicitud ────────────────────────────────────────
 
 export async function changeRequestPlan(

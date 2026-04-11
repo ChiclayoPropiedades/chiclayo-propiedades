@@ -17,6 +17,7 @@ import {
   rejectPublicationRequest,
   changeRequestPlan,
   deletePublicationRequest,
+  deactivatePublicationRequest,
 } from "@/features/subscriptions/services/publication-actions";
 
 interface PublicationRequest {
@@ -65,8 +66,17 @@ export function PublicationRequestsTable({ requests }: Props) {
     });
   }
 
+  function handleDeactivate(id: string) {
+    if (!confirm("¿Desactivar esta publicación? La propiedad se ocultará pero no se eliminará.")) return;
+    startTransition(async () => {
+      const result = await deactivatePublicationRequest(id);
+      if (result.error) toast.error(result.error);
+      else toast.success("Publicación desactivada");
+    });
+  }
+
   function handleDelete(id: string) {
-    if (!confirm("¿Eliminar esta solicitud y su propiedad vinculada? No se puede deshacer.")) return;
+    if (!confirm("¿Eliminar PERMANENTEMENTE esta solicitud y su propiedad? No se puede deshacer.")) return;
     startTransition(async () => {
       const result = await deletePublicationRequest(id);
       if (result.error) toast.error(result.error);
@@ -194,15 +204,26 @@ export function PublicationRequestsTable({ requests }: Props) {
                   </>
                 )}
                 {req.status !== "pending" && (
-                  <button
-                    onClick={() => handleDelete(req.id)}
-                    disabled={isPending}
-                    className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
-                    title="Eliminar solicitud y propiedad vinculada"
-                  >
-                    <X className="size-3" />
-                    Eliminar
-                  </button>
+                  <>
+                    {req.status === "approved" && !req.is_expired && (
+                      <button
+                        onClick={() => handleDeactivate(req.id)}
+                        disabled={isPending}
+                        className="inline-flex items-center gap-1 rounded-md border border-yellow-200 bg-yellow-50 px-2.5 py-1 text-xs font-medium text-yellow-700 hover:bg-yellow-100 disabled:opacity-50"
+                      >
+                        <X className="size-3" />
+                        Desactivar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(req.id)}
+                      disabled={isPending}
+                      className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                    >
+                      <X className="size-3" />
+                      Eliminar
+                    </button>
+                  </>
                 )}
               </div>
             </TableCell>
