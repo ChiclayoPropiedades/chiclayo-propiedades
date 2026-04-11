@@ -31,13 +31,13 @@ function ServiceSection({
   imageAlt,
 }: ServiceSectionProps) {
   const imageBlock = (
-    <div className="relative h-56 w-full overflow-hidden rounded-2xl shadow-lg sm:h-72 lg:h-96">
+    <div className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl shadow-lg">
       <Image
         src={imageSrc}
         alt={imageAlt}
         fill
         sizes="(max-width: 1024px) 100vw, 50vw"
-        className="object-cover object-top"
+        className="object-cover"
       />
       {/* Overlay sutil para profundidad */}
       <div
