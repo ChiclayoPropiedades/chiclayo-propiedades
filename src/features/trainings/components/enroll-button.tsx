@@ -1,26 +1,37 @@
 "use client";
 
 import { useTransition } from "react";
-import { Loader2, CreditCard, AlertCircle } from "lucide-react";
+import { Loader2, CreditCard, AlertCircle, MessageCircle } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { createCheckoutSession } from "@/features/trainings/services/training-actions";
 import { createMPCheckoutSession } from "@/features/trainings/services/mercadopago-actions";
 import { toast } from "sonner";
 
+interface WhatsAppPayment {
+  enabled: boolean;
+  number: string;
+  message: string;
+}
+
 interface EnrollButtonProps {
   trainingId: string;
+  trainingTitle?: string;
   isStripeConfigured: boolean;
   isMercadoPagoConfigured: boolean;
+  whatsappPayment?: WhatsAppPayment;
 }
 
 export function EnrollButton({
   trainingId,
+  trainingTitle,
   isStripeConfigured,
   isMercadoPagoConfigured,
+  whatsappPayment,
 }: EnrollButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const hasAnyPayment = isStripeConfigured || isMercadoPagoConfigured;
+  const showWhatsApp = whatsappPayment?.enabled && whatsappPayment?.number;
 
   function handlePayment(provider: "mercadopago" | "stripe") {
     startTransition(async () => {
@@ -37,7 +48,7 @@ export function EnrollButton({
     });
   }
 
-  if (!hasAnyPayment) {
+  if (!hasAnyPayment && !showWhatsApp) {
     return (
       <div className="space-y-2">
         <Button disabled className="w-full" size="lg">
@@ -51,9 +62,13 @@ export function EnrollButton({
     );
   }
 
+  const waMessage = trainingTitle
+    ? `Hola, quiero inscribirme en la capacitación: ${trainingTitle}`
+    : whatsappPayment?.message ?? "Hola, quiero inscribirme en una capacitación";
+
   return (
     <div className="space-y-2">
-      {/* MercadoPago como opción principal */}
+      {/* MercadoPago */}
       {isMercadoPagoConfigured && (
         <Button
           onClick={() => handlePayment("mercadopago")}
@@ -75,7 +90,7 @@ export function EnrollButton({
         </Button>
       )}
 
-      {/* Stripe como opción secundaria */}
+      {/* Stripe */}
       {isStripeConfigured && (
         <Button
           onClick={() => handlePayment("stripe")}
@@ -100,6 +115,19 @@ export function EnrollButton({
             </>
           )}
         </Button>
+      )}
+
+      {/* WhatsApp cuando no hay pasarela */}
+      {!hasAnyPayment && showWhatsApp && (
+        <a
+          href={`https://wa.me/${whatsappPayment.number.replace(/[\s+\-()]/g, "")}?text=${encodeURIComponent(waMessage)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57]"
+        >
+          <MessageCircle className="size-5" />
+          Inscribirme por WhatsApp
+        </a>
       )}
     </div>
   );

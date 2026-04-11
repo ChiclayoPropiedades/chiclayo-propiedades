@@ -226,7 +226,7 @@ export function SubscriptionWall({
               {/* Botón WhatsApp */}
               {showWhatsApp && (
                 <a
-                  href={`https://wa.me/${whatsappPayment.number}?text=${encodeURIComponent(whatsappPayment.message)}`}
+                  href={`https://wa.me/${whatsappPayment.number.replace(/[\s+\-()]/g, "")}?text=${encodeURIComponent(whatsappPayment.message)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] py-4 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57]"

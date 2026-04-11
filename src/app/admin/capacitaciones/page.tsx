@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { getAdminTrainings } from "@/features/admin/services/admin-actions";
 import { CapacitacionesTable } from "@/features/admin/components/capacitaciones-table";
@@ -9,11 +11,20 @@ export default async function AdminCapacitacionesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-[#1f2937]">Capacitaciones</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Gestiona las capacitaciones y talleres disponibles
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-[#1f2937]">Capacitaciones</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Gestiona las capacitaciones y talleres disponibles
+          </p>
+        </div>
+        <Link
+          href="/admin/capacitaciones/nueva"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#2563eb] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+        >
+          <Plus className="size-4" />
+          Nueva Capacitación
+        </Link>
       </div>
 
       {/* Mini stats */}

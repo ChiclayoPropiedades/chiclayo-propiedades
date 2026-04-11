@@ -109,6 +109,27 @@ export function ContactInfo() {
           </address>
         </InfoCard>
 
+        {/* Google Maps */}
+        <a
+          href="https://www.google.com/maps/search/?api=1&query=Plaza+Bolognesi+Av+Francisco+Bolognesi+536+Chiclayo+Peru"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block overflow-hidden rounded-xl border border-gray-200 transition-shadow hover:shadow-md"
+          aria-label="Ver ubicación en Google Maps"
+        >
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3962.123!2d-79.8409!3d-6.7714!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x904cef0a5a5b5b5b%3A0x1234567890abcdef!2sPlaza+Bolognesi%2C+Chiclayo!5e0!3m2!1ses!2spe!4v1"
+            className="h-48 w-full sm:h-56 pointer-events-none"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Ubicación de Chiclayo Propiedades en Google Maps"
+          />
+          <div className="flex items-center justify-center gap-2 bg-gray-50 px-4 py-2.5 text-sm font-medium text-[#2563eb]">
+            <MapPin className="size-4" />
+            Abrir en Google Maps
+          </div>
+        </a>
+
         <InfoCard
           icon={<Phone className="size-5 text-[#2563eb]" aria-hidden="true" />}
           title="Teléfono"

@@ -105,6 +105,7 @@ export function UsuariosTable({ users: initialUsers }: Props) {
       <TableHeader>
         <TableRow className="border-gray-200 bg-gray-50">
           <TableHead className="text-xs font-medium text-gray-500">Nombre</TableHead>
+          <TableHead className="text-xs font-medium text-gray-500">Email</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Teléfono</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Rol</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Estado</TableHead>
@@ -116,6 +117,9 @@ export function UsuariosTable({ users: initialUsers }: Props) {
           <TableRow key={user.id} className="border-gray-100">
             <TableCell className="font-medium text-[#1f2937]">
               {user.full_name ?? "Sin nombre"}
+            </TableCell>
+            <TableCell className="text-xs text-gray-500">
+              {user.email ?? <span className="text-gray-300">—</span>}
             </TableCell>
             <TableCell className="text-gray-500">
               {user.phone ?? <span className="text-gray-300">—</span>}

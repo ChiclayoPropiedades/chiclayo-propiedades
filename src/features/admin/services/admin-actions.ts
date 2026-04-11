@@ -10,6 +10,7 @@ export interface AdminProfile {
   id: string;
   user_id: string;
   full_name: string | null;
+  email: string | null;
   phone: string | null;
   avatar_url: string | null;
   bio: string | null;
@@ -142,7 +143,20 @@ export async function getUsers(): Promise<AdminProfile[]> {
     .order("full_name", { ascending: true });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as AdminProfile[];
+
+  // Obtener emails desde auth.users via admin client
+  const adminSupabase = createAdminClient();
+  const { data: authUsers } = await adminSupabase.auth.admin.listUsers();
+
+  const emailMap = new Map<string, string>();
+  for (const u of authUsers?.users ?? []) {
+    emailMap.set(u.id, u.email ?? "");
+  }
+
+  return (data ?? []).map((p) => ({
+    ...p,
+    email: emailMap.get(p.user_id) ?? null,
+  })) as AdminProfile[];
 }
 
 export async function updateUserRole(

@@ -19,6 +19,7 @@ import ReactMarkdown from "react-markdown";
 import { isStripeConfigured } from "@/shared/lib/stripe";
 import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
+import { createClient } from "@/shared/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,22 @@ export default async function TrainingDetailPage({ params }: PageProps) {
   if (!training) {
     notFound();
   }
+
+  // Leer WhatsApp settings para el botón de pago
+  const supabase = await createClient();
+  const { data: waSettings } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", ["whatsapp_payment_enabled", "whatsapp_payment_number", "whatsapp_payment_message"]);
+
+  const waMap: Record<string, string> = {};
+  for (const row of waSettings ?? []) waMap[row.key] = row.value;
+
+  const whatsappPayment = {
+    enabled: waMap.whatsapp_payment_enabled === "true",
+    number: waMap.whatsapp_payment_number ?? "51928216206",
+    message: waMap.whatsapp_payment_message ?? "Hola, quiero inscribirme en una capacitación",
+  };
 
   const isPresencial = training.modality === "presencial";
 
@@ -268,8 +285,10 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                 {/* CTA */}
                 <EnrollButton
                   trainingId={training.id}
+                  trainingTitle={training.title}
                   isStripeConfigured={isStripeConfigured()}
                   isMercadoPagoConfigured={isMercadoPagoConfigured()}
+                  whatsappPayment={whatsappPayment}
                 />
 
                 <p className="mt-3 text-center text-xs text-gray-400">

@@ -86,13 +86,19 @@ export function SignupForm() {
 
     setLoading(true)
 
+    // Normalizar nombre: primera letra mayúscula de cada palabra
+    const normalizedName = fullName
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: normalizedName,
           phone,
           role,
         },
