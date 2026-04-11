@@ -69,8 +69,11 @@ export default async function TrainingDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Leer WhatsApp settings para el botón de pago
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
+
+  // Leer WhatsApp settings para el botón de pago
   const { data: waSettings } = await supabase
     .from("platform_settings")
     .select("key, value")
@@ -283,13 +286,30 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                 </ul>
 
                 {/* CTA */}
-                <EnrollButton
-                  trainingId={training.id}
-                  trainingTitle={training.title}
-                  isStripeConfigured={isStripeConfigured()}
-                  isMercadoPagoConfigured={isMercadoPagoConfigured()}
-                  whatsappPayment={whatsappPayment}
-                />
+                {isLoggedIn ? (
+                  <EnrollButton
+                    trainingId={training.id}
+                    trainingTitle={training.title}
+                    isStripeConfigured={isStripeConfigured()}
+                    isMercadoPagoConfigured={isMercadoPagoConfigured()}
+                    whatsappPayment={whatsappPayment}
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    <Link
+                      href="/signup"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[#1e40af]"
+                    >
+                      Regístrate para inscribirte
+                    </Link>
+                    <p className="text-center text-xs text-gray-400">
+                      ¿Ya tienes cuenta?{" "}
+                      <Link href="/login" className="text-[#2563eb] hover:underline">
+                        Inicia sesión
+                      </Link>
+                    </p>
+                  </div>
+                )}
 
                 <p className="mt-3 text-center text-xs text-gray-400">
                   Pago seguro. Recibirás confirmación por email.

@@ -55,7 +55,7 @@ export async function TrainingsSection() {
 
   return (
     <section
-      className="flex min-h-svh items-center bg-[#f8fafc] py-12 sm:py-16"
+      className="flex min-h-svh items-center bg-gradient-to-b from-[#0a1628] to-[#1e3a5f] py-12 sm:py-16"
       aria-labelledby="trainings-heading"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -67,18 +67,18 @@ export async function TrainingsSection() {
             </p>
             <h2
               id="trainings-heading"
-              className="text-3xl font-bold text-[#1e3a5f] sm:text-4xl"
+              className="text-3xl font-bold text-white sm:text-4xl"
             >
               Capacitaciones
             </h2>
-            <p className="mt-2 max-w-xl text-base text-gray-600">
+            <p className="mt-2 max-w-xl text-base text-gray-300">
               Mejora tus habilidades y conocimientos mediante nuestros cursos y
               talleres especializados para el sector inmobiliario.
             </p>
           </div>
           <Link
             href="/capacitaciones"
-            className="hidden items-center gap-1.5 text-sm font-semibold text-[#1e3a5f] hover:text-[#b8860b] transition-colors sm:inline-flex"
+            className="hidden items-center gap-1.5 text-sm font-semibold text-white hover:text-[#b8860b] transition-colors sm:inline-flex"
           >
             Ver todas
             <ArrowRight className="size-4" aria-hidden="true" />
