@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useTransition } from "react";
 import {
   MapPin,
   Bed,
@@ -11,12 +12,15 @@ import {
   Crown,
   Pencil,
   Eye,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { cn } from "@/shared/lib/utils";
 import { formatPrice } from "@/shared/lib/format";
 import { SoldBadge } from "./sold-badge";
 import { MarkSoldButton } from "./mark-sold-button";
+import { deleteProperty } from "@/features/admin/services/admin-actions";
 
 interface DashboardProperty {
   id: string;
@@ -70,6 +74,8 @@ export function PropertyCardDashboard({
   property,
   isAdmin,
 }: PropertyCardDashboardProps) {
+  const [isPending, startTransition] = useTransition();
+
   const coverImage =
     property.property_images?.find((img) => img.is_cover) ??
     property.property_images?.[0] ??
@@ -80,6 +86,19 @@ export function PropertyCardDashboard({
     | "sold"
     | "inactive";
   const agentName = getAgentName(property.agent);
+
+  function handleDelete() {
+    if (!confirm(`¿Eliminar "${property.title}"? Esta acción no se puede deshacer.`)) return;
+    startTransition(async () => {
+      try {
+        await deleteProperty(property.id);
+        toast.success("Propiedad eliminada");
+        window.location.reload();
+      } catch {
+        toast.error("Error al eliminar");
+      }
+    });
+  }
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl">
@@ -149,6 +168,14 @@ export function PropertyCardDashboard({
           >
             <Pencil className="size-4" />
           </Link>
+          <button
+            onClick={handleDelete}
+            disabled={isPending}
+            className="rounded-lg bg-red-500/90 p-2 text-white shadow transition hover:bg-red-600 disabled:opacity-50"
+            title="Eliminar"
+          >
+            <Trash2 className="size-4" />
+          </button>
         </div>
       </div>
 
