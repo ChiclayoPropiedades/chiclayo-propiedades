@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Camera, Star, MessageCircle } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Camera, Star, MessageCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { toast } from "sonner";
+import { createPublicationRequest } from "@/features/subscriptions/services/publication-actions";
 
 interface PlanInfo {
   name: string;
@@ -31,6 +33,7 @@ export function PublicationPlanWall({
   whatsappNumber,
 }: PublicationPlanWallProps) {
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "advanced">("basic");
+  const [isPending, startTransition] = useTransition();
 
   const plans = [
     { key: "basic" as const, ...basic, icon: Camera },
@@ -40,6 +43,31 @@ export function PublicationPlanWall({
   const selected = selectedPlan === "basic" ? basic : advanced;
   const cleanNumber = whatsappNumber.replace(/[\s+\-()]/g, "");
   const waMessage = `Hola, quiero publicar mi propiedad - Plan ${selected.name} ${formatPrice(selected.price, currency)}`;
+
+  function handleWhatsApp() {
+    startTransition(async () => {
+      // Registrar solicitud en DB
+      const result = await createPublicationRequest(
+        selectedPlan,
+        selected.name,
+        selected.price,
+        currency
+      );
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      // Redirigir a WhatsApp
+      window.open(
+        `https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMessage)}`,
+        "_blank"
+      );
+
+      toast.success("Solicitud enviada. Coordina el pago por WhatsApp.");
+    });
+  }
 
   return (
     <div className="flex flex-col items-center py-6">
@@ -51,8 +79,7 @@ export function PublicationPlanWall({
               Publicar Nueva Propiedad
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              Ingresa los datos de tu propiedad. Selecciona el plan que mejor se
-              adapte a tus necesidades.
+              Selecciona el plan que mejor se adapte a tus necesidades.
             </p>
           </div>
 
@@ -102,19 +129,26 @@ export function PublicationPlanWall({
           </div>
 
           {/* WhatsApp CTA */}
-          <a
-            href={`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMessage)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57]"
+          <button
+            onClick={handleWhatsApp}
+            disabled={isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57] disabled:opacity-60"
           >
-            <MessageCircle className="size-5" />
-            Pagar por WhatsApp
-          </a>
+            {isPending ? (
+              <>
+                <Loader2 className="size-5 animate-spin" />
+                Enviando solicitud...
+              </>
+            ) : (
+              <>
+                <MessageCircle className="size-5" />
+                Pagar por WhatsApp
+              </>
+            )}
+          </button>
 
           <p className="mt-3 text-center text-xs text-gray-400">
-            Coordina el pago por WhatsApp. El administrador activará tu
-            publicación.
+            Tu solicitud quedará registrada. El administrador la aprobará después del pago.
           </p>
         </CardContent>
       </Card>

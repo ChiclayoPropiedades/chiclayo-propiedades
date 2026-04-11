@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
 import { createClient } from "@/shared/lib/supabase/server";
 import { DashboardPropertiesView } from "@/app/dashboard/propiedades/dashboard-properties-view";
+import { getPendingPublicationRequests } from "@/features/subscriptions/services/publication-actions";
+import { PublicationRequestsTable } from "@/features/admin/components/publication-requests-table";
 
 export default async function AdminPropiedadesPage() {
   const supabase = await createClient();
@@ -32,8 +35,24 @@ export default async function AdminPropiedadesPage() {
   const active = allProperties.filter((p) => p.is_active).length;
   const featured = allProperties.filter((p) => p.featured).length;
 
+  const pendingRequests = await getPendingPublicationRequests();
+
   return (
     <div className="space-y-6">
+      {/* Solicitudes de publicación pendientes */}
+      {pendingRequests.length > 0 && (
+        <Card className="border-amber-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-amber-700">
+              Solicitudes de publicación pendientes ({pendingRequests.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <PublicationRequestsTable requests={pendingRequests} />
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[#1f2937]">Propiedades</h2>

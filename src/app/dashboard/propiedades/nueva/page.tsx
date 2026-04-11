@@ -14,6 +14,7 @@ import {
 } from "@/features/subscriptions/services/subscription-actions";
 import { SubscriptionWall } from "@/features/subscriptions/components/subscription-wall";
 import { PublicationPlanWall } from "@/features/subscriptions/components/publication-plan-wall";
+import { hasApprovedPlan } from "@/features/subscriptions/services/publication-actions";
 
 export const metadata: Metadata = {
   title: "Nueva Propiedad",
@@ -103,6 +104,35 @@ export default async function NuevaPropiedadPage() {
 
   // Usuarios (rol user) necesitan pagar por publicación individual
   if (profile.role === "user") {
+    // Verificar si ya tiene plan aprobado → mostrar formulario
+    const { approved, plan } = await hasApprovedPlan(profile.id);
+    if (approved && plan) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <Link href="/dashboard/propiedades" className="mb-3 inline-flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-[#2563eb]">
+              <ChevronLeft className="size-3.5" aria-hidden="true" />
+              Volver a Mis Propiedades
+            </Link>
+            <h1 className="text-2xl font-bold text-[#1f2937]">Nueva Propiedad</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Plan {plan.name} aprobado — Máximo {plan.maxPhotos} foto{plan.maxPhotos > 1 ? "s" : ""}
+            </p>
+          </div>
+          <Card className="border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold text-[#1f2937]">
+                Información de la propiedad
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PropertyForm action={createProperty} />
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     const { data: pubSettings } = await supabase
       .from("platform_settings")
       .select("key, value")
