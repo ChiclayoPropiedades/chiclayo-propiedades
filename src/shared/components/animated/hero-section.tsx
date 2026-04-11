@@ -28,7 +28,7 @@ export function HeroSection() {
             alt="Chiclayo Propiedades"
             width={400}
             height={160}
-            className="mx-auto h-28 w-auto sm:h-36 lg:h-44 drop-shadow-2xl"
+            className="mx-auto h-20 w-auto sm:h-24 lg:h-28 drop-shadow-2xl"
             priority
           />
         </div>
@@ -75,7 +75,7 @@ export function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
+        <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
           {[
             { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
             { icon: Users, target: 200, suffix: "+", label: "Agentes" },
