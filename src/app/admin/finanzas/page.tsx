@@ -187,7 +187,7 @@ export default async function AdminFinanzasPage() {
                     <TableRow key={sale.id} className="border-gray-100">
                       <TableCell>
                         <div className="min-w-0">
-                          <p className="max-w-[200px] truncate font-medium text-[#1f2937]">
+                          <p className="font-medium text-[#1f2937]">
                             {sale.title}
                           </p>
                           <p className="text-xs text-gray-400">

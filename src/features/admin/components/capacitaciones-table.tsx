@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Eye, EyeOff, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -89,7 +90,12 @@ export function CapacitacionesTable({ trainings: initialTrainings }: Props) {
         {trainings.map((training) => (
           <TableRow key={training.id} className="border-gray-100">
             <TableCell className="font-medium text-[#1f2937]">
-              <span className="max-w-[200px] truncate block">{training.title}</span>
+              <Link
+                href={`/admin/capacitaciones/${training.id}/editar`}
+                className="text-[#1f2937] hover:text-[#2563eb] hover:underline"
+              >
+                {training.title}
+              </Link>
             </TableCell>
             <TableCell className="text-sm text-gray-700">
               {formatPrice(training.price, training.currency)}
@@ -130,6 +136,13 @@ export function CapacitacionesTable({ trainings: initialTrainings }: Props) {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/admin/capacitaciones/${training.id}/editar`}
+                  className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-[#2563eb]"
+                  title="Editar capacitación"
+                >
+                  <Pencil className="size-3.5" aria-hidden="true" />
+                </Link>
                 <button
                   type="button"
                   disabled={isPending}

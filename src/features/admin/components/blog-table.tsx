@@ -1,8 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -72,7 +73,12 @@ export function BlogTable({ posts }: Props) {
         {posts.map((post) => (
           <TableRow key={post.id} className="border-gray-100">
             <TableCell className="font-medium text-[#1f2937]">
-              <span className="max-w-[240px] truncate block">{post.title}</span>
+              <Link
+                href={`/admin/blog/${post.id}/editar`}
+                className="text-[#1f2937] hover:text-[#2563eb] hover:underline"
+              >
+                {post.title}
+              </Link>
             </TableCell>
             <TableCell className="text-sm text-gray-500">
               {post.category ?? <span className="text-gray-300">—</span>}
@@ -103,6 +109,13 @@ export function BlogTable({ posts }: Props) {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/admin/blog/${post.id}/editar`}
+                  className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-[#2563eb]"
+                  title="Editar artículo"
+                >
+                  <Pencil className="size-3.5" aria-hidden="true" />
+                </Link>
                 <button
                   type="button"
                   disabled={isPending}

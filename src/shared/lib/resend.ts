@@ -1,42 +1,75 @@
 // ─── Email Service (Brevo + Gmail API) ──────────────────────────────────────
-// Soporta 2 proveedores:
-// 1. Brevo (Sendinblue) - API REST, 300 emails/día gratis
-// 2. Gmail API via OAuth2 - 500 emails/día gratis
-// El sistema usa el que esté configurado. Si ambos están, usa Brevo primero.
+// Lee credenciales desde platform_settings (DB) con cache en memoria.
+// Si ambos proveedores están configurados, usa el seleccionado en email_provider.
+// Fallback: Brevo primero, luego Gmail.
+
+import type { EmailSettings } from "@/features/admin/services/settings-actions";
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 const GMAIL_API_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send";
 
+// ─── Cache ──────────────────────────────────────────────────────────────────
+
+let cachedSettings: EmailSettings | null = null;
+let cacheTime = 0;
+const CACHE_TTL = 60_000; // 1 minuto
+
+export function clearEmailCache() {
+  cachedSettings = null;
+  cacheTime = 0;
+}
+
+async function getSettings(): Promise<EmailSettings> {
+  const now = Date.now();
+
+  if (cachedSettings && now - cacheTime < CACHE_TTL) {
+    return cachedSettings;
+  }
+
+  try {
+    const { getEmailSettingsForProvider } = await import(
+      "@/features/admin/services/settings-actions"
+    );
+    cachedSettings = await getEmailSettingsForProvider();
+    cacheTime = now;
+    return cachedSettings;
+  } catch {
+    console.error("[Email] Error leyendo settings de DB");
+    return {
+      email_provider: "",
+      brevo_api_key: "",
+      brevo_from_email: "info@chiclayopropiedades.com",
+      gmail_client_id: "",
+      gmail_client_secret: "",
+      gmail_refresh_token: "",
+      gmail_from_email: "propiedadeschiclayo01@gmail.com",
+    };
+  }
+}
+
 // ─── Config Check ───────────────────────────────────────────────────────────
 
-export function isEmailConfigured(): boolean {
-  return isBrevoConfigured() || isGmailConfigured();
+export async function isEmailConfigured(): Promise<boolean> {
+  const s = await getSettings();
+  return Boolean(s.brevo_api_key) || Boolean(s.gmail_refresh_token);
 }
 
-function isBrevoConfigured(): boolean {
-  return Boolean(process.env.BREVO_API_KEY);
-}
+export async function getEmailProvider(): Promise<"brevo" | "gmail" | null> {
+  const s = await getSettings();
 
-function isGmailConfigured(): boolean {
-  return Boolean(
-    process.env.GMAIL_CLIENT_ID &&
-    process.env.GMAIL_CLIENT_SECRET &&
-    process.env.GMAIL_REFRESH_TOKEN
-  );
-}
+  // Si el admin seleccionó un proveedor específico
+  if (s.email_provider === "brevo" && s.brevo_api_key) return "brevo";
+  if (s.email_provider === "gmail" && s.gmail_refresh_token) return "gmail";
 
-export function getEmailProvider(): "brevo" | "gmail" | null {
-  if (isBrevoConfigured()) return "brevo";
-  if (isGmailConfigured()) return "gmail";
+  // Auto-detect
+  if (s.brevo_api_key) return "brevo";
+  if (s.gmail_client_id && s.gmail_client_secret && s.gmail_refresh_token)
+    return "gmail";
+
   return null;
 }
 
-export const DEFAULT_FROM = {
-  email: process.env.BREVO_FROM_EMAIL ?? process.env.GMAIL_FROM_EMAIL ?? "info@chiclayopropiedades.com",
-  name: "Chiclayo Propiedades",
-};
-
-// ─── Send Email (auto-detect provider) ──────────────────────────────────────
+// ─── Send Email ─────────────────────────────────────────────────────────────
 
 interface SendEmailOptions {
   to: string;
@@ -48,38 +81,46 @@ interface SendEmailOptions {
 export async function sendProviderEmail(
   options: SendEmailOptions
 ): Promise<{ success: boolean; error?: string }> {
-  const provider = getEmailProvider();
+  const provider = await getEmailProvider();
 
   if (!provider) {
-    console.log("[Email] Ningún proveedor configurado, email no enviado:", options.subject);
+    console.log(
+      "[Email] Ningún proveedor configurado, email no enviado:",
+      options.subject
+    );
     return { success: false, error: "Email no configurado" };
   }
 
+  const s = await getSettings();
+
   if (provider === "brevo") {
-    return sendViaBrevo(options);
+    return sendViaBrevo(s, options);
   }
 
-  return sendViaGmail(options);
+  return sendViaGmail(s, options);
 }
 
 // ─── Brevo ──────────────────────────────────────────────────────────────────
 
-async function sendViaBrevo({
-  to,
-  toName,
-  subject,
-  html,
-}: SendEmailOptions): Promise<{ success: boolean; error?: string }> {
+async function sendViaBrevo(
+  s: EmailSettings,
+  { to, toName, subject, html }: SendEmailOptions
+): Promise<{ success: boolean; error?: string }> {
   try {
+    const sender = {
+      email: s.brevo_from_email || "info@chiclayopropiedades.com",
+      name: "Chiclayo Propiedades",
+    };
+
     const res = await fetch(BREVO_API_URL, {
       method: "POST",
       headers: {
-        "api-key": process.env.BREVO_API_KEY!,
+        "api-key": s.brevo_api_key,
         "Content-Type": "application/json",
         Accept: "application/json",
       },
       body: JSON.stringify({
-        sender: DEFAULT_FROM,
+        sender,
         to: [{ email: to, name: toName ?? to }],
         subject,
         htmlContent: html,
@@ -91,7 +132,8 @@ async function sendViaBrevo({
       console.error("[Brevo] Error:", res.status, err);
       return {
         success: false,
-        error: (err as { message?: string }).message ?? `HTTP ${res.status}`,
+        error:
+          (err as { message?: string }).message ?? `HTTP ${res.status}`,
       };
     }
 
@@ -104,15 +146,15 @@ async function sendViaBrevo({
 
 // ─── Gmail API via OAuth2 ───────────────────────────────────────────────────
 
-async function getGmailAccessToken(): Promise<string | null> {
+async function getGmailAccessToken(s: EmailSettings): Promise<string | null> {
   try {
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        client_id: process.env.GMAIL_CLIENT_ID!,
-        client_secret: process.env.GMAIL_CLIENT_SECRET!,
-        refresh_token: process.env.GMAIL_REFRESH_TOKEN!,
+        client_id: s.gmail_client_id,
+        client_secret: s.gmail_client_secret,
+        refresh_token: s.gmail_refresh_token,
         grant_type: "refresh_token",
       }),
     });
@@ -130,8 +172,13 @@ async function getGmailAccessToken(): Promise<string | null> {
   }
 }
 
-function buildMimeMessage(to: string, subject: string, html: string): string {
-  const from = `${DEFAULT_FROM.name} <${DEFAULT_FROM.email}>`;
+function buildMimeMessage(
+  fromEmail: string,
+  to: string,
+  subject: string,
+  html: string
+): string {
+  const from = `Chiclayo Propiedades <${fromEmail}>`;
   const boundary = "boundary_" + Date.now().toString(36);
 
   const mime = [
@@ -152,18 +199,19 @@ function buildMimeMessage(to: string, subject: string, html: string): string {
   return mime;
 }
 
-async function sendViaGmail({
-  to,
-  subject,
-  html,
-}: SendEmailOptions): Promise<{ success: boolean; error?: string }> {
+async function sendViaGmail(
+  s: EmailSettings,
+  { to, subject, html }: SendEmailOptions
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const accessToken = await getGmailAccessToken();
+    const accessToken = await getGmailAccessToken(s);
     if (!accessToken) {
       return { success: false, error: "No se pudo obtener token Gmail" };
     }
 
-    const mimeMessage = buildMimeMessage(to, subject, html);
+    const fromEmail =
+      s.gmail_from_email || "propiedadeschiclayo01@gmail.com";
+    const mimeMessage = buildMimeMessage(fromEmail, to, subject, html);
     const encodedMessage = Buffer.from(mimeMessage)
       .toString("base64")
       .replace(/\+/g, "-")
@@ -184,7 +232,9 @@ async function sendViaGmail({
       console.error("[Gmail] Error:", res.status, err);
       return {
         success: false,
-        error: (err as { error?: { message?: string } }).error?.message ?? `HTTP ${res.status}`,
+        error:
+          (err as { error?: { message?: string } }).error?.message ??
+          `HTTP ${res.status}`,
       };
     }
 

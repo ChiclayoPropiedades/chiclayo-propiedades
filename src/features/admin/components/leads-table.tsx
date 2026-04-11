@@ -114,7 +114,7 @@ export function LeadsTable({ inquiries: initialInquiries }: Props) {
             </TableCell>
             <TableCell className="text-sm text-gray-500">
               {inquiry.property ? (
-                <span className="max-w-[160px] truncate block">
+                <span className="text-sm">
                   {inquiry.property.title}
                 </span>
               ) : (

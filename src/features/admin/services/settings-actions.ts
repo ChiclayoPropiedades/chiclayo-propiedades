@@ -3,6 +3,8 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
 interface PlatformSettings {
   commission_percentage: string;
   commission_currency: string;
@@ -10,6 +12,18 @@ interface PlatformSettings {
   agent_subscription_price: string;
   agent_subscription_currency: string;
 }
+
+export interface EmailSettings {
+  email_provider: string;
+  brevo_api_key: string;
+  brevo_from_email: string;
+  gmail_client_id: string;
+  gmail_client_secret: string;
+  gmail_refresh_token: string;
+  gmail_from_email: string;
+}
+
+// ─── Platform Settings ──────────────────────────────────────────────────────
 
 export async function getSettings(): Promise<PlatformSettings> {
   const supabase = await createClient();
@@ -91,4 +105,136 @@ export async function updateSettings(
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin/ranking");
   return { success: true };
+}
+
+// ─── Email Settings ─────────────────────────────────────────────────────────
+
+export async function getEmailSettings(): Promise<EmailSettings> {
+  const supabase = await createClient();
+
+  const emailKeys = [
+    "email_provider",
+    "brevo_api_key",
+    "brevo_from_email",
+    "gmail_client_id",
+    "gmail_client_secret",
+    "gmail_refresh_token",
+    "gmail_from_email",
+  ];
+
+  const { data } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", emailKeys);
+
+  const settings: EmailSettings = {
+    email_provider: "",
+    brevo_api_key: "",
+    brevo_from_email: "info@chiclayopropiedades.com",
+    gmail_client_id: "",
+    gmail_client_secret: "",
+    gmail_refresh_token: "",
+    gmail_from_email: "propiedadeschiclayo01@gmail.com",
+  };
+
+  for (const row of data ?? []) {
+    if (row.key in settings) {
+      settings[row.key as keyof EmailSettings] = row.value;
+    }
+  }
+
+  return settings;
+}
+
+export async function updateEmailSettings(
+  formData: FormData
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") return { error: "No autorizado" };
+
+  const keys = [
+    "email_provider",
+    "brevo_api_key",
+    "brevo_from_email",
+    "gmail_client_id",
+    "gmail_client_secret",
+    "gmail_refresh_token",
+    "gmail_from_email",
+  ];
+
+  for (const key of keys) {
+    const value = formData.get(key) as string;
+    if (value !== null && value !== undefined) {
+      await supabase
+        .from("platform_settings")
+        .upsert(
+          { key, value, updated_at: new Date().toISOString() },
+          { onConflict: "key" }
+        );
+    }
+  }
+
+  // Limpiar cache del email provider
+  const { clearEmailCache } = await import("@/shared/lib/resend");
+  clearEmailCache();
+
+  revalidatePath("/admin/configuracion");
+  return { success: true };
+}
+
+// ─── Email Settings (para el email provider, sin auth) ──────────────────────
+
+export async function getEmailSettingsForProvider(): Promise<EmailSettings> {
+  // Esta función se usa internamente por el email provider
+  // Usa service role para no depender de la sesión del usuario
+  const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createServiceClient(url, key);
+
+  const emailKeys = [
+    "email_provider",
+    "brevo_api_key",
+    "brevo_from_email",
+    "gmail_client_id",
+    "gmail_client_secret",
+    "gmail_refresh_token",
+    "gmail_from_email",
+  ];
+
+  const { data } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", emailKeys);
+
+  const settings: EmailSettings = {
+    email_provider: "",
+    brevo_api_key: "",
+    brevo_from_email: "info@chiclayopropiedades.com",
+    gmail_client_id: "",
+    gmail_client_secret: "",
+    gmail_refresh_token: "",
+    gmail_from_email: "propiedadeschiclayo01@gmail.com",
+  };
+
+  for (const row of data ?? []) {
+    if (row.key in settings) {
+      settings[row.key as keyof EmailSettings] = row.value;
+    }
+  }
+
+  return settings;
 }
