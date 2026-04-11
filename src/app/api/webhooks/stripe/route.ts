@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { getStripe } from "@/shared/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
+import {
+  sendEmail,
+  emailTrainingConfirmation,
+  emailSubscriptionConfirmation,
+} from "@/shared/lib/email";
 
 // Usar service role para bypass RLS en webhooks
 function getSupabaseAdmin() {
@@ -70,17 +75,40 @@ export async function POST(request: Request) {
           const now = new Date();
           const expiresAt = new Date(now);
           expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+          const amount = (session.amount_total ?? 0) / 100;
+          const currency = session.currency?.toUpperCase() ?? "PEN";
 
           await supabase.from("agent_subscriptions").insert({
             profile_id: profileId,
             stripe_session_id: session.id,
             status: "active",
-            amount: (session.amount_total ?? 0) / 100,
-            currency: session.currency?.toUpperCase() ?? "PEN",
+            amount,
+            currency,
             started_at: now.toISOString(),
             expires_at: expiresAt.toISOString(),
             payment_date: now.toISOString(),
           });
+
+          // Email de confirmacion
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("full_name")
+              .eq("id", profileId)
+              .single();
+
+            if (session.customer_email) {
+              const tpl = emailSubscriptionConfirmation({
+                agentName: profile?.full_name ?? "Agente",
+                expiresAt: expiresAt.toISOString(),
+                amount,
+                currency,
+              });
+              await sendEmail({ to: session.customer_email, ...tpl });
+            }
+          } catch {
+            console.error("[Stripe Webhook] Error enviando email suscripción");
+          }
         }
       }
     }
@@ -95,15 +123,45 @@ export async function POST(request: Request) {
         .single();
 
       if (!existing) {
+        const amount = (session.amount_total ?? 0) / 100;
+        const currency = session.currency?.toUpperCase() ?? "PEN";
+
         await supabase.from("training_enrollments").insert({
           user_id: userId,
           training_id: trainingId,
           stripe_session_id: session.id,
           payment_status: "paid",
-          amount_paid: (session.amount_total ?? 0) / 100,
-          currency: session.currency?.toUpperCase() ?? "PEN",
+          amount_paid: amount,
+          currency,
           payment_date: new Date().toISOString(),
         });
+
+        // Email de confirmacion
+        try {
+          const { data: training } = await supabase
+            .from("trainings")
+            .select("title")
+            .eq("id", trainingId)
+            .single();
+
+          if (session.customer_email && training) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("full_name")
+              .eq("user_id", userId)
+              .single();
+
+            const tpl = emailTrainingConfirmation({
+              userName: profile?.full_name ?? "Usuario",
+              trainingTitle: training.title,
+              amount,
+              currency,
+            });
+            await sendEmail({ to: session.customer_email, ...tpl });
+          }
+        } catch {
+          console.error("[Stripe Webhook] Error enviando email capacitación");
+        }
       }
     }
   }

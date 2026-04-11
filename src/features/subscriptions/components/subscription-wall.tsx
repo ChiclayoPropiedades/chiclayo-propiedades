@@ -14,11 +14,13 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { createSubscriptionCheckout } from "@/features/subscriptions/services/subscription-actions";
+import { createMPSubscriptionCheckout } from "@/features/subscriptions/services/mercadopago-subscription";
 
 interface SubscriptionWallProps {
   price: number;
   currency: string;
   isStripeConfigured: boolean;
+  isMercadoPagoConfigured: boolean;
   expiredAt?: string | null;
 }
 
@@ -50,13 +52,20 @@ export function SubscriptionWall({
   price,
   currency,
   isStripeConfigured,
+  isMercadoPagoConfigured,
   expiredAt,
 }: SubscriptionWallProps) {
   const [isPending, startTransition] = useTransition();
 
-  function handleSubscribe() {
+  const hasAnyPayment = isStripeConfigured || isMercadoPagoConfigured;
+
+  function handleSubscribe(provider: "mercadopago" | "stripe") {
     startTransition(async () => {
-      const result = await createSubscriptionCheckout();
+      const result =
+        provider === "mercadopago"
+          ? await createMPSubscriptionCheckout()
+          : await createSubscriptionCheckout();
+
       if (result.error) {
         toast.error(result.error);
       } else if (result.url) {
@@ -117,24 +126,53 @@ export function SubscriptionWall({
           </div>
 
           {/* CTA */}
-          {isStripeConfigured ? (
-            <Button
-              onClick={handleSubscribe}
-              disabled={isPending}
-              className="w-full gap-2 bg-[#2563eb] py-6 text-base font-semibold hover:bg-[#1e40af]"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="size-5 animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="size-5" />
-                  {isExpired ? "Renovar suscripción" : "Suscribirme ahora"}
-                </>
+          {hasAnyPayment ? (
+            <div className="space-y-2">
+              {isMercadoPagoConfigured && (
+                <Button
+                  onClick={() => handleSubscribe("mercadopago")}
+                  disabled={isPending}
+                  className="w-full gap-2 bg-[#009ee3] py-6 text-base font-semibold hover:bg-[#007eb5]"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="size-5" />
+                      {isExpired ? "Renovar con MercadoPago" : "Pagar con MercadoPago"}
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+
+              {isStripeConfigured && (
+                <Button
+                  onClick={() => handleSubscribe("stripe")}
+                  disabled={isPending}
+                  variant={isMercadoPagoConfigured ? "outline" : "default"}
+                  className={
+                    isMercadoPagoConfigured
+                      ? "w-full gap-2 py-6 text-base font-semibold"
+                      : "w-full gap-2 bg-[#2563eb] py-6 text-base font-semibold hover:bg-[#1e40af]"
+                  }
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="size-5" />
+                      {isExpired ? "Renovar con Stripe" : "Pagar con Stripe"}
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
               <AlertCircle className="mx-auto mb-2 size-5 text-yellow-600" />
@@ -148,7 +186,7 @@ export function SubscriptionWall({
           )}
 
           <p className="mt-4 text-center text-xs text-gray-400">
-            Pago seguro con Stripe. La suscripción se activa inmediatamente.
+            Pago seguro. La suscripción se activa inmediatamente.
           </p>
         </CardContent>
       </Card>

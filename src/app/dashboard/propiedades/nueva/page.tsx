@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { PropertyForm } from "@/features/properties/components/property-form";
 import { createProperty } from "@/features/properties/services/property-actions";
 import { isStripeConfigured } from "@/shared/lib/stripe";
+import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import {
   getSubscriptionStatus,
   getSubscriptionSettings,
@@ -68,6 +69,7 @@ export default async function NuevaPropiedadPage() {
             price={settings.price}
             currency={settings.currency}
             isStripeConfigured={isStripeConfigured()}
+            isMercadoPagoConfigured={isMercadoPagoConfigured()}
             expiredAt={expiredSub?.expires_at}
           />
         </div>

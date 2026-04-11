@@ -16,6 +16,7 @@ import { formatPrice } from "@/shared/lib/format";
 import { getTrainingBySlug } from "@/features/trainings/services/get-trainings";
 import { courseJsonLd } from "@/shared/lib/structured-data";
 import { isStripeConfigured } from "@/shared/lib/stripe";
+import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
 
 export const dynamic = "force-dynamic";
@@ -268,10 +269,11 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                 <EnrollButton
                   trainingId={training.id}
                   isStripeConfigured={isStripeConfigured()}
+                  isMercadoPagoConfigured={isMercadoPagoConfigured()}
                 />
 
                 <p className="mt-3 text-center text-xs text-gray-400">
-                  Pago seguro con Stripe. Recibirás confirmación por email.
+                  Pago seguro. Recibirás confirmación por email.
                 </p>
               </div>
             </aside>

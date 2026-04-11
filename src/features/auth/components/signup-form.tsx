@@ -7,6 +7,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
+import { sendWelcomeEmail } from "@/features/auth/services/auth-actions"
 
 type AccountRole = "user" | "agent"
 
@@ -107,6 +108,9 @@ export function SignupForm() {
       setLoading(false)
       return
     }
+
+    // Enviar email de bienvenida (no bloquea el flujo)
+    sendWelcomeEmail({ email, name: fullName, role }).catch(() => {})
 
     router.push("/verify-email")
   }
