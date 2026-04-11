@@ -131,11 +131,21 @@ export async function approveRoleUpgrade(
 
   if (!request) return { error: "Solicitud no encontrada o ya procesada" };
 
-  // Obtener admin que aprueba
+  // Obtener profile_id del admin que aprueba
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let adminProfileId: string | null = null;
+  if (user) {
+    const { data: adminProfile } = await adminSupabase
+      .from("profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    adminProfileId = adminProfile?.id ?? null;
+  }
 
   // Cambiar rol del usuario
   const { error: roleError } = await adminSupabase
@@ -150,7 +160,7 @@ export async function approveRoleUpgrade(
     .from("role_upgrade_requests")
     .update({
       status: "approved",
-      reviewed_by: user?.id ?? null,
+      reviewed_by: adminProfileId,
       reviewed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -174,11 +184,21 @@ export async function rejectRoleUpgrade(
     data: { user },
   } = await supabase.auth.getUser();
 
+  let adminProfileId: string | null = null;
+  if (user) {
+    const { data: adminProfile } = await adminSupabase
+      .from("profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    adminProfileId = adminProfile?.id ?? null;
+  }
+
   const { error } = await adminSupabase
     .from("role_upgrade_requests")
     .update({
       status: "rejected",
-      reviewed_by: user?.id ?? null,
+      reviewed_by: adminProfileId,
       reviewed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
