@@ -20,7 +20,7 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-24 pb-12 text-center sm:px-6 sm:pt-8 sm:pb-8 lg:px-8 lg:pt-0 lg:pb-0">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 sm:py-6 lg:px-8 lg:py-0">
         {/* Logo: oculto en movil (el navbar ya lo muestra), visible desde sm */}
         <div className="mb-6 hidden sm:block">
           <Image
