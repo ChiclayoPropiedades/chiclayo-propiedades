@@ -42,18 +42,23 @@ function PositionBadge({ position }: { position: number }) {
 function AgentAvatar({
   name,
   avatarUrl,
+  size = "md",
 }: {
   name: string;
   avatarUrl: string | null;
+  size?: "md" | "lg";
 }) {
+  const sizeClass = size === "lg" ? "size-14" : "size-10";
+  const textClass = size === "lg" ? "text-lg" : "text-sm";
+
   if (avatarUrl) {
     return (
-      <div className="relative size-10 shrink-0 overflow-hidden rounded-full">
+      <div className={`relative ${sizeClass} shrink-0 overflow-hidden rounded-full transition-transform duration-200 hover:scale-110`}>
         <Image
           src={avatarUrl}
           alt={name}
           fill
-          sizes="40px"
+          sizes={size === "lg" ? "56px" : "40px"}
           className="object-cover"
         />
       </div>
@@ -68,7 +73,7 @@ function AgentAvatar({
     .toUpperCase();
 
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-sm font-bold text-[#2563eb]">
+    <div className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full bg-[#eff6ff] ${textClass} font-bold text-[#2563eb] transition-transform duration-200 hover:scale-110`}>
       {initials}
     </div>
   );
@@ -226,19 +231,30 @@ export default async function RankingPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {rankings.map((entry, index) => (
+                  {rankings.map((entry, index) => {
+                    const pos = index + 1;
+                    const rowBg =
+                      pos === 1
+                        ? "bg-yellow-50/60"
+                        : pos === 2
+                          ? "bg-gray-50/60"
+                          : pos === 3
+                            ? "bg-orange-50/40"
+                            : "";
+                    return (
                     <tr
                       key={entry.id}
-                      className="transition-colors hover:bg-[#eff6ff]/40"
+                      className={`transition-colors hover:bg-[#eff6ff]/40 ${rowBg}`}
                     >
                       <td className="px-4 py-3">
-                        <PositionBadge position={index + 1} />
+                        <PositionBadge position={pos} />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <AgentAvatar
                             name={getAgent(entry).full_name}
                             avatarUrl={getAgent(entry).avatar_url}
+                            size={pos <= 3 ? "lg" : "md"}
                           />
                           <div className="min-w-0">
                             <p className="truncate font-semibold text-[#1f2937]">
@@ -264,7 +280,8 @@ export default async function RankingPage() {
                         {entry.properties_count}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
