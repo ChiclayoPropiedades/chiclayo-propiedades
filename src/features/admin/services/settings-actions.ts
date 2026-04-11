@@ -7,6 +7,8 @@ interface PlatformSettings {
   commission_percentage: string;
   commission_currency: string;
   usd_to_pen_rate: string;
+  agent_subscription_price: string;
+  agent_subscription_currency: string;
 }
 
 export async function getSettings(): Promise<PlatformSettings> {
@@ -20,6 +22,8 @@ export async function getSettings(): Promise<PlatformSettings> {
     commission_percentage: "5",
     commission_currency: "PEN",
     usd_to_pen_rate: "3.7",
+    agent_subscription_price: "99",
+    agent_subscription_currency: "PEN",
   };
 
   for (const row of data ?? []) {
@@ -62,6 +66,14 @@ export async function updateSettings(
     {
       key: "usd_to_pen_rate",
       value: formData.get("usd_to_pen_rate") as string,
+    },
+    {
+      key: "agent_subscription_price",
+      value: formData.get("agent_subscription_price") as string,
+    },
+    {
+      key: "agent_subscription_currency",
+      value: formData.get("agent_subscription_currency") as string,
     },
   ];
 

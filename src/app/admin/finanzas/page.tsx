@@ -6,6 +6,7 @@ import {
   Banknote,
   GraduationCap,
   Wallet,
+  UserCheck,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -23,6 +24,7 @@ import {
   getSalesRecords,
   getEnrollmentRecords,
 } from "@/features/admin/services/finance-actions";
+import { getAllSubscriptions } from "@/features/subscriptions/services/subscription-actions";
 
 function formatPrice(price: number, currency: string) {
   const symbol = currency === "USD" ? "$" : "S/";
@@ -65,10 +67,11 @@ function StatCard({
 }
 
 export default async function AdminFinanzasPage() {
-  const [summary, sales, enrollments] = await Promise.all([
+  const [summary, sales, enrollments, subscriptions] = await Promise.all([
     getFinanceSummary(),
     getSalesRecords(),
     getEnrollmentRecords(),
+    getAllSubscriptions(),
   ]);
 
   return (
@@ -302,6 +305,86 @@ export default async function AdminFinanzasPage() {
                       </TableCell>
                       <TableCell className="text-gray-400">
                         {formatDate(enrollment.enrolled_at)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      {/* Tabla de suscripciones */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <UserCheck className="size-5 text-[#2563eb]" />
+            <CardTitle className="text-base font-semibold text-[#1f2937]">
+              Suscripciones de Agentes
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {subscriptions.length === 0 ? (
+            <p className="px-6 py-12 text-center text-sm text-gray-400">
+              No hay suscripciones registradas aún.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-gray-200 bg-gray-50">
+                    <TableHead className="text-xs font-medium text-gray-500">
+                      Agente
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-gray-500">
+                      Monto
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-gray-500">
+                      Estado
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-gray-500">
+                      Inicio
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-gray-500">
+                      Expira
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subscriptions.map((sub) => (
+                    <TableRow key={sub.id} className="border-gray-100">
+                      <TableCell className="font-medium text-[#1f2937]">
+                        {sub.agent_name}
+                      </TableCell>
+                      <TableCell className="font-semibold text-[#1f2937]">
+                        {formatPrice(sub.amount, sub.currency)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            sub.status === "active"
+                              ? "border-green-200 bg-green-100 text-green-800"
+                              : sub.status === "expired"
+                                ? "border-red-200 bg-red-100 text-red-800"
+                                : "border-yellow-200 bg-yellow-100 text-yellow-800"
+                          }
+                        >
+                          {sub.status === "active"
+                            ? "Activa"
+                            : sub.status === "expired"
+                              ? "Expirada"
+                              : sub.status === "cancelled"
+                                ? "Cancelada"
+                                : "Pendiente"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-400">
+                        {sub.started_at ? formatDate(sub.started_at) : "—"}
+                      </TableCell>
+                      <TableCell className="text-gray-400">
+                        {sub.expires_at ? formatDate(sub.expires_at) : "—"}
                       </TableCell>
                     </TableRow>
                   ))}

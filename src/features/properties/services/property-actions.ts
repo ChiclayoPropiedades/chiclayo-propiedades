@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
 
 function generateSlug(title: string): string {
   return (
@@ -26,10 +27,18 @@ export async function createProperty(formData: FormData) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id")
+    .select("id, role")
     .eq("user_id", user.id)
     .single();
   if (!profile) return { error: "Perfil no encontrado" };
+
+  // Agentes necesitan suscripción activa para publicar (admins sin restricción)
+  if (profile.role === "agent") {
+    const { active } = await getSubscriptionStatus(profile.id);
+    if (!active) {
+      return { error: "Requiere suscripción activa para publicar propiedades" };
+    }
+  }
 
   const title = formData.get("title") as string;
   const { data, error } = await supabase

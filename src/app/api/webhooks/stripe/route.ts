@@ -52,9 +52,41 @@ export async function POST(request: Request) {
     const trainingId = session.metadata?.training_id;
     const userId = session.metadata?.user_id;
 
-    if (trainingId && userId) {
-      const supabase = getSupabaseAdmin();
+    const supabase = getSupabaseAdmin();
+    const metadataType = session.metadata?.type;
 
+    // ── Pago de suscripción de agente ──
+    if (metadataType === "agent_subscription") {
+      const profileId = session.metadata?.profile_id;
+      if (profileId) {
+        // Idempotencia
+        const { data: existingSub } = await supabase
+          .from("agent_subscriptions")
+          .select("id")
+          .eq("stripe_session_id", session.id)
+          .maybeSingle();
+
+        if (!existingSub) {
+          const now = new Date();
+          const expiresAt = new Date(now);
+          expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+          await supabase.from("agent_subscriptions").insert({
+            profile_id: profileId,
+            stripe_session_id: session.id,
+            status: "active",
+            amount: (session.amount_total ?? 0) / 100,
+            currency: session.currency?.toUpperCase() ?? "PEN",
+            started_at: now.toISOString(),
+            expires_at: expiresAt.toISOString(),
+            payment_date: now.toISOString(),
+          });
+        }
+      }
+    }
+
+    // ── Pago de capacitación ──
+    if (trainingId && userId) {
       // Idempotencia
       const { data: existing } = await supabase
         .from("training_enrollments")

@@ -12,6 +12,8 @@ interface SettingsFormProps {
     commission_percentage: string;
     commission_currency: string;
     usd_to_pen_rate: string;
+    agent_subscription_price: string;
+    agent_subscription_currency: string;
   };
   action: (
     formData: FormData
@@ -88,6 +90,49 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
           <p className="text-xs text-gray-400">
             Para convertir ventas en dólares
           </p>
+        </div>
+      </div>
+
+      {/* Suscripción de agentes */}
+      <div className="border-t border-gray-200 pt-5">
+        <h3 className="mb-3 text-sm font-semibold text-[#1f2937]">
+          Suscripción anual de agentes
+        </h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="agent_subscription_price">Precio anual</Label>
+            <Input
+              id="agent_subscription_price"
+              name="agent_subscription_price"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={settings.agent_subscription_price}
+              disabled={isPending}
+              className="border-gray-200"
+            />
+            <p className="text-xs text-gray-400">
+              Monto que paga el agente por año
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="agent_subscription_currency">
+              Moneda de suscripción
+            </Label>
+            <select
+              id="agent_subscription_currency"
+              name="agent_subscription_currency"
+              defaultValue={settings.agent_subscription_currency}
+              disabled={isPending}
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 disabled:opacity-50"
+            >
+              <option value="PEN">PEN (Soles)</option>
+              <option value="USD">USD (Dólares)</option>
+            </select>
+            <p className="text-xs text-gray-400">
+              Moneda del cobro de suscripción
+            </p>
+          </div>
         </div>
       </div>
 
