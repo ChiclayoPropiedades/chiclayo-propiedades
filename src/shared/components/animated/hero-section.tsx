@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Building2, TrendingUp, Users, ArrowRight } from "lucide-react"
 
 export function HeroSection() {
@@ -19,7 +20,19 @@ export function HeroSection() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        {/* Logo accent */}
+        {/* Logo */}
+        <div className="mb-6">
+          <Image
+            src="/images/logo-hero.png"
+            alt="Chiclayo Propiedades"
+            width={200}
+            height={80}
+            className="mx-auto h-16 w-auto sm:h-20 drop-shadow-lg"
+            priority
+          />
+        </div>
+
+        {/* Badge */}
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm">
           <Building2 className="size-4" aria-hidden="true" />
           Plataforma inmobiliaria N°1 en Chiclayo
