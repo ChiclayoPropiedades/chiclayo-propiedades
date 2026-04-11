@@ -37,7 +37,7 @@ function ServiceSection({
         alt={imageAlt}
         fill
         sizes="(max-width: 1024px) 100vw, 50vw"
-        className="object-cover"
+        className="object-cover object-top"
       />
       {/* Overlay sutil para profundidad */}
       <div
@@ -164,8 +164,8 @@ export default function ServiciosPage() {
             icon={<UserCheck className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={asesoresItems}
             imagePosition="left"
-            imageSrc="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&q=80&auto=format&fit=crop"
-            imageAlt="Asesor inmobiliario profesional con traje elegante"
+            imageSrc="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80&auto=format&fit=crop"
+            imageAlt="Asesor inmobiliario joven con traje sonriendo"
           />
         </div>
 
