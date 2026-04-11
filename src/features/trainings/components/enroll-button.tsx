@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
-import { Loader2, CreditCard, AlertCircle, MessageCircle } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Loader2, CreditCard, AlertCircle, MessageCircle, Clock } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { createCheckoutSession } from "@/features/trainings/services/training-actions";
 import { createMPCheckoutSession } from "@/features/trainings/services/mercadopago-actions";
+import { createWhatsAppEnrollment } from "@/features/trainings/services/whatsapp-enrollment";
 import { toast } from "sonner";
 
 interface WhatsAppPayment {
@@ -19,6 +20,7 @@ interface EnrollButtonProps {
   isStripeConfigured: boolean;
   isMercadoPagoConfigured: boolean;
   whatsappPayment?: WhatsAppPayment;
+  existingEnrollmentStatus?: string | null;
 }
 
 export function EnrollButton({
@@ -27,8 +29,12 @@ export function EnrollButton({
   isStripeConfigured,
   isMercadoPagoConfigured,
   whatsappPayment,
+  existingEnrollmentStatus,
 }: EnrollButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(
+    existingEnrollmentStatus ?? null
+  );
 
   const hasAnyPayment = isStripeConfigured || isMercadoPagoConfigured;
   const showWhatsApp = whatsappPayment?.enabled && whatsappPayment?.number;
@@ -48,6 +54,30 @@ export function EnrollButton({
     });
   }
 
+  const waNumber = whatsappPayment?.number?.replace(/[\s+\-()]/g, "") ?? "";
+  const waMessage = trainingTitle
+    ? `Hola, quiero inscribirme en la capacitación: ${trainingTitle}`
+    : whatsappPayment?.message ?? "Hola, quiero inscribirme en una capacitación";
+  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
+
+  function handleWhatsAppEnroll() {
+    startTransition(async () => {
+      const result = await createWhatsAppEnrollment(trainingId);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        if (result.alreadyExists) {
+          toast.info("Ya tienes una solicitud registrada para esta capacitación.");
+        } else {
+          toast.success("Solicitud de inscripción registrada.");
+        }
+        setEnrollmentStatus("pending");
+        // Abrir WhatsApp
+        window.open(waUrl, "_blank");
+      }
+    });
+  }
+
   if (!hasAnyPayment && !showWhatsApp) {
     return (
       <div className="space-y-2">
@@ -62,12 +92,29 @@ export function EnrollButton({
     );
   }
 
-  const waMessage = trainingTitle
-    ? `Hola, quiero inscribirme en la capacitación: ${trainingTitle}`
-    : whatsappPayment?.message ?? "Hola, quiero inscribirme en una capacitación";
+  // Si ya tiene enrollment completado
+  if (enrollmentStatus === "completed") {
+    return (
+      <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
+        <p className="text-sm font-semibold text-green-700">Ya estas inscrito en esta capacitación</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
+      {/* Estado de solicitud pendiente */}
+      {enrollmentStatus === "pending" && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <div className="flex items-center gap-2 text-amber-700">
+            <Clock className="size-4 shrink-0" />
+            <p className="text-xs font-medium">
+              Solicitud registrada — pendiente de confirmación de pago.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* MercadoPago */}
       {isMercadoPagoConfigured && (
         <Button
@@ -117,17 +164,22 @@ export function EnrollButton({
         </Button>
       )}
 
-      {/* WhatsApp cuando no hay pasarela */}
+      {/* WhatsApp */}
       {!hasAnyPayment && showWhatsApp && (
-        <a
-          href={`https://wa.me/${whatsappPayment.number.replace(/[\s+\-()]/g, "")}?text=${encodeURIComponent(waMessage)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57]"
+        <button
+          onClick={handleWhatsAppEnroll}
+          disabled={isPending}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <MessageCircle className="size-5" />
-          Inscribirme por WhatsApp
-        </a>
+          {isPending ? (
+            <Loader2 className="size-5 animate-spin" />
+          ) : (
+            <MessageCircle className="size-5" />
+          )}
+          {enrollmentStatus === "pending"
+            ? "Contactar por WhatsApp"
+            : "Inscribirme por WhatsApp"}
+        </button>
       )}
     </div>
   );

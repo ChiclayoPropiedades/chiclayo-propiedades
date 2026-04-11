@@ -21,6 +21,7 @@ import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
 import { RequestAgentRole } from "@/features/trainings/components/request-agent-role";
 import { hasPendingRoleUpgrade } from "@/features/admin/services/role-upgrade-actions";
+import { hasExistingEnrollment } from "@/features/trainings/services/whatsapp-enrollment";
 import { createClient } from "@/shared/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -92,6 +93,15 @@ export default async function TrainingDetailPage({ params }: PageProps) {
     }
   }
   const isAgent = userRole === "agent" || userRole === "admin";
+
+  // Verificar enrollment existente para agentes
+  let existingEnrollmentStatus: string | null = null;
+  if (isAgent) {
+    const enrollment = await hasExistingEnrollment(training.id);
+    if (enrollment.exists) {
+      existingEnrollmentStatus = enrollment.status ?? "pending";
+    }
+  }
 
   // Leer WhatsApp settings para el botón de pago
   const { data: waSettings } = await supabase
@@ -313,6 +323,7 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                     isStripeConfigured={isStripeConfigured()}
                     isMercadoPagoConfigured={isMercadoPagoConfigured()}
                     whatsappPayment={whatsappPayment}
+                    existingEnrollmentStatus={existingEnrollmentStatus}
                   />
                 ) : isLoggedIn && !isAgent ? (
                   <RequestAgentRole hasPendingRequest={pendingUpgrade} />
