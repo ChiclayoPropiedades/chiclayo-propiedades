@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/shared/components/ui/input";
 import {
   Table,
   TableBody,
@@ -23,6 +24,8 @@ interface Props {
   users: AdminProfile[];
 }
 
+const PAGE_SIZE = 10;
+
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-700 border-red-200",
   agent: "bg-blue-100 text-blue-700 border-blue-200",
@@ -38,6 +41,30 @@ const roleLabels: Record<string, string> = {
 export function UsuariosTable({ users: initialUsers }: Props) {
   const [isPending, startTransition] = useTransition();
   const [users, setUsers] = useState<AdminProfile[]>(initialUsers);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+
+  // Filtrar
+  const filtered = useMemo(() => {
+    if (!search.trim()) return users;
+    const q = search.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.full_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.toLowerCase().includes(q) ||
+        (u.role && roleLabels[u.role]?.toLowerCase().includes(q))
+    );
+  }, [users, search]);
+
+  // Paginar
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  function handleSearch(value: string) {
+    setSearch(value);
+    setPage(0);
+  }
 
   function handleRoleChange(profileId: string, role: string) {
     startTransition(async () => {
@@ -46,7 +73,7 @@ export function UsuariosTable({ users: initialUsers }: Props) {
         setUsers((prev) =>
           prev.map((u) => (u.id === profileId ? { ...u, role } : u))
         );
-        toast.success("Rol actualizado correctamente");
+        toast.success("Rol actualizado");
       } catch {
         toast.error("Error al actualizar el rol");
       }
@@ -64,142 +91,141 @@ export function UsuariosTable({ users: initialUsers }: Props) {
         );
         toast.success(!current ? "Usuario activado" : "Usuario desactivado");
       } catch {
-        toast.error("Error al cambiar el estado del usuario");
+        toast.error("Error al cambiar el estado");
       }
     });
   }
 
   function handleDelete(profileId: string, name: string) {
-    if (
-      !confirm(
-        `¿Estás seguro de eliminar al usuario "${name}"? Se eliminarán todas sus propiedades y datos asociados. Esta acción no se puede deshacer.`
-      )
-    ) {
-      return;
-    }
+    if (!confirm(`¿Eliminar al usuario "${name}"? Se eliminarán sus datos. No se puede deshacer.`)) return;
     startTransition(async () => {
       try {
         const result = await deleteUser(profileId);
-        if (result?.error) {
-          toast.error(result.error);
-          return;
-        }
+        if (result?.error) { toast.error(result.error); return; }
         setUsers((prev) => prev.filter((u) => u.id !== profileId));
-        toast.success("Usuario eliminado correctamente");
+        toast.success("Usuario eliminado");
       } catch {
-        toast.error("Error al eliminar el usuario");
+        toast.error("Error al eliminar");
       }
     });
   }
 
   if (users.length === 0) {
-    return (
-      <p className="py-12 text-center text-sm text-gray-400">
-        No hay usuarios registrados.
-      </p>
-    );
+    return <p className="py-12 text-center text-sm text-gray-400">No hay usuarios registrados.</p>;
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="border-gray-200 bg-gray-50">
-          <TableHead className="text-xs font-medium text-gray-500">Nombre</TableHead>
-          <TableHead className="text-xs font-medium text-gray-500">Email</TableHead>
-          <TableHead className="text-xs font-medium text-gray-500">Teléfono</TableHead>
-          <TableHead className="text-xs font-medium text-gray-500">Rol</TableHead>
-          <TableHead className="text-xs font-medium text-gray-500">Estado</TableHead>
-          <TableHead className="text-xs font-medium text-gray-500">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.id} className="border-gray-100">
-            <TableCell className="font-medium text-[#1f2937]">
-              {user.full_name ?? "Sin nombre"}
-            </TableCell>
-            <TableCell className="text-xs text-gray-500">
-              {user.email ?? <span className="text-gray-300">—</span>}
-            </TableCell>
-            <TableCell className="text-gray-500">
-              {user.phone ?? <span className="text-gray-300">—</span>}
-            </TableCell>
-            <TableCell>
-              <span
-                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${roleColors[user.role ?? "user"] ?? roleColors["user"]}`}
-              >
-                {roleLabels[user.role ?? "user"] ?? user.role}
-              </span>
-            </TableCell>
-            <TableCell>
-              <span
-                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${
-                  user.is_active
-                    ? "bg-green-100 text-green-700 border-green-200"
-                    : "bg-red-100 text-red-600 border-red-200"
-                }`}
-              >
-                {user.is_active ? "Activo" : "Inactivo"}
-              </span>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                {/* Ver detalle */}
-                <Link
-                  href={`/admin/usuarios/${user.id}`}
-                  className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-[#2563eb]"
-                  title="Ver detalle"
-                >
-                  <Eye className="size-3.5" aria-hidden="true" />
-                </Link>
+    <div className="space-y-3">
+      {/* Buscador */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+        <Input
+          placeholder="Buscar por nombre, email, teléfono..."
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="border-gray-200 pl-9"
+        />
+      </div>
 
-                {/* Cambiar rol */}
-                <select
-                  defaultValue={user.role ?? "user"}
-                  disabled={isPending}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                  className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 disabled:opacity-50"
-                  aria-label={`Cambiar rol de ${user.full_name ?? "usuario"}`}
-                >
-                  <option value="user">Usuario</option>
-                  <option value="agent">Agente</option>
-                  <option value="admin">Admin</option>
-                </select>
+      {search && (
+        <p className="text-xs text-gray-500">{filtered.length} resultado{filtered.length !== 1 ? "s" : ""}</p>
+      )}
 
-                {/* Activar / Desactivar */}
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => handleToggleActive(user.id, user.is_active ?? false)}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
-                    user.is_active
-                      ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                      : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
-                  }`}
-                >
-                  {user.is_active ? "Desactivar" : "Activar"}
-                </button>
+      {/* Tabla */}
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-gray-200 bg-gray-50">
+              <TableHead className="text-xs font-medium text-gray-500">Nombre</TableHead>
+              <TableHead className="text-xs font-medium text-gray-500">Email</TableHead>
+              <TableHead className="text-xs font-medium text-gray-500">Teléfono</TableHead>
+              <TableHead className="text-xs font-medium text-gray-500">Rol</TableHead>
+              <TableHead className="text-xs font-medium text-gray-500">Estado</TableHead>
+              <TableHead className="text-xs font-medium text-gray-500">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginated.map((user) => (
+              <TableRow key={user.id} className="border-gray-100">
+                <TableCell className="font-medium text-[#1f2937]">
+                  {user.full_name ?? "Sin nombre"}
+                </TableCell>
+                <TableCell className="text-xs text-gray-500">
+                  {user.email ?? <span className="text-gray-300">—</span>}
+                </TableCell>
+                <TableCell className="text-gray-500">
+                  {user.phone ?? <span className="text-gray-300">—</span>}
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${roleColors[user.role ?? "user"] ?? roleColors["user"]}`}>
+                    {roleLabels[user.role ?? "user"] ?? user.role}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${user.is_active ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-600 border-red-200"}`}>
+                    {user.is_active ? "Activo" : "Inactivo"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/admin/usuarios/${user.id}`}
+                      className="rounded-md border border-gray-200 bg-white p-1.5 text-gray-500 hover:border-blue-300 hover:bg-blue-50 hover:text-[#2563eb]"
+                      title="Ver detalle"
+                    >
+                      <Eye className="size-3.5" />
+                    </Link>
+                    <select
+                      defaultValue={user.role ?? "user"}
+                      disabled={isPending}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 disabled:opacity-50"
+                    >
+                      <option value="user">Usuario</option>
+                      <option value="agent">Agente</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button
+                      disabled={isPending}
+                      onClick={() => handleToggleActive(user.id, user.is_active ?? false)}
+                      className={`rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-50 ${user.is_active ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100" : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"}`}
+                    >
+                      {user.is_active ? "Desactivar" : "Activar"}
+                    </button>
+                    {user.role !== "admin" && (
+                      <button
+                        disabled={isPending}
+                        onClick={() => handleDelete(user.id, user.full_name ?? "Sin nombre")}
+                        title="Eliminar"
+                        className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-                {/* Eliminar (solo si no es admin) */}
-                {user.role !== "admin" && (
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() =>
-                      handleDelete(user.id, user.full_name ?? "Sin nombre")
-                    }
-                    title="Eliminar usuario"
-                    className="rounded-md border border-red-200 bg-white p-1.5 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
-                    aria-label={`Eliminar usuario: ${user.full_name ?? "Sin nombre"}`}
-                  >
-                    <Trash2 className="size-3.5" aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+          <p className="text-xs text-gray-500">
+            Página {page + 1} de {totalPages} ({filtered.length} usuarios)
+          </p>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-30">
+              <ChevronLeft className="size-4" />
+            </button>
+            <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-30">
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

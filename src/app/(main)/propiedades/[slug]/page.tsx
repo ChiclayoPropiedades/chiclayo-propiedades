@@ -17,6 +17,7 @@ export async function generateMetadata({
 
   try {
     const property = await getPropertyBySlug(slug);
+    if (!property) return { title: "Propiedad no encontrada" };
     const coverImage = property.property_images?.find((img) => img.is_cover) ??
       property.property_images?.[0] ?? null;
 
