@@ -44,7 +44,7 @@ export function HeroSection() {
           className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl"
         >
           Encuentra el lugar perfecto para tu{" "}
-          <span className="text-[#fbbf24]">próxima historia</span>
+          <span className="text-[#d4a017]">próxima historia</span>
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-blue-100 sm:mt-4 sm:text-lg">
