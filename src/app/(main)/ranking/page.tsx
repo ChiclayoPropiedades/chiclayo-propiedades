@@ -22,18 +22,32 @@ export const metadata: Metadata = {
 };
 
 function PositionBadge({ position }: { position: number }) {
-  const styles =
-    position === 1
-      ? "bg-yellow-400 text-yellow-900"
-      : position === 2
-        ? "bg-gray-300 text-gray-700"
-        : position === 3
-          ? "bg-orange-300 text-orange-900"
-          : "bg-gray-100 text-gray-600";
+  if (position === 1) {
+    return (
+      <div className="flex flex-col items-center">
+        <span className="flex size-10 items-center justify-center rounded-full bg-yellow-400 text-lg font-extrabold text-yellow-900 shadow-md">1</span>
+        <span className="mt-0.5 text-[10px] font-bold text-yellow-700">1er lugar</span>
+      </div>
+    );
+  }
+  if (position === 2) {
+    return (
+      <div className="flex flex-col items-center">
+        <span className="flex size-10 items-center justify-center rounded-full bg-gray-300 text-lg font-extrabold text-gray-700 shadow-md">2</span>
+        <span className="mt-0.5 text-[10px] font-bold text-gray-500">2do lugar</span>
+      </div>
+    );
+  }
+  if (position === 3) {
+    return (
+      <div className="flex flex-col items-center">
+        <span className="flex size-10 items-center justify-center rounded-full bg-orange-300 text-lg font-extrabold text-orange-900 shadow-md">3</span>
+        <span className="mt-0.5 text-[10px] font-bold text-orange-600">3er lugar</span>
+      </div>
+    );
+  }
   return (
-    <span
-      className={`flex size-8 items-center justify-center rounded-full text-sm font-extrabold ${styles}`}
-    >
+    <span className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-sm font-extrabold text-gray-600">
       {position}
     </span>
   );
@@ -48,8 +62,8 @@ function AgentAvatar({
   avatarUrl: string | null;
   size?: "md" | "lg";
 }) {
-  const sizeClass = size === "lg" ? "size-14" : "size-10";
-  const textClass = size === "lg" ? "text-lg" : "text-sm";
+  const sizeClass = size === "lg" ? "size-16" : "size-10";
+  const textClass = size === "lg" ? "text-xl" : "text-sm";
 
   if (avatarUrl) {
     return (
