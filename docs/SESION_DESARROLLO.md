@@ -187,17 +187,33 @@ Lee todos los .md y dime qué sigue según el plan.
 | 6.5.9 | Fix 404 al editar | ✅ | Admin puede editar propiedad de cualquier agente sin 404 |
 | 6.5.10 | Título dinámico | ✅ | Admin ve "Todas las Propiedades", agente ve "Mis Propiedades" |
 
-### ETAPA 6.6: Mejoras Superadmin ❌ PENDIENTE (Próxima sesión)
+### ETAPA 6.6: Mejoras Superadmin ✅ COMPLETADA (Sesión 3 - 10/11 Abril 2026)
 
 | # | Tarea | Estado | Detalle |
 |---|-------|--------|---------|
-| 6.6.1 | Logo centrado en sidebar | ❌ | Centrar logo en sidebar del dashboard |
-| 6.6.2 | Sidebar colapsable | ❌ | Botón con flechas para colapsar/expandir sidebar (solo íconos cuando colapsado) |
-| 6.6.3 | CRUD usuarios completo | ❌ | Crear usuarios desde admin (email, nombre, rol, teléfono). Actualmente solo edit/delete/toggle |
-| 6.6.4 | Ver publicaciones de cualquier usuario | ❌ | Desde admin, click en usuario → ver sus propiedades, leads, ventas |
-| 6.6.5 | Métricas del dueño | ❌ | Cards: total vendedores, asesores, compradores, propiedades activas/vendidas, leads nuevos/cerrados, ventas aprobadas, comisiones totales, ingresos por capacitaciones |
-| 6.6.6 | Dashboard admin con gráficas | ❌ | Gráficas de leads por mes, propiedades por tipo, ventas por período |
-| 6.6.7 | Fix: bug 0 propiedades en dashboard | ✅ | Campo email no existe en profiles, removido del select join |
+| 6.6.1 | Logo centrado en sidebar | ✅ | justify-center en contenedor del logo |
+| 6.6.2 | Sidebar colapsable | ✅ | Botón ChevronsLeft/Right, persiste en localStorage, w-64/w-16 |
+| 6.6.3 | CRUD usuarios completo | ✅ | Crear usuarios desde admin (Supabase Auth admin API), dialog con email/nombre/rol/teléfono |
+| 6.6.4 | Ver publicaciones de cualquier usuario | ✅ | /admin/usuarios/[id] con tabs: Propiedades, Leads, Ventas |
+| 6.6.5 | Métricas del dueño | ✅ | 4 secciones: Usuarios (3), Propiedades (4), Leads (3), Finanzas (3) |
+| 6.6.6 | Dashboard admin con gráficas | ✅ | Recharts: BarChart leads/mes, PieChart propiedades/tipo, AreaChart ventas/período |
+| 6.6.7 | Fix: bug 0 propiedades en dashboard | ✅ | Campo email no existe en profiles |
+| 6.6.8 | Layout unificado | ✅ | Admin y dashboard usan mismo DashboardSidebar, sin redundancias |
+| 6.6.9 | Sección Finanzas | ✅ | /admin/finanzas con resumen, ventas detalladas, pagos capacitaciones, suscripciones |
+| 6.6.10 | Dirección + redes sociales | ✅ | Plaza Bolognesi actualizada, URLs exactas del cliente |
+| 6.6.11 | Fix 500 blog/capacitaciones | ✅ | Quitar generateStaticParams, usar force-dynamic (Next.js 16 cookies) |
+| 6.6.12 | Fix títulos duplicados | ✅ | Todos los pages (main + auth) sin "| Chiclayo Propiedades" |
+| 6.6.13 | Páginas legales | ✅ | /privacidad y /terminos creadas |
+| 6.6.14 | Upload imágenes blog/training | ✅ | Componente ImageUploadField: drag & drop + file picker + URL |
+| 6.6.15 | Cover image en training form | ✅ | Campo cover_image en formulario de capacitaciones |
+| 6.6.16 | Suscripción anual agentes | ✅ | S/99 configurable, Stripe Checkout, subscription wall, webhook |
+| 6.6.17 | Gestión de suscripciones | ✅ | Admin extiende por horas/días/meses/años desde Finanzas y detalle usuario |
+| 6.6.18 | Botón cerrar sesión | ✅ | LogOut en sidebar + /api/auth/signout route |
+| 6.6.19 | Redirect admin al login | ✅ | Admin → /admin, agente/user → /dashboard |
+| 6.6.20 | Usuarios de prueba | ✅ | Agente (Carlos Mendoza) + Comprador (María López) con datos reales |
+| 6.6.21 | ACCESOS_ROLES.md actualizado | ✅ | Credenciales de 3 roles, flujo de suscripción, flujo de dinero |
+| 6.6.22 | Auditoría documentada | ✅ | docs/AUDITORIA_COMPLETA.md con todos los hallazgos |
+| 6.6.23 | Limpieza DB | ✅ | Rankings, teléfono Jorge, rol Test Admin |
 
 ### ETAPA 7: Resend (Emails Transaccionales) ❌ PENDIENTE
 
