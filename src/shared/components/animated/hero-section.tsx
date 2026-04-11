@@ -47,12 +47,12 @@ export function HeroSection() {
           <span className="text-[#fbbf24]">próxima historia</span>
         </h1>
 
-        <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg">
+        <p className="mx-auto mt-2 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg">
           Conectamos tus sueños con la realidad. Miles de propiedades en venta y
           alquiler en Chiclayo y Lambayeque te esperan.
         </p>
 
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/propiedades"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-[#1e40af] shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
@@ -75,7 +75,7 @@ export function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
+        <div className="mx-auto mt-4 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
           {[
             { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
             { icon: Users, target: 200, suffix: "+", label: "Agentes" },
