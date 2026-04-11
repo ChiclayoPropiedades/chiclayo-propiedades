@@ -13,6 +13,7 @@ import {
   getSubscriptionSettings,
 } from "@/features/subscriptions/services/subscription-actions";
 import { SubscriptionWall } from "@/features/subscriptions/components/subscription-wall";
+import { PublicationPlanWall } from "@/features/subscriptions/components/publication-plan-wall";
 
 export const metadata: Metadata = {
   title: "Nueva Propiedad",
@@ -98,6 +99,73 @@ export default async function NuevaPropiedadPage() {
         </div>
       );
     }
+  }
+
+  // Usuarios (rol user) necesitan pagar por publicación individual
+  if (profile.role === "user") {
+    const { data: pubSettings } = await supabase
+      .from("platform_settings")
+      .select("key, value")
+      .in("key", [
+        "user_pub_enabled",
+        "user_pub_basic_price",
+        "user_pub_basic_photos",
+        "user_pub_basic_name",
+        "user_pub_advanced_price",
+        "user_pub_advanced_photos",
+        "user_pub_advanced_name",
+        "user_pub_advanced_extras",
+        "user_pub_currency",
+        "whatsapp_payment_number",
+      ]);
+
+    const ps: Record<string, string> = {};
+    for (const row of pubSettings ?? []) ps[row.key] = row.value;
+
+    if (ps.user_pub_enabled !== "true") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <Link href="/dashboard/propiedades" className="mb-3 inline-flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-[#2563eb]">
+              <ChevronLeft className="size-3.5" aria-hidden="true" />
+              Volver a Mis Propiedades
+            </Link>
+            <h1 className="text-2xl font-bold text-[#1f2937]">Nueva Propiedad</h1>
+          </div>
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center">
+            <p className="text-sm font-medium text-yellow-800">Publicación de propiedades no disponible</p>
+            <p className="mt-1 text-xs text-yellow-600">Contacta al administrador para más información.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <Link href="/dashboard/propiedades" className="mb-3 inline-flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-[#2563eb]">
+            <ChevronLeft className="size-3.5" aria-hidden="true" />
+            Volver a Mis Propiedades
+          </Link>
+          <h1 className="text-2xl font-bold text-[#1f2937]">Nueva Propiedad</h1>
+        </div>
+        <PublicationPlanWall
+          basic={{
+            name: ps.user_pub_basic_name ?? "Básica",
+            price: parseFloat(ps.user_pub_basic_price ?? "50"),
+            photos: parseInt(ps.user_pub_basic_photos ?? "1"),
+          }}
+          advanced={{
+            name: ps.user_pub_advanced_name ?? "Avanzada",
+            price: parseFloat(ps.user_pub_advanced_price ?? "100"),
+            photos: parseInt(ps.user_pub_advanced_photos ?? "10"),
+            extras: ps.user_pub_advanced_extras ?? "",
+          }}
+          currency={ps.user_pub_currency ?? "PEN"}
+          whatsappNumber={ps.whatsapp_payment_number ?? "51928216206"}
+        />
+      </div>
+    );
   }
 
   return (

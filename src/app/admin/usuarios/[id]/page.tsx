@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft, Phone, Mail } from "lucide-react";
 
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
@@ -13,6 +13,8 @@ import {
 import { UserDetailTabs } from "@/features/admin/components/user-detail-tabs";
 import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
 import { ExtendSubscriptionForm } from "@/features/subscriptions/components/extend-subscription-form";
+import { EditUserForm } from "@/features/admin/components/edit-user-form";
+import { createAdminClient } from "@/shared/lib/supabase/admin";
 
 const roleLabels: Record<string, string> = {
   admin: "Administrador",
@@ -46,6 +48,13 @@ export default async function AdminUserDetailPage({
   if (!profile) {
     notFound();
   }
+
+  // Obtener email del usuario
+  const adminSupabase = createAdminClient();
+  const { data: authUserData } = await adminSupabase.auth.admin.getUserById(
+    profile.user_id
+  );
+  const userEmail = authUserData?.user?.email ?? "";
 
   const displayName = profile.full_name ?? "Sin nombre";
 
@@ -101,15 +110,18 @@ export default async function AdminUserDetailPage({
                 </Badge>
               </div>
 
-              <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+              <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                {userEmail && (
+                  <span className="flex items-center gap-1">
+                    <Mail className="size-3.5" />
+                    {userEmail}
+                  </span>
+                )}
                 {profile.phone && (
                   <span className="flex items-center gap-1">
                     <Phone className="size-3.5" />
                     {profile.phone}
                   </span>
-                )}
-                {profile.bio && (
-                  <span className="max-w-xs truncate">{profile.bio}</span>
                 )}
               </div>
             </div>
@@ -147,6 +159,19 @@ export default async function AdminUserDetailPage({
           expiresAt={subscription?.expiresAt ?? null}
         />
       )}
+
+      {/* Edit user form */}
+      <EditUserForm
+        profileId={id}
+        userId={profile.user_id}
+        initialData={{
+          full_name: profile.full_name ?? "",
+          phone: profile.phone ?? "",
+          bio: profile.bio ?? "",
+          role: profile.role ?? "user",
+          email: userEmail,
+        }}
+      />
 
       {/* Tabs */}
       <UserDetailTabs properties={properties} inquiries={inquiries} />

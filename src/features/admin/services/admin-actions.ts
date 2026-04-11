@@ -189,6 +189,51 @@ export async function toggleUserActive(
   revalidatePath("/admin/usuarios");
 }
 
+export async function updateUserProfile(
+  profileId: string,
+  data: { full_name: string; phone: string; bio: string; role: string }
+): Promise<{ success?: boolean; error?: string }> {
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  // Normalizar nombre
+  const normalizedName = data.full_name
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const { error } = await adminSupabase
+    .from("profiles")
+    .update({
+      full_name: normalizedName,
+      phone: data.phone.trim(),
+      bio: data.bio.trim(),
+      role: data.role,
+    })
+    .eq("id", profileId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/usuarios");
+  revalidatePath(`/admin/usuarios/${profileId}`);
+  return { success: true };
+}
+
+export async function resetUserPassword(
+  userId: string,
+  newPassword: string
+): Promise<{ success?: boolean; error?: string }> {
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  const { error } = await adminSupabase.auth.admin.updateUserById(userId, {
+    password: newPassword,
+  });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
 // ─── Propiedades ──────────────────────────────────────────────────────────────
 
 export async function getAdminProperties(): Promise<AdminProperty[]> {

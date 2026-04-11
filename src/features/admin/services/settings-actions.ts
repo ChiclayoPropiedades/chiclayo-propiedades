@@ -15,6 +15,13 @@ interface PlatformSettings {
   whatsapp_payment_enabled: string;
   whatsapp_payment_number: string;
   whatsapp_payment_message: string;
+  user_pub_enabled: string;
+  user_pub_basic_price: string;
+  user_pub_basic_name: string;
+  user_pub_advanced_price: string;
+  user_pub_advanced_name: string;
+  user_pub_advanced_extras: string;
+  user_pub_currency: string;
 }
 
 export interface EmailSettings {
@@ -46,6 +53,13 @@ export async function getSettings(): Promise<PlatformSettings> {
     whatsapp_payment_enabled: "true",
     whatsapp_payment_number: "51928216206",
     whatsapp_payment_message: "Hola, quiero realizar el pago de mi suscripción de agente en Chiclayo Propiedades",
+    user_pub_enabled: "true",
+    user_pub_basic_price: "50",
+    user_pub_basic_name: "Básica",
+    user_pub_advanced_price: "100",
+    user_pub_advanced_name: "Avanzada",
+    user_pub_advanced_extras: "Mención en podcast de TikTok",
+    user_pub_currency: "PEN",
   };
 
   for (const row of data ?? []) {
@@ -112,6 +126,34 @@ export async function updateSettings(
     {
       key: "whatsapp_payment_message",
       value: formData.get("whatsapp_payment_message") as string,
+    },
+    {
+      key: "user_pub_enabled",
+      value: formData.get("user_pub_enabled") as string ?? "false",
+    },
+    {
+      key: "user_pub_basic_price",
+      value: formData.get("user_pub_basic_price") as string,
+    },
+    {
+      key: "user_pub_basic_name",
+      value: formData.get("user_pub_basic_name") as string,
+    },
+    {
+      key: "user_pub_advanced_price",
+      value: formData.get("user_pub_advanced_price") as string,
+    },
+    {
+      key: "user_pub_advanced_name",
+      value: formData.get("user_pub_advanced_name") as string,
+    },
+    {
+      key: "user_pub_advanced_extras",
+      value: formData.get("user_pub_advanced_extras") as string,
+    },
+    {
+      key: "user_pub_currency",
+      value: formData.get("user_pub_currency") as string,
     },
   ];
 

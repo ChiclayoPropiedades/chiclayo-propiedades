@@ -18,6 +18,13 @@ interface SettingsFormProps {
     whatsapp_payment_enabled: string;
     whatsapp_payment_number: string;
     whatsapp_payment_message: string;
+    user_pub_enabled: string;
+    user_pub_basic_price: string;
+    user_pub_basic_name: string;
+    user_pub_advanced_price: string;
+    user_pub_advanced_name: string;
+    user_pub_advanced_extras: string;
+    user_pub_currency: string;
   };
   action: (
     formData: FormData
@@ -28,6 +35,7 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
   const [isPending, startTransition] = useTransition();
   const [freeEnabled, setFreeEnabled] = useState(settings.free_subscription_enabled === "true");
   const [waEnabled, setWaEnabled] = useState(settings.whatsapp_payment_enabled === "true");
+  const [pubEnabled, setPubEnabled] = useState(settings.user_pub_enabled === "true");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -239,6 +247,72 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Planes de publicación para usuarios */}
+      <div className="border-t border-gray-200 pt-5">
+        <div className="flex items-start gap-3 mb-4">
+          <input
+            type="hidden"
+            name="user_pub_enabled"
+            value={pubEnabled ? "true" : "false"}
+          />
+          <input
+            id="user_pub_toggle"
+            type="checkbox"
+            checked={pubEnabled}
+            onChange={(e) => setPubEnabled(e.target.checked)}
+            disabled={isPending}
+            className="mt-0.5 size-4 accent-[#2563eb]"
+          />
+          <div>
+            <label htmlFor="user_pub_toggle" className="cursor-pointer text-sm font-semibold text-[#1f2937]">
+              Planes de publicación para usuarios
+            </label>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Usuarios (compradores/vendedores) pueden publicar propiedades pagando por publicación individual.
+            </p>
+          </div>
+        </div>
+
+        {pubEnabled && (
+          <div className="space-y-4 pl-7">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_basic_name">Plan básico - Nombre</Label>
+                <Input id="user_pub_basic_name" name="user_pub_basic_name" defaultValue={settings.user_pub_basic_name} disabled={isPending} className="border-gray-200" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_basic_price">Precio básico</Label>
+                <Input id="user_pub_basic_price" name="user_pub_basic_price" type="number" min="0" defaultValue={settings.user_pub_basic_price} disabled={isPending} className="border-gray-200" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_currency">Moneda</Label>
+                <select id="user_pub_currency" name="user_pub_currency" defaultValue={settings.user_pub_currency} disabled={isPending} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 disabled:opacity-50">
+                  <option value="PEN">PEN (Soles)</option>
+                  <option value="USD">USD (Dólares)</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_advanced_name">Plan avanzado - Nombre</Label>
+                <Input id="user_pub_advanced_name" name="user_pub_advanced_name" defaultValue={settings.user_pub_advanced_name} disabled={isPending} className="border-gray-200" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_advanced_price">Precio avanzado</Label>
+                <Input id="user_pub_advanced_price" name="user_pub_advanced_price" type="number" min="0" defaultValue={settings.user_pub_advanced_price} disabled={isPending} className="border-gray-200" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="user_pub_advanced_extras">Extras del plan avanzado</Label>
+                <Input id="user_pub_advanced_extras" name="user_pub_advanced_extras" defaultValue={settings.user_pub_advanced_extras} disabled={isPending} className="border-gray-200" />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400">
+              Plan básico: 1 foto. Plan avanzado: hasta 10 fotos + extras.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="rounded-lg border border-blue-100 bg-blue-50 p-3">
