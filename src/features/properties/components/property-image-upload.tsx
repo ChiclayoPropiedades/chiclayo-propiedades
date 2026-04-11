@@ -31,11 +31,13 @@ interface ImageItem {
 interface PropertyImageUploadProps {
   propertyId: string;
   initialImages?: ImageItem[];
+  maxImages?: number;
 }
 
 export function PropertyImageUpload({
   propertyId,
   initialImages = [],
+  maxImages = 10,
 }: PropertyImageUploadProps) {
   const [images, setImages] = useState<ImageItem[]>(initialImages);
   const [urlInput, setUrlInput] = useState("");
@@ -44,7 +46,7 @@ export function PropertyImageUpload({
   const [isAddingUrl, startAddUrl] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_IMAGES = 10;
+  const MAX_IMAGES = maxImages;
   const canAddMore = images.length < MAX_IMAGES;
 
   const handleFileUpload = useCallback(

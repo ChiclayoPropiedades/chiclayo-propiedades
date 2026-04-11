@@ -36,6 +36,7 @@ interface ImageItem {
 interface PropertyFormProps {
   initialData?: PropertyInitialData;
   initialImages?: ImageItem[];
+  maxImages?: number;
   action: (
     formData: FormData
   ) => Promise<
@@ -49,6 +50,7 @@ const FIELD_CLASS =
 export function PropertyForm({
   initialData,
   initialImages,
+  maxImages,
   action,
 }: PropertyFormProps) {
   const router = useRouter();
@@ -355,6 +357,7 @@ export function PropertyForm({
           <PropertyImageUpload
             propertyId={propertyId ?? initialData?.id ?? ""}
             initialImages={initialImages}
+            maxImages={maxImages}
           />
 
           {/* Botón finalizar (solo en modo crear) */}

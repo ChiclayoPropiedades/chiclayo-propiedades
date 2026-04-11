@@ -148,12 +148,25 @@ export async function hasApprovedPlan(profileId: string): Promise<{
 
   if (!data) return { approved: false };
 
+  // Leer límite de fotos desde configuración
+  const { data: photoSettings } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", ["user_pub_basic_photos", "user_pub_advanced_photos"]);
+
+  const ps: Record<string, string> = {};
+  for (const row of photoSettings ?? []) ps[row.key] = row.value;
+
+  const maxPhotos = data.plan_type === "advanced"
+    ? parseInt(ps.user_pub_advanced_photos ?? "10")
+    : parseInt(ps.user_pub_basic_photos ?? "1");
+
   return {
     approved: true,
     plan: {
       type: data.plan_type,
       name: data.plan_name,
-      maxPhotos: data.plan_type === "advanced" ? 10 : 1,
+      maxPhotos,
     },
   };
 }

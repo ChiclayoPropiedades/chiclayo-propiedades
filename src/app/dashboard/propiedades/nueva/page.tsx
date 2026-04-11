@@ -126,7 +126,7 @@ export default async function NuevaPropiedadPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <PropertyForm action={createProperty} />
+              <PropertyForm action={createProperty} maxImages={plan.maxPhotos} />
             </CardContent>
           </Card>
         </div>
