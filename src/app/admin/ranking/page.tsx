@@ -17,6 +17,7 @@ import { RecalcularRankingButton } from "@/features/admin/components/recalcular-
 import { SalesApprovalTable } from "@/features/admin/components/sales-approval-table";
 import { getPendingSales } from "@/features/admin/services/admin-actions";
 import { formatPrice } from "@/shared/lib/format";
+import { getSettings } from "@/features/admin/services/settings-actions";
 
 interface RankingRow {
   id: string;
@@ -27,7 +28,7 @@ interface RankingRow {
   sales_count: number;
   total_sales_amount: number;
   period: string;
-  agent: { full_name: string | null; phone: string | null } | null;
+  agent: { full_name: string | null; phone: string | null; role: string | null } | null;
 }
 
 async function getRankings(): Promise<RankingRow[]> {
@@ -36,24 +37,25 @@ async function getRankings(): Promise<RankingRow[]> {
   const { data, error } = await supabase
     .from("agent_rankings")
     .select(
-      "id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period, agent:profiles(full_name, phone)"
+      "id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period, agent:profiles(full_name, phone, role)"
     )
     .order("score", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return (data ?? []).map((row) => ({
+  return ((data ?? []).map((row) => ({
     ...row,
     sales_count: (row as Record<string, unknown>).sales_count as number ?? 0,
     total_sales_amount: (row as Record<string, unknown>).total_sales_amount as number ?? 0,
     agent: Array.isArray(row.agent) ? row.agent[0] ?? null : row.agent,
-  })) as RankingRow[];
+  })) as RankingRow[]).filter((r) => r.agent?.role === "agent");
 }
 
 export default async function AdminRankingPage() {
-  const [rankings, pendingSales] = await Promise.all([
+  const [rankings, pendingSales, settings] = await Promise.all([
     getRankings(),
     getPendingSales(),
+    getSettings(),
   ]);
   const currentPeriod = new Date().toISOString().slice(0, 7);
 
@@ -81,7 +83,7 @@ export default async function AdminRankingPage() {
         </p>
         <p className="mt-1 text-xs text-[#1e40af]">
           La posición se determina por el <strong>monto total vendido</strong>{" "}
-          (en soles). Las ventas en dólares se convierten a soles (tasa ~3.7).
+          (en soles). Las ventas en dólares se convierten a soles (tasa {settings.usd_to_pen_rate}).
           Solo se cuentan ventas <strong>aprobadas por el administrador</strong>.
         </p>
       </div>
