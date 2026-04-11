@@ -11,6 +11,7 @@ interface PlatformSettings {
   usd_to_pen_rate: string;
   agent_subscription_price: string;
   agent_subscription_currency: string;
+  free_subscription_enabled: string;
 }
 
 export interface EmailSettings {
@@ -38,6 +39,7 @@ export async function getSettings(): Promise<PlatformSettings> {
     usd_to_pen_rate: "3.7",
     agent_subscription_price: "99",
     agent_subscription_currency: "PEN",
+    free_subscription_enabled: "true",
   };
 
   for (const row of data ?? []) {
@@ -88,6 +90,10 @@ export async function updateSettings(
     {
       key: "agent_subscription_currency",
       value: formData.get("agent_subscription_currency") as string,
+    },
+    {
+      key: "free_subscription_enabled",
+      value: formData.get("free_subscription_enabled") as string ?? "false",
     },
   ];
 

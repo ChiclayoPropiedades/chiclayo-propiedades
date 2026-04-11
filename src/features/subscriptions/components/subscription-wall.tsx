@@ -21,6 +21,7 @@ interface SubscriptionWallProps {
   currency: string;
   isStripeConfigured: boolean;
   isMercadoPagoConfigured: boolean;
+  freeSubscriptionEnabled?: boolean;
   expiredAt?: string | null;
 }
 
@@ -53,11 +54,13 @@ export function SubscriptionWall({
   currency,
   isStripeConfigured,
   isMercadoPagoConfigured,
+  freeSubscriptionEnabled = false,
   expiredAt,
 }: SubscriptionWallProps) {
   const [isPending, startTransition] = useTransition();
 
   const hasAnyPayment = isStripeConfigured || isMercadoPagoConfigured;
+  const showFreeOption = !hasAnyPayment && freeSubscriptionEnabled;
 
   function handleSubscribe(provider: "mercadopago" | "stripe") {
     startTransition(async () => {
@@ -115,10 +118,10 @@ export function SubscriptionWall({
               Suscripción anual
             </p>
             <p className="mt-1 text-4xl font-extrabold">
-              {hasAnyPayment ? formatPrice(price, currency) : "Gratis"}
+              {showFreeOption ? "Gratis" : formatPrice(price, currency)}
             </p>
             <p className="mt-1 text-sm text-white/70">
-              {hasAnyPayment ? "por año" : "por tiempo limitado"}
+              {showFreeOption ? "por tiempo limitado" : "por año"}
             </p>
           </div>
 
@@ -187,8 +190,7 @@ export function SubscriptionWall({
                 </Button>
               )}
             </div>
-          ) : (
-            /* Sin pasarela de pago → activación gratuita */
+          ) : showFreeOption ? (
             <Button
               onClick={handleFreeActivation}
               disabled={isPending}
@@ -206,12 +208,23 @@ export function SubscriptionWall({
                 </>
               )}
             </Button>
+          ) : (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
+              <p className="text-sm font-medium text-yellow-800">
+                Sistema de pagos no disponible
+              </p>
+              <p className="mt-1 text-xs text-yellow-600">
+                Contacta al administrador para activar tu suscripción.
+              </p>
+            </div>
           )}
 
           <p className="mt-4 text-center text-xs text-gray-400">
-            {hasAnyPayment
-              ? "Pago seguro. La suscripción se activa inmediatamente."
-              : "La suscripción se activa por 1 año inmediatamente."}
+            {showFreeOption
+              ? "La suscripción se activa por 1 año inmediatamente."
+              : hasAnyPayment
+                ? "Pago seguro. La suscripción se activa inmediatamente."
+                : "Contacta al administrador para más información."}
           </p>
         </CardContent>
       </Card>

@@ -41,6 +41,14 @@ export default async function NuevaPropiedadPage() {
     if (!active) {
       const settings = await getSubscriptionSettings();
 
+      // Leer si suscripción gratis está habilitada
+      const { data: freeSetting } = await supabase
+        .from("platform_settings")
+        .select("value")
+        .eq("key", "free_subscription_enabled")
+        .maybeSingle();
+      const freeEnabled = freeSetting?.value === "true";
+
       // Buscar si tiene suscripción expirada
       const { data: expiredSub } = await supabase
         .from("agent_subscriptions")
@@ -70,6 +78,7 @@ export default async function NuevaPropiedadPage() {
             currency={settings.currency}
             isStripeConfigured={isStripeConfigured()}
             isMercadoPagoConfigured={isMercadoPagoConfigured()}
+            freeSubscriptionEnabled={freeEnabled}
             expiredAt={expiredSub?.expires_at}
           />
         </div>

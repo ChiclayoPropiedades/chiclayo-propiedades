@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Save, Loader2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -14,6 +14,7 @@ interface SettingsFormProps {
     usd_to_pen_rate: string;
     agent_subscription_price: string;
     agent_subscription_currency: string;
+    free_subscription_enabled: string;
   };
   action: (
     formData: FormData
@@ -22,6 +23,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ settings, action }: SettingsFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [freeEnabled, setFreeEnabled] = useState(settings.free_subscription_enabled === "true");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -131,6 +133,36 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
             </select>
             <p className="text-xs text-gray-400">
               Moneda del cobro de suscripción
+            </p>
+          </div>
+        </div>
+
+        {/* Toggle suscripción gratis */}
+        <div className="mt-4 flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <input
+            type="hidden"
+            name="free_subscription_enabled"
+            value={freeEnabled ? "true" : "false"}
+          />
+          <input
+            id="free_subscription_toggle"
+            type="checkbox"
+            checked={freeEnabled}
+            onChange={(e) => setFreeEnabled(e.target.checked)}
+            disabled={isPending}
+            className="mt-0.5 size-4 accent-[#2563eb]"
+          />
+          <div>
+            <label
+              htmlFor="free_subscription_toggle"
+              className="cursor-pointer text-sm font-medium text-[#1f2937]"
+            >
+              Permitir suscripción gratis
+            </label>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Si está activado y no hay pasarela de pago configurada, los agentes
+              pueden activar su suscripción sin pagar. Desactiva esto cuando
+              configures MercadoPago.
             </p>
           </div>
         </div>
