@@ -15,6 +15,9 @@ interface SettingsFormProps {
     agent_subscription_price: string;
     agent_subscription_currency: string;
     free_subscription_enabled: string;
+    whatsapp_payment_enabled: string;
+    whatsapp_payment_number: string;
+    whatsapp_payment_message: string;
   };
   action: (
     formData: FormData
@@ -24,6 +27,7 @@ interface SettingsFormProps {
 export function SettingsForm({ settings, action }: SettingsFormProps) {
   const [isPending, startTransition] = useTransition();
   const [freeEnabled, setFreeEnabled] = useState(settings.free_subscription_enabled === "true");
+  const [waEnabled, setWaEnabled] = useState(settings.whatsapp_payment_enabled === "true");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -160,11 +164,80 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
               Permitir suscripción gratis
             </label>
             <p className="mt-0.5 text-xs text-gray-500">
-              Si está activado y no hay pasarela de pago configurada, los agentes
-              pueden activar su suscripción sin pagar. Desactiva esto cuando
-              configures MercadoPago.
+              Los agentes pueden activar su suscripción sin pagar.
+              Desactiva esto cuando configures una pasarela de pago.
             </p>
           </div>
+        </div>
+
+        {/* WhatsApp como método de pago */}
+        <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <input
+              type="hidden"
+              name="whatsapp_payment_enabled"
+              value={waEnabled ? "true" : "false"}
+            />
+            <input
+              id="whatsapp_payment_toggle"
+              type="checkbox"
+              checked={waEnabled}
+              onChange={(e) => setWaEnabled(e.target.checked)}
+              disabled={isPending}
+              className="mt-0.5 size-4 accent-[#25d366]"
+            />
+            <div>
+              <label
+                htmlFor="whatsapp_payment_toggle"
+                className="cursor-pointer text-sm font-medium text-[#1f2937]"
+              >
+                Pago por WhatsApp
+              </label>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Los agentes ven un botón para contactarte por WhatsApp y
+                coordinar el pago manualmente. Tú le envías el enlace o QR
+                y luego activas la suscripción desde el panel.
+              </p>
+            </div>
+          </div>
+
+          {waEnabled && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pl-7">
+              <div className="space-y-1.5">
+                <Label htmlFor="whatsapp_payment_number">
+                  Número de WhatsApp
+                </Label>
+                <Input
+                  id="whatsapp_payment_number"
+                  name="whatsapp_payment_number"
+                  type="text"
+                  placeholder="51928216206"
+                  defaultValue={settings.whatsapp_payment_number}
+                  disabled={isPending}
+                  className="border-gray-200"
+                />
+                <p className="text-xs text-gray-400">
+                  Sin +, sin espacios (ej: 51928216206)
+                </p>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="whatsapp_payment_message">
+                  Mensaje predeterminado
+                </Label>
+                <Input
+                  id="whatsapp_payment_message"
+                  name="whatsapp_payment_message"
+                  type="text"
+                  defaultValue={settings.whatsapp_payment_message}
+                  disabled={isPending}
+                  className="border-gray-200"
+                />
+                <p className="text-xs text-gray-400">
+                  Texto que aparece automáticamente al abrir WhatsApp
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

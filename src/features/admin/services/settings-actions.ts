@@ -12,6 +12,9 @@ interface PlatformSettings {
   agent_subscription_price: string;
   agent_subscription_currency: string;
   free_subscription_enabled: string;
+  whatsapp_payment_enabled: string;
+  whatsapp_payment_number: string;
+  whatsapp_payment_message: string;
 }
 
 export interface EmailSettings {
@@ -40,6 +43,9 @@ export async function getSettings(): Promise<PlatformSettings> {
     agent_subscription_price: "99",
     agent_subscription_currency: "PEN",
     free_subscription_enabled: "true",
+    whatsapp_payment_enabled: "true",
+    whatsapp_payment_number: "51928216206",
+    whatsapp_payment_message: "Hola, quiero realizar el pago de mi suscripción de agente en Chiclayo Propiedades",
   };
 
   for (const row of data ?? []) {
@@ -94,6 +100,18 @@ export async function updateSettings(
     {
       key: "free_subscription_enabled",
       value: formData.get("free_subscription_enabled") as string ?? "false",
+    },
+    {
+      key: "whatsapp_payment_enabled",
+      value: formData.get("whatsapp_payment_enabled") as string ?? "false",
+    },
+    {
+      key: "whatsapp_payment_number",
+      value: formData.get("whatsapp_payment_number") as string,
+    },
+    {
+      key: "whatsapp_payment_message",
+      value: formData.get("whatsapp_payment_message") as string,
     },
   ];
 

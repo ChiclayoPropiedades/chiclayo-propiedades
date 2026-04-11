@@ -41,13 +41,22 @@ export default async function NuevaPropiedadPage() {
     if (!active) {
       const settings = await getSubscriptionSettings();
 
-      // Leer si suscripción gratis está habilitada
-      const { data: freeSetting } = await supabase
+      // Leer configuración de suscripción
+      const { data: subSettings } = await supabase
         .from("platform_settings")
-        .select("value")
-        .eq("key", "free_subscription_enabled")
-        .maybeSingle();
-      const freeEnabled = freeSetting?.value === "true";
+        .select("key, value")
+        .in("key", [
+          "free_subscription_enabled",
+          "whatsapp_payment_enabled",
+          "whatsapp_payment_number",
+          "whatsapp_payment_message",
+        ]);
+
+      const settingsMap: Record<string, string> = {};
+      for (const row of subSettings ?? []) {
+        settingsMap[row.key] = row.value;
+      }
+      const freeEnabled = settingsMap.free_subscription_enabled === "true";
 
       // Buscar si tiene suscripción expirada
       const { data: expiredSub } = await supabase
@@ -79,6 +88,11 @@ export default async function NuevaPropiedadPage() {
             isStripeConfigured={isStripeConfigured()}
             isMercadoPagoConfigured={isMercadoPagoConfigured()}
             freeSubscriptionEnabled={freeEnabled}
+            whatsappPayment={{
+              enabled: settingsMap.whatsapp_payment_enabled === "true",
+              number: settingsMap.whatsapp_payment_number ?? "51928216206",
+              message: settingsMap.whatsapp_payment_message ?? "Hola, quiero realizar el pago de mi suscripción",
+            }}
             expiredAt={expiredSub?.expires_at}
           />
         </div>

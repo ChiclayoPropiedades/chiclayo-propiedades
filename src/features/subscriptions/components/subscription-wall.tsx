@@ -10,11 +10,18 @@ import {
   Loader2,
   CreditCard,
   CheckCircle2,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { createSubscriptionCheckout, activateSubscriptionFree } from "@/features/subscriptions/services/subscription-actions";
 import { createMPSubscriptionCheckout } from "@/features/subscriptions/services/mercadopago-subscription";
+
+interface WhatsAppPayment {
+  enabled: boolean;
+  number: string;
+  message: string;
+}
 
 interface SubscriptionWallProps {
   price: number;
@@ -22,6 +29,7 @@ interface SubscriptionWallProps {
   isStripeConfigured: boolean;
   isMercadoPagoConfigured: boolean;
   freeSubscriptionEnabled?: boolean;
+  whatsappPayment?: WhatsAppPayment;
   expiredAt?: string | null;
 }
 
@@ -55,12 +63,14 @@ export function SubscriptionWall({
   isStripeConfigured,
   isMercadoPagoConfigured,
   freeSubscriptionEnabled = false,
+  whatsappPayment,
   expiredAt,
 }: SubscriptionWallProps) {
   const [isPending, startTransition] = useTransition();
 
   const hasAnyPayment = isStripeConfigured || isMercadoPagoConfigured;
   const showFreeOption = !hasAnyPayment && freeSubscriptionEnabled;
+  const showWhatsApp = whatsappPayment?.enabled && whatsappPayment?.number;
 
   function handleSubscribe(provider: "mercadopago" | "stripe") {
     startTransition(async () => {
@@ -190,41 +200,64 @@ export function SubscriptionWall({
                 </Button>
               )}
             </div>
-          ) : showFreeOption ? (
-            <Button
-              onClick={handleFreeActivation}
-              disabled={isPending}
-              className="w-full gap-2 bg-[#2563eb] py-6 text-base font-semibold hover:bg-[#1e40af]"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="size-5 animate-spin" />
-                  Activando...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="size-5" />
-                  Activar suscripción gratis
-                </>
-              )}
-            </Button>
           ) : (
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
-              <p className="text-sm font-medium text-yellow-800">
-                Sistema de pagos no disponible
-              </p>
-              <p className="mt-1 text-xs text-yellow-600">
-                Contacta al administrador para activar tu suscripción.
-              </p>
+            <div className="space-y-2">
+              {/* Botón suscripción gratis */}
+              {showFreeOption && (
+                <Button
+                  onClick={handleFreeActivation}
+                  disabled={isPending}
+                  className="w-full gap-2 bg-[#2563eb] py-6 text-base font-semibold hover:bg-[#1e40af]"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin" />
+                      Activando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="size-5" />
+                      Activar suscripción gratis
+                    </>
+                  )}
+                </Button>
+              )}
+
+              {/* Botón WhatsApp */}
+              {showWhatsApp && (
+                <a
+                  href={`https://wa.me/${whatsappPayment.number}?text=${encodeURIComponent(whatsappPayment.message)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25d366] py-4 text-base font-semibold text-white transition-colors hover:bg-[#1ebe57]"
+                >
+                  <MessageCircle className="size-5" />
+                  Pagar por WhatsApp
+                </a>
+              )}
+
+              {/* Si no hay ninguna opción */}
+              {!showFreeOption && !showWhatsApp && (
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
+                  <p className="text-sm font-medium text-yellow-800">
+                    Sistema de pagos no disponible
+                  </p>
+                  <p className="mt-1 text-xs text-yellow-600">
+                    Contacta al administrador para activar tu suscripción.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
           <p className="mt-4 text-center text-xs text-gray-400">
             {showFreeOption
               ? "La suscripción se activa por 1 año inmediatamente."
-              : hasAnyPayment
-                ? "Pago seguro. La suscripción se activa inmediatamente."
-                : "Contacta al administrador para más información."}
+              : showWhatsApp
+                ? "Coordina el pago por WhatsApp. El administrador activará tu suscripción."
+                : hasAnyPayment
+                  ? "Pago seguro. La suscripción se activa inmediatamente."
+                  : "Contacta al administrador para más información."}
           </p>
         </CardContent>
       </Card>
