@@ -15,6 +15,8 @@ import {
 import {
   approvePublicationRequest,
   rejectPublicationRequest,
+  changeRequestPlan,
+  deletePublicationRequest,
 } from "@/features/subscriptions/services/publication-actions";
 
 interface PublicationRequest {
@@ -60,6 +62,15 @@ export function PublicationRequestsTable({ requests }: Props) {
       const result = await rejectPublicationRequest(id);
       if (result.error) toast.error(result.error);
       else toast.success("Solicitud rechazada");
+    });
+  }
+
+  function handleDelete(id: string) {
+    if (!confirm("¿Eliminar esta solicitud y su propiedad vinculada? No se puede deshacer.")) return;
+    startTransition(async () => {
+      const result = await deletePublicationRequest(id);
+      if (result.error) toast.error(result.error);
+      else toast.success("Solicitud y propiedad eliminadas");
     });
   }
 
@@ -145,26 +156,55 @@ export function PublicationRequestsTable({ requests }: Props) {
               })}
             </TableCell>
             <TableCell>
-              {req.status === "pending" && (
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {req.status === "pending" && (
+                  <>
+                    <select
+                      defaultValue={req.plan_type}
+                      disabled={isPending}
+                      onChange={(e) => {
+                        const newPlan = e.target.value as "basic" | "advanced";
+                        startTransition(async () => {
+                          const result = await changeRequestPlan(req.id, newPlan);
+                          if (result.error) toast.error(result.error);
+                          else toast.success("Plan cambiado");
+                        });
+                      }}
+                      className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 disabled:opacity-50"
+                    >
+                      <option value="basic">Básica</option>
+                      <option value="advanced">Avanzada</option>
+                    </select>
+                    <button
+                      onClick={() => handleApprove(req.id)}
+                      disabled={isPending}
+                      className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
+                    >
+                      {isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+                      Aprobar
+                    </button>
+                    <button
+                      onClick={() => handleReject(req.id)}
+                      disabled={isPending}
+                      className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                    >
+                      <X className="size-3" />
+                      Rechazar
+                    </button>
+                  </>
+                )}
+                {req.status !== "pending" && (
                   <button
-                    onClick={() => handleApprove(req.id)}
-                    disabled={isPending}
-                    className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
-                  >
-                    {isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                    Aprobar
-                  </button>
-                  <button
-                    onClick={() => handleReject(req.id)}
+                    onClick={() => handleDelete(req.id)}
                     disabled={isPending}
                     className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                    title="Eliminar solicitud y propiedad vinculada"
                   >
                     <X className="size-3" />
-                    Rechazar
+                    Eliminar
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}

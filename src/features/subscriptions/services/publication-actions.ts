@@ -146,6 +146,84 @@ export async function rejectPublicationRequest(
   return { success: true };
 }
 
+// ─── Admin: Eliminar solicitud + su propiedad vinculada ──────────────────────
+
+export async function deletePublicationRequest(
+  requestId: string
+): Promise<{ success?: boolean; error?: string }> {
+  const adminSupabase = createAdminClient();
+
+  // Obtener propiedad vinculada
+  const { data: req } = await adminSupabase
+    .from("publication_requests")
+    .select("property_id")
+    .eq("id", requestId)
+    .single();
+
+  // Si tiene propiedad vinculada, eliminarla
+  if (req?.property_id) {
+    await adminSupabase.from("property_images").delete().eq("property_id", req.property_id);
+    await adminSupabase.from("properties").delete().eq("id", req.property_id);
+  }
+
+  // Eliminar solicitud
+  const { error } = await adminSupabase
+    .from("publication_requests")
+    .delete()
+    .eq("id", requestId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/propiedades");
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
+// ─── Admin: Cambiar plan de solicitud ────────────────────────────────────────
+
+export async function changeRequestPlan(
+  requestId: string,
+  newPlanType: "basic" | "advanced"
+): Promise<{ success?: boolean; error?: string }> {
+  const adminSupabase = createAdminClient();
+
+  // Leer precios y nombres desde config
+  const { data: settings } = await adminSupabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", [
+      "user_pub_basic_price", "user_pub_basic_name",
+      "user_pub_advanced_price", "user_pub_advanced_name",
+    ]);
+
+  const ps: Record<string, string> = {};
+  for (const row of settings ?? []) ps[row.key] = row.value;
+
+  const planName = newPlanType === "advanced"
+    ? (ps.user_pub_advanced_name ?? "Avanzada")
+    : (ps.user_pub_basic_name ?? "Básica");
+  const planPrice = newPlanType === "advanced"
+    ? parseFloat(ps.user_pub_advanced_price ?? "100")
+    : parseFloat(ps.user_pub_basic_price ?? "50");
+
+  const { error } = await adminSupabase
+    .from("publication_requests")
+    .update({
+      plan_type: newPlanType,
+      plan_name: planName,
+      plan_price: planPrice,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", requestId)
+    .eq("status", "pending");
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/propiedades");
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
 // ─── Verificar si usuario tiene plan aprobado ───────────────────────────────
 
 export async function hasApprovedPlan(profileId: string): Promise<{
