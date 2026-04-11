@@ -105,6 +105,43 @@ export async function getPropertyById(id: string) {
   return data;
 }
 
+export async function deleteOwnProperty(propertyId: string): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("user_id", user.id)
+    .single();
+  if (!profile) return { error: "Perfil no encontrado" };
+
+  // Verificar que la propiedad pertenece al usuario (o es admin)
+  const { data: property } = await supabase
+    .from("properties")
+    .select("agent_id")
+    .eq("id", propertyId)
+    .single();
+
+  if (!property) return { error: "Propiedad no encontrada" };
+  if (property.agent_id !== profile.id && profile.role !== "admin") {
+    return { error: "No tienes permiso para eliminar esta propiedad" };
+  }
+
+  // Eliminar imágenes primero
+  await supabase.from("property_images").delete().eq("property_id", propertyId);
+  // Eliminar propiedad
+  const { error } = await supabase.from("properties").delete().eq("id", propertyId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/propiedades");
+  revalidatePath("/admin/propiedades");
+  return { success: true };
+}
+
 export async function markPropertyAsSold(propertyId: string, salePrice: number) {
   const supabase = await createClient();
   const {

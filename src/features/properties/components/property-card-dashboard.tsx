@@ -20,7 +20,7 @@ import { cn } from "@/shared/lib/utils";
 import { formatPrice } from "@/shared/lib/format";
 import { SoldBadge } from "./sold-badge";
 import { MarkSoldButton } from "./mark-sold-button";
-import { deleteProperty } from "@/features/admin/services/admin-actions";
+import { deleteOwnProperty } from "@/features/properties/services/property-actions";
 
 interface DashboardProperty {
   id: string;
@@ -91,7 +91,8 @@ export function PropertyCardDashboard({
     if (!confirm(`¿Eliminar "${property.title}"? Esta acción no se puede deshacer.`)) return;
     startTransition(async () => {
       try {
-        await deleteProperty(property.id);
+        const result = await deleteOwnProperty(property.id);
+        if (result?.error) { toast.error(result.error); return; }
         toast.success("Propiedad eliminada");
         window.location.reload();
       } catch {
