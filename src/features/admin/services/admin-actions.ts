@@ -235,6 +235,65 @@ export async function resetUserPassword(
   return { success: true };
 }
 
+export async function updateUserAvatar(
+  profileId: string,
+  userId: string,
+  formData: FormData
+): Promise<{ success?: boolean; url?: string; error?: string }> {
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  const file = formData.get("file") as File;
+  if (!file || file.size === 0) return { error: "No se seleccionó archivo" };
+  if (file.size > 2 * 1024 * 1024) return { error: "Máximo 2MB" };
+
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `${userId}/avatar.${ext}`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const { error: uploadError } = await adminSupabase.storage
+    .from("avatars")
+    .upload(path, buffer, {
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) return { error: "Error al subir: " + uploadError.message };
+
+  const { data: urlData } = adminSupabase.storage
+    .from("avatars")
+    .getPublicUrl(path);
+
+  const url = urlData.publicUrl + "?t=" + Date.now();
+
+  await adminSupabase
+    .from("profiles")
+    .update({ avatar_url: url })
+    .eq("id", profileId);
+
+  revalidatePath(`/admin/usuarios/${profileId}`);
+  revalidatePath("/admin/usuarios");
+  return { success: true, url };
+}
+
+export async function removeUserAvatar(
+  profileId: string
+): Promise<{ success?: boolean; error?: string }> {
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  await adminSupabase
+    .from("profiles")
+    .update({ avatar_url: null })
+    .eq("id", profileId);
+
+  revalidatePath(`/admin/usuarios/${profileId}`);
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
 // ─── Propiedades ──────────────────────────────────────────────────────────────
 
 export async function getAdminProperties(): Promise<AdminProperty[]> {

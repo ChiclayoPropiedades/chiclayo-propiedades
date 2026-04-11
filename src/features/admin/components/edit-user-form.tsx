@@ -11,8 +11,9 @@ import { toast } from "sonner";
 import {
   updateUserProfile,
   resetUserPassword,
+  updateUserAvatar,
+  removeUserAvatar,
 } from "@/features/admin/services/admin-actions";
-import { createClient } from "@/shared/lib/supabase/client";
 
 interface EditUserFormProps {
   profileId: string;
@@ -46,28 +47,28 @@ export function EditUserForm({
     if (file.size > 2 * 1024 * 1024) { toast.error("Máximo 2MB"); return; }
 
     setUploading(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop();
-    const path = `${userId}/avatar.${ext}`;
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-    if (error) { toast.error("Error al subir imagen"); setUploading(false); return; }
-
-    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-    const url = urlData.publicUrl + "?t=" + Date.now();
-
-    await supabase.from("profiles").update({ avatar_url: url }).eq("id", profileId);
-    setAvatarUrl(url);
-    toast.success("Foto actualizada");
+    const result = await updateUserAvatar(profileId, userId, formData);
+    if (result.error) {
+      toast.error(result.error);
+    } else if (result.url) {
+      setAvatarUrl(result.url);
+      toast.success("Foto actualizada");
+    }
     setUploading(false);
   }
 
   async function handleRemoveAvatar() {
     setUploading(true);
-    const supabase = createClient();
-    await supabase.from("profiles").update({ avatar_url: null }).eq("id", profileId);
-    setAvatarUrl("");
-    toast.success("Foto eliminada");
+    const result = await removeUserAvatar(profileId);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      setAvatarUrl("");
+      toast.success("Foto eliminada");
+    }
     setUploading(false);
   }
 
