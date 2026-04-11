@@ -241,6 +241,50 @@ Lee todos los .md y dime qué sigue según el plan.
 | 7.20 | DB: mp_payment_id | ✅ | Campos MercadoPago en training_enrollments y agent_subscriptions |
 | 7.21 | DB: email settings | ✅ | 7 keys de email + 3 keys WhatsApp + free_subscription en platform_settings |
 
+### ETAPA 7.5: Admin + Planes + Ranking + Mobile (Sesión 4 continuación - 11 Abril 2026)
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.22 | WhatsApp redirect fix | ✅ | Número sanitizado (sin +, espacios) |
+| 7.23 | Google Maps en contacto | ✅ | Mapa embebido + click abre en grande |
+| 7.24 | Botón Nueva Capacitación | ✅ | Agregado en /admin/capacitaciones |
+| 7.25 | Email en tabla usuarios | ✅ | Columna email desde auth.users |
+| 7.26 | Buscador + paginación usuarios | ✅ | Filtro por nombre/email/teléfono, 10/página |
+| 7.27 | Buscador + paginación propiedades | ✅ | Filtro + toggle cards/tabla, 12/página |
+| 7.28 | Filtro por estado propiedades | ✅ | Activas/vendidas/pendientes/inactivas |
+| 7.29 | Editar usuario completo | ✅ | Nombre, teléfono, bio, rol, foto desde admin |
+| 7.30 | Resetear contraseña usuario | ✅ | Admin puede cambiar clave de cualquier usuario |
+| 7.31 | Upload avatar usuario (admin) | ✅ | Server action con admin client (bypass RLS) |
+| 7.32 | Desactivar usuario oculta todo | ✅ | Propiedades, blog, ranking ocultos en web pública |
+| 7.33 | Reactivar usuario restaura todo | ✅ | Todo vuelve a aparecer |
+| 7.34 | Eliminar usuario borra TODO | ✅ | Propiedades, imágenes, posts, rankings, suscripciones, auth |
+| 7.35 | Ranking solo agentes activos | ✅ | Filtro por rol=agent + is_active + suscripción vigente |
+| 7.36 | Ranking tasa dinámica | ✅ | Lee de platform_settings en vez de hardcodeado |
+| 7.37 | Ranking 1er/2do/3er lugar | ✅ | Badges oro/plata/bronce con texto, fotos grandes 64px, hover zoom |
+| 7.38 | Ranking todos los agentes | ✅ | Muestra agentes con y sin ventas |
+| 7.39 | Eliminar propiedad (agente+admin) | ✅ | Botón papelera en cards + deleteOwnProperty para dueño |
+| 7.40 | Click nombre → panel | ✅ | Sin botón Panel separado, click en avatar+nombre abre panel |
+| 7.41 | Validar email duplicado | ✅ | En signup y admin crear usuario |
+| 7.42 | Validar teléfono duplicado | ✅ | En signup, admin crear y editar usuario |
+| 7.43 | Nombres normalizados (Title Case) | ✅ | En signup y admin |
+| 7.44 | Capacitaciones: WhatsApp pago | ✅ | Botón verde cuando no hay pasarela |
+| 7.45 | Planes publicación usuario | ✅ | Básica (1 foto) / Avanzada (10 fotos), configurable |
+| 7.46 | Solicitud publicación → DB → WhatsApp | ✅ | Se registra en publication_requests antes de ir a WhatsApp |
+| 7.47 | Admin aprueba/rechaza solicitudes | ✅ | Tabla en /admin/propiedades y detalle usuario |
+| 7.48 | Admin cambia plan antes de aprobar | ✅ | Select Básica/Avanzada inline |
+| 7.49 | 1 pago = 1 publicación | ✅ | Plan se marca usado al crear propiedad |
+| 7.50 | Límite fotos según plan | ✅ | maxImages prop en PropertyImageUpload |
+| 7.51 | Caducidad configurable | ✅ | Días editables desde admin, expires_at al aprobar |
+| 7.52 | Propiedad con plan vencido se oculta | ✅ | Filtro por property_id en expiredPropertyIds |
+| 7.53 | Suscripción agente vencida oculta todo | ✅ | Propiedades + ranking ocultos |
+| 7.54 | Historial compras por usuario | ✅ | Estado: pendiente/aprobada/usada/expirada/rechazada + fecha expiración |
+| 7.55 | Propiedad vinculada en solicitud | ✅ | Título clickeable → página de edición |
+| 7.56 | Desactivar solicitud (temporal) | ✅ | Oculta propiedad sin borrar |
+| 7.57 | Eliminar solicitud (permanente) | ✅ | Borra solicitud + propiedad + imágenes |
+| 7.58 | Homepage muestra todas las propiedades | ✅ | Destacadas + recientes si hay pocas (hasta 6) |
+| 7.59 | DB: publication_requests | ✅ | Tabla con plan_type, price, status, used, expires_at, property_id |
+| 7.60 | DB: publication_plan en properties | ✅ | Campo para vincular propiedad con plan |
+
 ### ETAPA 8: Dominio y Producción ❌ PENDIENTE
 
 | # | Tarea | Estado | Dependencia |
