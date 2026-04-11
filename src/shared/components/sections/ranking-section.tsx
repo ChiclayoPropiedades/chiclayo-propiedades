@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Award, Trophy, Medal, Crown } from "lucide-react";
 import { getRankings } from "@/features/ranking/services/get-rankings";
 import { formatPrice } from "@/shared/lib/format";
@@ -79,6 +80,24 @@ function PodiumCard({
     >
       {c.topLine && (
         <div className="absolute -top-px left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-transparent via-[#b8860b] to-transparent" />
+      )}
+      {/* Avatar del agente */}
+      {entry && getAgent(entry).avatar_url ? (
+        <div className="relative size-16 overflow-hidden rounded-full border-2 border-white/30 shadow-lg">
+          <Image
+            src={getAgent(entry).avatar_url!}
+            alt={getAgent(entry).full_name}
+            fill
+            sizes="64px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        entry ? (
+          <div className="flex size-16 items-center justify-center rounded-full bg-white/10 text-xl font-bold text-white border-2 border-white/30">
+            {getAgent(entry).full_name.charAt(0).toUpperCase()}
+          </div>
+        ) : null
       )}
       <div
         className={`flex ${c.circleSize} items-center justify-center rounded-full bg-gradient-to-br ${c.circleGradient} shadow-lg ${c.shadow}`}

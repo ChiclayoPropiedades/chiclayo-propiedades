@@ -284,6 +284,15 @@ Lee todos los .md y dime qué sigue según el plan.
 | 7.58 | Homepage muestra todas las propiedades | ✅ | Destacadas + recientes si hay pocas (hasta 6) |
 | 7.59 | DB: publication_requests | ✅ | Tabla con plan_type, price, status, used, expires_at, property_id |
 | 7.60 | DB: publication_plan en properties | ✅ | Campo para vincular propiedad con plan |
+| 7.61 | Logo en hero section | ✅ | Recurso 3 centrado arriba del hero |
+| 7.62 | Contadores animados en hero | ✅ | 500+ propiedades, 200+ agentes, 1200+ clientes (0→valor) |
+| 7.63 | Hero espacios compactos | ✅ | Todo visible sin scroll |
+| 7.64 | Capacitaciones homepage fix | ✅ | event_date en vez de start_date (columna correcta) |
+| 7.65 | Capacitaciones fondo azul oscuro | ✅ | Sección homepage + página /capacitaciones |
+| 7.66 | Registro obligatorio para inscribirse | ✅ | Sin sesión → "Regístrate para inscribirte" |
+| 7.67 | Ranking usa admin client | ✅ | Bypass RLS para visitantes anónimos |
+| 7.68 | Ranking page azul oscuro | ✅ | Header #0a1628 → #1e3a5f |
+| 7.60 | DB: publication_plan en properties | ✅ | Campo para vincular propiedad con plan |
 
 ### ETAPA 8: Dominio y Producción ❌ PENDIENTE
 
