@@ -132,9 +132,6 @@ export default async function AdminRankingPage() {
                   <TableHead className="hidden text-xs font-medium text-gray-500 md:table-cell">
                     Propiedades
                   </TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">
-                    Puntuación
-                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -176,13 +173,6 @@ export default async function AdminRankingPage() {
                     <TableCell className="hidden text-center text-sm text-gray-500 md:table-cell">
                       {row.properties_count}
                     </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full border border-[#2563eb]/20 bg-[#eff6ff] px-2.5 py-0.5 text-sm font-bold text-[#2563eb]">
-                        {row.total_sales_amount > 0
-                          ? formatPrice(row.total_sales_amount, "PEN")
-                          : "0 pts"}
-                      </span>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -215,9 +205,6 @@ export default async function AdminRankingPage() {
                   <TableHead className="text-xs font-medium text-gray-500">
                     Monto vendido
                   </TableHead>
-                  <TableHead className="text-xs font-medium text-gray-500">
-                    Puntuación
-                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -236,11 +223,6 @@ export default async function AdminRankingPage() {
                       {row.total_sales_amount > 0
                         ? formatPrice(row.total_sales_amount, "PEN")
                         : "—"}
-                    </TableCell>
-                    <TableCell className="text-sm font-medium text-gray-700">
-                      {row.total_sales_amount > 0
-                        ? formatPrice(row.total_sales_amount, "PEN")
-                        : "0 pts"}
                     </TableCell>
                   </TableRow>
                 ))}
