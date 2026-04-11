@@ -9,11 +9,11 @@ import {
   MessageSquare,
   Loader2,
   CreditCard,
-  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { createSubscriptionCheckout } from "@/features/subscriptions/services/subscription-actions";
+import { createSubscriptionCheckout, activateSubscriptionFree } from "@/features/subscriptions/services/subscription-actions";
 import { createMPSubscriptionCheckout } from "@/features/subscriptions/services/mercadopago-subscription";
 
 interface SubscriptionWallProps {
@@ -74,6 +74,18 @@ export function SubscriptionWall({
     });
   }
 
+  function handleFreeActivation() {
+    startTransition(async () => {
+      const result = await activateSubscriptionFree();
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Suscripción activada. Ya puedes publicar propiedades.");
+        window.location.reload();
+      }
+    });
+  }
+
   const isExpired = Boolean(expiredAt);
 
   return (
@@ -103,9 +115,11 @@ export function SubscriptionWall({
               Suscripción anual
             </p>
             <p className="mt-1 text-4xl font-extrabold">
-              {formatPrice(price, currency)}
+              {hasAnyPayment ? formatPrice(price, currency) : "Gratis"}
             </p>
-            <p className="mt-1 text-sm text-white/70">por año</p>
+            <p className="mt-1 text-sm text-white/70">
+              {hasAnyPayment ? "por año" : "por tiempo limitado"}
+            </p>
           </div>
 
           {/* Benefits */}
@@ -174,19 +188,30 @@ export function SubscriptionWall({
               )}
             </div>
           ) : (
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
-              <AlertCircle className="mx-auto mb-2 size-5 text-yellow-600" />
-              <p className="text-sm font-medium text-yellow-800">
-                Sistema de pagos no disponible
-              </p>
-              <p className="mt-1 text-xs text-yellow-600">
-                Contacta al administrador para activar tu suscripción.
-              </p>
-            </div>
+            /* Sin pasarela de pago → activación gratuita */
+            <Button
+              onClick={handleFreeActivation}
+              disabled={isPending}
+              className="w-full gap-2 bg-[#2563eb] py-6 text-base font-semibold hover:bg-[#1e40af]"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="size-5 animate-spin" />
+                  Activando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="size-5" />
+                  Activar suscripción gratis
+                </>
+              )}
+            </Button>
           )}
 
           <p className="mt-4 text-center text-xs text-gray-400">
-            Pago seguro. La suscripción se activa inmediatamente.
+            {hasAnyPayment
+              ? "Pago seguro. La suscripción se activa inmediatamente."
+              : "La suscripción se activa por 1 año inmediatamente."}
           </p>
         </CardContent>
       </Card>

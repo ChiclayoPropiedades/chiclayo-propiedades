@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { UserCheck, Plus, Loader2, Clock } from "lucide-react";
+import { UserCheck, Plus, Loader2, Clock, XCircle } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
-import { extendSubscription } from "@/features/subscriptions/services/subscription-actions";
+import { extendSubscription, deactivateSubscription } from "@/features/subscriptions/services/subscription-actions";
 
 interface SubscriptionRow {
   id: string;
@@ -124,6 +124,52 @@ function ExtendInline({ profileId }: { profileId: string }) {
   );
 }
 
+function DeactivateButton({
+  profileId,
+  agentName,
+}: {
+  profileId: string;
+  agentName: string;
+}) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleDeactivate() {
+    if (
+      !confirm(
+        `¿Desactivar la suscripción de ${agentName}? No podrá publicar propiedades.`
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await deactivateSubscription(profileId);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Suscripción desactivada");
+      }
+    });
+  }
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleDeactivate}
+      disabled={isPending}
+      className="gap-1 border-red-200 text-xs text-red-600 hover:bg-red-50"
+    >
+      {isPending ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : (
+        <XCircle className="size-3" />
+      )}
+      Desactivar
+    </Button>
+  );
+}
+
 export function SubscriptionsTable({ subscriptions }: Props) {
   return (
     <Card className="border-gray-200">
@@ -183,7 +229,15 @@ export function SubscriptionsTable({ subscriptions }: Props) {
                       {formatDate(sub.expires_at)}
                     </TableCell>
                     <TableCell>
-                      <ExtendInline profileId={sub.profile_id} />
+                      <div className="flex items-center gap-1.5">
+                        <ExtendInline profileId={sub.profile_id} />
+                        {sub.status === "active" && (
+                          <DeactivateButton
+                            profileId={sub.profile_id}
+                            agentName={sub.agent_name}
+                          />
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

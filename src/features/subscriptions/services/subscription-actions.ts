@@ -133,6 +133,44 @@ export async function createSubscriptionCheckout(): Promise<{
   }
 }
 
+// ─── Self-Activate (cuando no hay pasarela de pago configurada) ─────────────
+
+export async function activateSubscriptionFree(): Promise<{
+  success?: boolean;
+  error?: string;
+}> {
+  const profile = await getAuthProfile();
+  if (!profile) return { error: "Debes iniciar sesión" };
+  if (profile.role !== "agent") return { error: "Solo agentes pueden suscribirse" };
+
+  // Verificar si ya tiene suscripción activa
+  const { active } = await getSubscriptionStatus(profile.id);
+  if (active) return { error: "Ya tienes una suscripción activa" };
+
+  const settings = await getSubscriptionSettings();
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+  const adminSupabase = createAdminClient();
+
+  const { error } = await adminSupabase.from("agent_subscriptions").insert({
+    profile_id: profile.id,
+    status: "active",
+    amount: 0,
+    currency: settings.currency,
+    started_at: now.toISOString(),
+    expires_at: expiresAt.toISOString(),
+    payment_date: now.toISOString(),
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/propiedades");
+  return { success: true };
+}
+
 // ─── Admin: Activate Subscription Manually ───────────────────────────────────
 
 export async function activateSubscriptionManually(
@@ -253,6 +291,36 @@ function addTime(
       break;
   }
   return result;
+}
+
+// ─── Admin: Deactivate Subscription ─────────────────────────────────────────
+
+export async function deactivateSubscription(
+  profileId: string
+): Promise<{ success?: boolean; error?: string }> {
+  const caller = await getAuthProfile();
+  if (!caller || caller.role !== "admin") {
+    return { error: "No autorizado" };
+  }
+
+  const adminSupabase = createAdminClient();
+
+  // Marcar suscripción activa como expirada
+  const { error } = await adminSupabase
+    .from("agent_subscriptions")
+    .update({
+      status: "expired",
+      expires_at: new Date().toISOString(),
+    })
+    .eq("profile_id", profileId)
+    .eq("status", "active");
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/finanzas");
+  revalidatePath("/dashboard");
+  return { success: true };
 }
 
 // ─── Admin: Get All Subscriptions ────────────────────────────────────────────
