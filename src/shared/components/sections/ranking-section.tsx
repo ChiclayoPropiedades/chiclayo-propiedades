@@ -166,7 +166,7 @@ export async function RankingSection() {
             >
               Asesores Top del Mes
             </h2>
-            <p className="mt-2 max-w-xl text-base text-blue-200/80">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-blue-200/80 sm:text-lg">
               Clasificación basada en ventas cerradas y monto total vendido.
               Trabaja con los mejores profesionales.
             </p>

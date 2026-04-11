@@ -46,7 +46,7 @@ export function NewsSection() {
           >
             Últimas Noticias y Consejos
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-base text-gray-600">
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-gray-600 sm:text-lg">
             Mantente al día con el mercado inmobiliario de Chiclayo y Lambayeque.
           </p>
         </div>

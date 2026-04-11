@@ -27,12 +27,12 @@ export function NewsletterSection() {
             </div>
             <h2
               id="newsletter-heading"
-              className="text-4xl font-bold text-white sm:text-5xl"
+              className="text-3xl font-bold text-white sm:text-4xl"
             >
               No te pierdas ninguna{" "}
               <span className="text-[#d4a017]">oportunidad</span>
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-300 sm:text-xl">
+            <p className="mt-3 text-base leading-relaxed text-gray-300 sm:text-lg">
               Suscríbete y recibe las mejores propiedades, noticias y consejos
               inmobiliarios directamente en tu correo.
             </p>

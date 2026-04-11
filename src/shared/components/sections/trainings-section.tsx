@@ -71,7 +71,7 @@ export async function TrainingsSection() {
             >
               Capacitaciones
             </h2>
-            <p className="mt-2 max-w-xl text-base text-gray-300">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-gray-300 sm:text-lg">
               Mejora tus habilidades y conocimientos mediante nuestros cursos y
               talleres especializados para el sector inmobiliario.
             </p>
