@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createPlainClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -24,5 +25,21 @@ export async function createClient() {
         },
       },
     }
+  );
+}
+
+/**
+ * Cliente Supabase SIN cookies — para Server Components que leen datos
+ * publicos (propiedades, blog, capacitaciones, ranking).
+ *
+ * No usa `cookies()`, por lo que la pagina queda elegible para ISR/cache
+ * estatico en Vercel. Usar para toda query publica que NO dependa del
+ * usuario logueado.
+ */
+export function createPublicClient() {
+  return createPlainClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
   );
 }

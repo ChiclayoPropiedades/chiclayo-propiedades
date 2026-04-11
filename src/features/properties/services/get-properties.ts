@@ -1,4 +1,4 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { createPublicClient } from "@/shared/lib/supabase/server";
 import { Property, PropertyFilters } from "../types";
 
 // Obtener IDs de perfiles que deben estar ocultos en la web pública
@@ -53,7 +53,7 @@ async function getHiddenProfileIds(): Promise<{ hiddenProfileIds: Set<string>; e
 }
 
 export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   let query = supabase
     .from("properties")
     .select("*, property_images(*), agent:profiles!agent_id(is_active)")
@@ -76,7 +76,7 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
 }
 
 export async function getFeaturedProperties(): Promise<Property[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   // Primero traer destacadas
   const { data: featured } = await supabase
@@ -117,7 +117,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
 }
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("properties")
     .select(

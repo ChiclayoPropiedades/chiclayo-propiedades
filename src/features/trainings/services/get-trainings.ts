@@ -1,9 +1,9 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { createPublicClient } from "@/shared/lib/supabase/server";
 import { Training } from "../types";
 
 export async function getTrainings(): Promise<Training[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("trainings")
       .select("*")
@@ -19,7 +19,7 @@ export async function getTrainings(): Promise<Training[]> {
 
 export async function getTrainingBySlug(slug: string): Promise<Training | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("trainings")
       .select("*")
