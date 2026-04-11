@@ -51,7 +51,23 @@ export function LoginForm() {
       return
     }
 
-    router.push("/dashboard")
+    // Verificar rol para redirigir al panel correcto
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (profile?.role === "admin") {
+        router.push("/admin")
+      } else {
+        router.push("/dashboard")
+      }
+    } else {
+      router.push("/dashboard")
+    }
     router.refresh()
   }
 

@@ -3,7 +3,7 @@ import Link from "next/link"
 import { MailCheckIcon } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Verifica tu correo | Chiclayo Propiedades",
+  title: "Verifica tu correo",
   description: "Verifica tu correo electrónico para completar el registro",
 }
 

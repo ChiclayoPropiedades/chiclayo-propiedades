@@ -3,20 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, Calendar, User, Tag, Newspaper } from "lucide-react";
-import { getPostBySlug, getPosts } from "@/features/blog/services/get-posts";
+import { getPostBySlug } from "@/features/blog/services/get-posts";
 import { articleJsonLd } from "@/shared/lib/structured-data";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  try {
-    const posts = await getPosts();
-    return posts.map((post) => ({ slug: post.slug }));
-  } catch {
-    return [];
-  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

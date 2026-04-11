@@ -13,25 +13,15 @@ import {
 } from "lucide-react";
 
 import { formatPrice } from "@/shared/lib/format";
-import {
-  getTrainingBySlug,
-  getTrainings,
-} from "@/features/trainings/services/get-trainings";
+import { getTrainingBySlug } from "@/features/trainings/services/get-trainings";
 import { courseJsonLd } from "@/shared/lib/structured-data";
 import { isStripeConfigured } from "@/shared/lib/stripe";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  try {
-    const trainings = await getTrainings();
-    return trainings.map((t) => ({ slug: t.slug }));
-  } catch {
-    return [];
-  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
