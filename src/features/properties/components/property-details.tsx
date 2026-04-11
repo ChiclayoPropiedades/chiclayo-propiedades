@@ -11,6 +11,8 @@ import {
   Building2,
 } from "lucide-react";
 
+import ReactMarkdown from "react-markdown";
+
 import { formatPrice } from "@/shared/lib/format";
 import { Property } from "../types";
 import { ContactForm } from "./contact-form";
@@ -262,8 +264,8 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
               >
                 Descripción
               </h2>
-              <div className="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">
-                {property.description}
+              <div className="prose prose-sm max-w-none text-gray-600 leading-relaxed prose-headings:text-[#1f2937] prose-strong:text-[#1f2937] prose-ul:my-3 prose-li:my-0.5 prose-p:my-3">
+                <ReactMarkdown>{property.description}</ReactMarkdown>
               </div>
             </section>
           )}
