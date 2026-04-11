@@ -179,9 +179,10 @@ export async function toggleUserActive(
   profileId: string,
   isActive: boolean
 ): Promise<void> {
-  const { supabase } = await verifyAdmin();
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
 
-  const { error } = await supabase
+  const { error } = await adminSupabase
     .from("profiles")
     .update({ is_active: isActive })
     .eq("id", profileId);
@@ -785,9 +786,25 @@ export async function createUser(data: {
 // ─── Eliminar Usuarios ────────────────────────────────────────────────────────
 
 export async function deleteUser(profileId: string) {
-  const { supabase } = await verifyAdmin();
-  const { error } = await supabase.from("profiles").delete().eq("id", profileId);
+  await verifyAdmin();
+  const adminSupabase = createAdminClient();
+
+  // Obtener user_id para eliminar de auth también
+  const { data: profile } = await adminSupabase
+    .from("profiles")
+    .select("user_id")
+    .eq("id", profileId)
+    .single();
+
+  // Eliminar profile
+  const { error } = await adminSupabase.from("profiles").delete().eq("id", profileId);
   if (error) return { error: error.message };
+
+  // Eliminar de auth.users
+  if (profile?.user_id) {
+    await adminSupabase.auth.admin.deleteUser(profile.user_id);
+  }
+
   revalidatePath("/admin/usuarios");
   return { success: true };
 }
