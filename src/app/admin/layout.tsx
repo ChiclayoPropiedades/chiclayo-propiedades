@@ -1,7 +1,19 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Home,
+  MessageSquare,
+  FileText,
+  GraduationCap,
+  Briefcase,
+  Trophy,
+  Wallet,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 import { createClient } from "@/shared/lib/supabase/server";
 import { DashboardSidebar } from "@/features/dashboard/components/dashboard-sidebar";
@@ -36,6 +48,19 @@ export default async function AdminLayout({
     user.email ??
     "Admin";
 
+  const mobileAdminLinks = [
+    { href: "/admin", label: "Inicio", icon: LayoutDashboard },
+    { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+    { href: "/admin/propiedades", label: "Props", icon: Home },
+    { href: "/admin/leads", label: "Leads", icon: MessageSquare },
+    { href: "/admin/blog", label: "Blog", icon: FileText },
+    { href: "/admin/capacitaciones", label: "Cursos", icon: GraduationCap },
+    { href: "/admin/servicios", label: "Servicios", icon: Briefcase },
+    { href: "/admin/ranking", label: "Ranking", icon: Trophy },
+    { href: "/admin/finanzas", label: "Finanzas", icon: Wallet },
+    { href: "/admin/configuracion", label: "Config", icon: Settings },
+  ];
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar — mismo componente que el dashboard */}
@@ -60,12 +85,6 @@ export default async function AdminLayout({
             />
           </Link>
           <div className="flex items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="rounded-lg px-2 py-1 text-xs font-medium text-[#2563eb] hover:bg-[#eff6ff]"
-            >
-              Dashboard
-            </Link>
             <form action="/api/auth/signout" method="POST">
               <button
                 type="submit"
@@ -78,8 +97,25 @@ export default async function AdminLayout({
           </div>
         </header>
 
+        {/* Mobile nav tabs */}
+        <nav
+          className="flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-2 py-1.5 md:hidden"
+          aria-label="Navegación admin (móvil)"
+        >
+          {mobileAdminLinks.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-gray-600 transition-colors hover:bg-[#eff6ff] hover:text-[#2563eb]"
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
+
         {/* Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
+        <main className="flex-1 overflow-y-auto bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-6xl">{children}</div>
         </main>
       </div>

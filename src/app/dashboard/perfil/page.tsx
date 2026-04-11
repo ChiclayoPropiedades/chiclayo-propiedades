@@ -211,18 +211,18 @@ export default function PerfilPage() {
       {/* Avatar section */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-[#1f2937]">Foto de perfil / Logo</h2>
-        <div className="flex items-center gap-6">
-          <div className="relative">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="relative shrink-0">
             {form.avatar_url ? (
               <Image
                 src={form.avatar_url}
                 alt="Avatar"
                 width={96}
                 height={96}
-                className="size-24 rounded-full object-cover border-2 border-gray-200"
+                className="size-20 rounded-full object-cover border-2 border-gray-200 sm:size-24"
               />
             ) : (
-              <div className="flex size-24 items-center justify-center rounded-full bg-[#2563eb] text-3xl font-bold text-white border-2 border-gray-200">
+              <div className="flex size-20 items-center justify-center rounded-full bg-[#2563eb] text-2xl font-bold text-white border-2 border-gray-200 sm:size-24 sm:text-3xl">
                 {form.full_name.charAt(0).toUpperCase() || "?"}
               </div>
             )}
@@ -232,7 +232,7 @@ export default function PerfilPage() {
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-center gap-2 sm:items-start">
             <p className="text-sm text-gray-500">JPG, PNG o WebP. Máximo 2MB.</p>
             <div className="flex items-center gap-2">
               <button

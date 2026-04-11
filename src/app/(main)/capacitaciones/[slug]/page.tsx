@@ -15,6 +15,7 @@ import {
 import { formatPrice } from "@/shared/lib/format";
 import { getTrainingBySlug } from "@/features/trainings/services/get-trainings";
 import { courseJsonLd } from "@/shared/lib/structured-data";
+import ReactMarkdown from "react-markdown";
 import { isStripeConfigured } from "@/shared/lib/stripe";
 import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
@@ -206,10 +207,9 @@ export default async function TrainingDetailPage({ params }: PageProps) {
 
               {/* Content */}
               {training.content && (
-                <div
-                  className="prose prose-lg mt-8 max-w-none prose-headings:text-[#1f2937] prose-a:text-[#2563eb] prose-strong:text-[#1f2937]"
-                  dangerouslySetInnerHTML={{ __html: training.content }}
-                />
+                <div className="prose prose-lg mt-8 max-w-none prose-headings:text-[#1f2937] prose-a:text-[#2563eb] prose-strong:text-[#1f2937] prose-li:marker:text-[#2563eb]">
+                  <ReactMarkdown>{training.content}</ReactMarkdown>
+                </div>
               )}
 
               {/* Back link */}

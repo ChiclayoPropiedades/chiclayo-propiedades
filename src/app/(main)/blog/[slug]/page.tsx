@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, Calendar, User, Tag, Newspaper } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { getPostBySlug } from "@/features/blog/services/get-posts";
 import { articleJsonLd } from "@/shared/lib/structured-data";
 
@@ -171,10 +172,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           )}
 
           {/* Content */}
-          <div
-            className="prose prose-lg max-w-none mt-10 prose-headings:text-[#1f2937] prose-a:text-[#2563eb] prose-strong:text-[#1f2937]"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <div className="prose prose-lg max-w-none mt-10 prose-headings:text-[#1f2937] prose-a:text-[#2563eb] prose-strong:text-[#1f2937] prose-li:marker:text-[#2563eb]">
+            <ReactMarkdown>{post.content}</ReactMarkdown>
+          </div>
 
           {/* Back to blog */}
           <div className="mt-12 border-t border-gray-100 pt-8">
