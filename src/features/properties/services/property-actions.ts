@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { hasApprovedPlan, markPlanAsUsed } from "@/features/subscriptions/services/publication-actions";
 import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
 
 function generateSlug(title: string): string {
@@ -40,6 +41,16 @@ export async function createProperty(formData: FormData) {
     }
   }
 
+  // Usuarios necesitan plan aprobado y no usado
+  let userRequestId: string | undefined;
+  if (profile.role === "user") {
+    const { approved, requestId } = await hasApprovedPlan(profile.id);
+    if (!approved) {
+      return { error: "Necesitas un plan de publicación aprobado" };
+    }
+    userRequestId = requestId;
+  }
+
   const title = formData.get("title") as string;
   const { data, error } = await supabase
     .from("properties")
@@ -63,6 +74,12 @@ export async function createProperty(formData: FormData) {
     .single();
 
   if (error) return { error: error.message };
+
+  // Marcar plan como usado (1 pago = 1 publicación)
+  if (userRequestId && data.id) {
+    await markPlanAsUsed(userRequestId, data.id);
+  }
+
   return { success: true, propertyId: data.id };
 }
 

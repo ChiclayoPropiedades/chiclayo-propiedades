@@ -14,7 +14,7 @@ export async function getRankings(): Promise<AgentRanking[]> {
       )
       .order("score", { ascending: false });
 
-    // Traer TODOS los agentes activos
+    // Traer TODOS los agentes activos con suscripción vigente
     const { data: allAgents } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, phone, role, is_active")
@@ -22,19 +22,28 @@ export async function getRankings(): Promise<AgentRanking[]> {
       .eq("is_active", true)
       .order("full_name");
 
-    // Filtrar rankings: solo agentes activos con rol agent
+    // Verificar suscripciones activas
+    const { data: activeSubs } = await supabase
+      .from("agent_subscriptions")
+      .select("profile_id")
+      .eq("status", "active")
+      .gte("expires_at", new Date().toISOString());
+
+    const activeSubIds = new Set((activeSubs ?? []).map((s) => s.profile_id));
+
+    // Filtrar rankings: solo agentes activos con rol agent Y suscripción vigente
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const validRankings = ((rankingData ?? []) as any[]).filter((r) => {
       const agent = Array.isArray(r.agent) ? r.agent[0] : r.agent;
-      return agent?.role === "agent" && agent?.is_active !== false;
+      return agent?.role === "agent" && agent?.is_active !== false && activeSubIds.has(r.agent_id);
     }) as AgentRanking[];
 
     // IDs de agentes que ya tienen ranking
     const rankedIds = new Set(validRankings.map((r) => r.agent_id));
 
-    // Agentes sin ranking → agregarlos al final con score 0
+    // Agentes sin ranking pero con suscripción activa → agregarlos con score 0
     const unranked = (allAgents ?? [])
-      .filter((a) => !rankedIds.has(a.id))
+      .filter((a) => !rankedIds.has(a.id) && activeSubIds.has(a.id))
       .map((a) => ({
         id: `unranked-${a.id}`,
         agent_id: a.id,

@@ -133,15 +133,18 @@ export async function rejectPublicationRequest(
 
 export async function hasApprovedPlan(profileId: string): Promise<{
   approved: boolean;
+  requestId?: string;
   plan?: { type: string; name: string; maxPhotos: number };
 }> {
   const supabase = await createClient();
 
+  // Buscar plan aprobado Y no usado (cada pago = 1 publicación)
   const { data } = await supabase
     .from("publication_requests")
-    .select("plan_type, plan_name")
+    .select("id, plan_type, plan_name")
     .eq("profile_id", profileId)
     .eq("status", "approved")
+    .eq("used", false)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -163,10 +166,24 @@ export async function hasApprovedPlan(profileId: string): Promise<{
 
   return {
     approved: true,
+    requestId: data.id,
     plan: {
       type: data.plan_type,
       name: data.plan_name,
       maxPhotos,
     },
   };
+}
+
+// ─── Marcar plan como usado al crear propiedad ──────────────────────────────
+
+export async function markPlanAsUsed(
+  requestId: string,
+  propertyId: string
+): Promise<void> {
+  const supabase = await createClient();
+  await supabase
+    .from("publication_requests")
+    .update({ used: true, property_id: propertyId, updated_at: new Date().toISOString() })
+    .eq("id", requestId);
 }
