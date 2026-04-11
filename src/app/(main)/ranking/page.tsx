@@ -147,11 +147,13 @@ export default async function RankingPage() {
                     <AgentAvatar
                       name={getAgent(rankings[1]).full_name}
                       avatarUrl={getAgent(rankings[1]).avatar_url}
+                      size="lg"
                     />
                     <Medal
                       className="size-6 text-gray-400"
                       aria-hidden="true"
                     />
+                    <p className="text-[10px] font-bold text-gray-500">2do lugar</p>
                     <p className="text-xs font-semibold text-[#1f2937]">
                       {getAgent(rankings[1]).full_name}
                     </p>
@@ -165,11 +167,13 @@ export default async function RankingPage() {
                   <AgentAvatar
                     name={getAgent(rankings[0]).full_name}
                     avatarUrl={getAgent(rankings[0]).avatar_url}
+                    size="lg"
                   />
                   <Trophy
                     className="size-7 text-yellow-500"
                     aria-hidden="true"
                   />
+                  <p className="text-[10px] font-bold text-yellow-700">1er lugar</p>
                   <p className="text-sm font-bold text-[#1f2937]">
                     {getAgent(rankings[0]).full_name}
                   </p>
@@ -188,11 +192,13 @@ export default async function RankingPage() {
                     <AgentAvatar
                       name={getAgent(rankings[2]).full_name}
                       avatarUrl={getAgent(rankings[2]).avatar_url}
+                      size="lg"
                     />
                     <Medal
                       className="size-5 text-orange-400"
                       aria-hidden="true"
                     />
+                    <p className="text-[10px] font-bold text-orange-600">3er lugar</p>
                     <p className="text-xs font-semibold text-[#1f2937]">
                       {getAgent(rankings[2]).full_name}
                     </p>
