@@ -294,6 +294,27 @@ Lee todos los .md y dime qué sigue según el plan.
 | 7.68 | Ranking page azul oscuro | ✅ | Header #0a1628 → #1e3a5f |
 | 7.60 | DB: publication_plan en properties | ✅ | Campo para vincular propiedad con plan |
 
+### ETAPA 7.6: Capacitaciones Exclusivas + Migracion de Rol + Admin Inscripciones (Sesión 5 - 11 Abril 2026)
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.70 | Capacitaciones solo para agentes | ✅ | Solo agentes pueden inscribirse, users ven CTA para migrar |
+| 7.71 | Solicitud migracion de rol (user→agent) | ✅ | Tabla role_upgrade_requests, server actions, RLS policies |
+| 7.72 | Componente RequestAgentRole | ✅ | Boton solicitar + estado pendiente/en revision |
+| 7.73 | Admin aprueba/rechaza migracion | ✅ | Tabla en /admin/usuarios con acciones aprobar/rechazar |
+| 7.74 | Signup pre-selecciona agente | ✅ | /signup?role=agent pre-selecciona "Agente Inmobiliario" + mensaje contextual |
+| 7.75 | Detalle capacitacion por rol | ✅ | Agente→EnrollButton, User→solicitar agente, Visitante→signup como agente |
+| 7.76 | Dashboard capacitaciones para users | ✅ | CTA de migracion a agente si no es agente |
+| 7.77 | WhatsApp enrollment registra en DB | ✅ | Clic en WhatsApp crea enrollment pendiente + abre WhatsApp |
+| 7.78 | Estado enrollment existente | ✅ | Si ya hay enrollment pendiente muestra estado + boton "Contactar por WhatsApp" |
+| 7.79 | Admin inscripciones en /admin/capacitaciones | ✅ | Stats (total, pendientes, pagados) + tabla con filtros por estado |
+| 7.80 | Filtros inscripciones | ✅ | Todos/Pendientes/Pagados/Rechazados con contadores |
+| 7.81 | Confirmar/rechazar pago (admin) | ✅ | Botones en tabla para confirmar pago WhatsApp o rechazar |
+| 7.82 | Paginacion inscripciones | ✅ | 10 por pagina con navegacion |
+| 7.83 | DB: role_upgrade_requests | ✅ | Tabla con profile_id, from_role, to_role, reason, status, reviewed_by |
+| 7.84 | RLS: role_upgrade_requests | ✅ | Users read/insert own, admin read/update all |
+| 7.85 | RLS: training_enrollments INSERT | ✅ | Policy para que users puedan crear enrollments |
+
 ### ETAPA 8: Dominio y Producción ❌ PENDIENTE
 
 | # | Tarea | Estado | Dependencia |

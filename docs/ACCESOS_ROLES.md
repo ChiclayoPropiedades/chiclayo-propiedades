@@ -234,7 +234,7 @@
 
 ---
 
-## BASE DE DATOS (11 tablas)
+## BASE DE DATOS (12 tablas)
 
 | Tabla | Registros | Descripción |
 |-------|-----------|-------------|
@@ -244,11 +244,12 @@
 | inquiries | 0 | Leads/consultas de compradores |
 | blog_posts | 1 | Artículos del blog (markdown) |
 | trainings | 1 | Capacitaciones/cursos (markdown) |
-| training_enrollments | 0 | Inscripciones a cursos (Stripe + MP) |
+| training_enrollments | — | Inscripciones a cursos (Stripe + MP + WhatsApp) |
 | services | 10 | Servicios ofrecidos |
 | agent_rankings | 2 | Ranking por ventas cerradas |
 | agent_subscriptions | 1 | Suscripciones de agentes (Stripe + MP + manual) |
 | platform_settings | 15 | Configuración de la plataforma (comisiones, email, WhatsApp, etc.) |
+| role_upgrade_requests | — | Solicitudes de migracion de rol (user→agent, aprobacion admin) |
 
 ---
 
