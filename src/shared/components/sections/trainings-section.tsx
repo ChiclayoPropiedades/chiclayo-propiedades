@@ -9,9 +9,10 @@ interface Training {
   price: number
   currency: string
   modality: string | null
-  start_date: string | null
+  event_date: string | null
   location: string | null
   instructor: string | null
+  cover_image: string | null
   slug: string
 }
 
@@ -20,9 +21,9 @@ async function getTrainings(): Promise<Training[]> {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("trainings")
-      .select("id, title, description, price, currency, modality, start_date, location, instructor, slug")
+      .select("id, title, description, price, currency, modality, event_date, location, instructor, cover_image, slug")
       .eq("is_active", true)
-      .order("start_date", { ascending: true })
+      .order("event_date", { ascending: true })
       .limit(3)
     if (error) return []
     return (data ?? []) as Training[]
@@ -125,10 +126,10 @@ export async function TrainingsSection() {
 
                   {/* Details */}
                   <div className="mt-auto flex flex-col gap-2 border-t border-gray-100 pt-4 text-sm text-gray-600">
-                    {training.start_date && (
+                    {training.event_date && (
                       <span className="flex items-center gap-2">
                         <Calendar className="size-4 text-[#1e3a5f]" aria-hidden="true" />
-                        {formatTrainingDate(training.start_date)}
+                        {formatTrainingDate(training.event_date)}
                       </span>
                     )}
                     {training.location && (
