@@ -8,6 +8,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
 import { updatePost } from "@/features/admin/services/admin-actions";
+import { ImageUploadField } from "@/features/admin/components/image-upload-field";
 
 const CATEGORIES = [
   "Consejos",
@@ -178,18 +179,13 @@ export function EditPostForm({ postId, initialData }: EditPostFormProps) {
       </div>
 
       {/* Cover Image */}
-      <div className="space-y-1.5">
-        <Label htmlFor="cover_image">URL de imagen de portada</Label>
-        <Input
-          id="cover_image"
-          type="url"
-          value={coverImage}
-          onChange={(e) => setCoverImage(e.target.value)}
-          placeholder="https://ejemplo.com/imagen.jpg"
-          disabled={isPending}
-          className="border-gray-200 focus:border-[#2563eb] focus:ring-[#2563eb]/20"
-        />
-      </div>
+      <ImageUploadField
+        name="cover_image_display"
+        label="Imagen de portada"
+        defaultValue={coverImage || null}
+        disabled={isPending}
+        onChange={(url) => setCoverImage(url)}
+      />
 
       {/* Excerpt */}
       <div className="space-y-1.5">
