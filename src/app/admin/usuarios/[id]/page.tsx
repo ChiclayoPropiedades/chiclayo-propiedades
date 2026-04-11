@@ -11,6 +11,8 @@ import {
   getUserInquiries,
 } from "@/features/admin/services/user-detail-actions";
 import { UserDetailTabs } from "@/features/admin/components/user-detail-tabs";
+import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
+import { ExtendSubscriptionForm } from "@/features/subscriptions/components/extend-subscription-form";
 
 const roleLabels: Record<string, string> = {
   admin: "Administrador",
@@ -36,6 +38,10 @@ export default async function AdminUserDetailPage({
     getUserProperties(id),
     getUserInquiries(id),
   ]);
+
+  // Suscripción solo para agentes
+  const isAgent = profile?.role === "agent";
+  const subscription = isAgent ? await getSubscriptionStatus(id) : null;
 
   if (!profile) {
     notFound();
@@ -132,6 +138,15 @@ export default async function AdminUserDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Subscription management for agents */}
+      {isAgent && (
+        <ExtendSubscriptionForm
+          profileId={id}
+          hasActiveSubscription={subscription?.active ?? false}
+          expiresAt={subscription?.expiresAt ?? null}
+        />
+      )}
 
       {/* Tabs */}
       <UserDetailTabs properties={properties} inquiries={inquiries} />

@@ -169,6 +169,92 @@ export async function activateSubscriptionManually(
   return { success: true };
 }
 
+// ─── Admin: Extend Subscription ──────────────────────────────────────────────
+
+export async function extendSubscription(
+  profileId: string,
+  amount: number,
+  unit: "hours" | "days" | "months" | "years"
+): Promise<{ success?: boolean; error?: string }> {
+  const caller = await getAuthProfile();
+  if (!caller || caller.role !== "admin") {
+    return { error: "No autorizado" };
+  }
+
+  const adminSupabase = createAdminClient();
+
+  // Buscar suscripción activa
+  const { data: activeSub } = await adminSupabase
+    .from("agent_subscriptions")
+    .select("id, expires_at")
+    .eq("profile_id", profileId)
+    .eq("status", "active")
+    .gte("expires_at", new Date().toISOString())
+    .order("expires_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (activeSub) {
+    // Extender desde la fecha de expiración actual
+    const currentExpiry = new Date(activeSub.expires_at);
+    const newExpiry = addTime(currentExpiry, amount, unit);
+
+    const { error } = await adminSupabase
+      .from("agent_subscriptions")
+      .update({ expires_at: newExpiry.toISOString() })
+      .eq("id", activeSub.id);
+
+    if (error) return { error: error.message };
+  } else {
+    // Crear nueva suscripción
+    const now = new Date();
+    const expiresAt = addTime(now, amount, unit);
+    const settings = await getSubscriptionSettings();
+
+    const { error } = await adminSupabase
+      .from("agent_subscriptions")
+      .insert({
+        profile_id: profileId,
+        status: "active",
+        amount: settings.price,
+        currency: settings.currency,
+        started_at: now.toISOString(),
+        expires_at: expiresAt.toISOString(),
+        payment_date: now.toISOString(),
+      });
+
+    if (error) return { error: error.message };
+  }
+
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/finanzas");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+function addTime(
+  date: Date,
+  amount: number,
+  unit: "hours" | "days" | "months" | "years"
+): Date {
+  const result = new Date(date);
+  switch (unit) {
+    case "hours":
+      result.setHours(result.getHours() + amount);
+      break;
+    case "days":
+      result.setDate(result.getDate() + amount);
+      break;
+    case "months":
+      result.setMonth(result.getMonth() + amount);
+      break;
+    case "years":
+      result.setFullYear(result.getFullYear() + amount);
+      break;
+  }
+  return result;
+}
+
 // ─── Admin: Get All Subscriptions ────────────────────────────────────────────
 
 export async function getAllSubscriptions() {
