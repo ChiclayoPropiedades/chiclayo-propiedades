@@ -4,102 +4,145 @@
 
 ---
 
-## SUPERADMIN (Administrador)
+## CREDENCIALES DE PRUEBA
 
-**Acceso:** `/admin` y `/dashboard` (tiene acceso total a ambos paneles)
-**Credenciales de prueba:** test@chiclayopropiedades.com / Test1234!
+| Rol | Email | Password | Nombre |
+|-----|-------|----------|--------|
+| **Superadmin** | test@chiclayopropiedades.com | Test1234! | Test Admin Chiclayo |
+| **Superadmin** | casagrandegrupoinmobiliario@gmail.com | (la de la dueña) | Maired |
+| **Agente** | agente@chiclayopropiedades.com | Agente1234! | Carlos Mendoza Rivera |
+| **Agente** | (registrado manualmente) | — | Jorge Luis Silva Laredo |
+| **Comprador (user)** | comprador@chiclayopropiedades.com | Comprador1234! | María López Torres |
 
-### Panel Admin (`/admin`)
-| Página | Ruta | Qué puede hacer |
-|--------|------|-----------------|
-| Dashboard Admin | `/admin` | Vista general con estadísticas |
-| Usuarios | `/admin/usuarios` | Ver, editar roles, activar/desactivar usuarios |
-| Propiedades | `/admin/propiedades` | Ver todas, editar, eliminar, activar/desactivar, destacar |
-| Leads/Consultas | `/admin/leads` | Ver todas las consultas, cambiar estado (nueva/contactada/cerrada) |
-| Blog | `/admin/blog` | Crear, editar, eliminar artículos del blog |
-| Capacitaciones | `/admin/capacitaciones` | Crear, editar, eliminar cursos/capacitaciones |
-| Servicios | `/admin/servicios` | Editar servicios que se muestran en la web |
-| **Ranking** | `/admin/ranking` | **Aprobar/rechazar ventas**, recalcular ranking, ver historial |
-| **Configuración** | `/admin/configuracion` | Comisión (%), moneda, tasa USD/PEN, estado Stripe |
+---
 
-### Dashboard como Superadmin (`/dashboard`)
-| Página | Ruta | Qué puede hacer |
-|--------|------|-----------------|
-| Todas las Propiedades | `/dashboard/propiedades` | Ve TODAS las propiedades de toda la plataforma (no solo las suyas) |
-| Toggle Cards/Tabla | `/dashboard/propiedades` | Alternar entre vista cards (grid visual) y tabla compacta |
-| Datos del agente | `/dashboard/propiedades` | Ve nombre + email del agente que publicó cada propiedad |
-| Editar cualquier propiedad | `/dashboard/propiedades/[id]/editar` | Puede editar propiedades de cualquier agente (sin restricción) |
-| Crear propiedad | `/dashboard/propiedades/nueva` | Publicar propiedades como admin |
+## SUPERADMIN (Propietario de la plataforma)
+
+**Acceso:** Control total. Ve y gestiona TODO.
+**Credenciales:** test@chiclayopropiedades.com / Test1234!
+**Redirige después del login a:** `/admin`
+
+### Sidebar del Superadmin
+| Sección | Ruta | Qué puede hacer |
+|---------|------|-----------------|
+| Dashboard | `/admin` | Métricas: usuarios, propiedades, leads, finanzas + gráficas |
+| Usuarios | `/admin/usuarios` | Crear, editar roles, activar/desactivar, ver detalle (propiedades/leads/ventas) |
+| Propiedades | `/admin/propiedades` | Ver todas (cards con fotos + tabla), editar, eliminar, destacar |
+| Leads | `/admin/leads` | Ver todas las consultas, cambiar estado |
+| Blog | `/admin/blog` | Crear, editar, eliminar artículos (con upload de imágenes) |
+| Capacitaciones | `/admin/capacitaciones` | Crear, editar, eliminar cursos (con upload de imagen de portada) |
+| Servicios | `/admin/servicios` | Editar servicios de la web |
+| Ranking | `/admin/ranking` | Aprobar/rechazar ventas, recalcular ranking |
+| Finanzas | `/admin/finanzas` | Ingresos totales, comisiones, ventas detalladas, suscripciones, pagos capacitaciones |
+| Configuración | `/admin/configuracion` | Comisión (%), tasa USD/PEN, precio suscripción agente |
+| Mi Perfil | `/dashboard/perfil` | Editar datos personales |
+
+### Acciones exclusivas del superadmin:
+- **Crear usuarios** desde el panel (email, nombre, rol, teléfono)
+- **Aprobar/rechazar ventas** de los agentes
+- **Activar suscripciones manualmente** (dar acceso a agentes sin cobro)
+- **Configurar precio de suscripción anual** para agentes
+- **Configurar comisión %** sobre ventas
+- **Publicar propiedades sin suscripción** (no tiene restricción)
 
 ### Flujo de aprobación de ventas:
-1. El asesor marca una propiedad como "vendida" con el precio de venta
-2. La venta aparece en **Admin > Ranking > "Ventas pendientes de aprobación"**
-3. El admin verifica y hace click en **Aprobar** o **Rechazar**
-4. Al aprobar: comisión se calcula automáticamente + ranking se recalcula
-
-### Flujo de comisiones:
-1. Admin configura el % de comisión en **Admin > Configuración**
-2. Al aprobar una venta, la comisión se calcula: `precio_venta × porcentaje`
-3. Si la venta es en USD y la comisión en PEN, se convierte con la tasa configurada
+1. Agente marca propiedad como "vendida" con precio de venta
+2. Aparece en **Ranking > "Ventas pendientes de aprobación"**
+3. Admin verifica documentos (presencial o WhatsApp)
+4. Admin aprueba → comisión se calcula automáticamente → ranking se recalcula
+5. Se ve en **Finanzas** con todo el detalle
 
 ---
 
-## ASESOR / VENDEDOR (Agente Inmobiliario)
+## AGENTE / ASESOR INMOBILIARIO
 
-**Acceso:** `/dashboard`
+**Acceso:** `/dashboard` (funcionalidad limitada a sus propios datos)
+**Credenciales:** agente@chiclayopropiedades.com / Agente1234!
 **Rol en DB:** `agent`
+**Redirige después del login a:** `/dashboard`
 
-| Página | Ruta | Qué puede hacer |
-|--------|------|-----------------|
-| Dashboard | `/dashboard` | Ver estadísticas personales (propiedades, leads, inscripciones) |
-| Mis Propiedades | `/dashboard/propiedades` | Ver sus propiedades publicadas, estado de cada una |
-| Nueva Propiedad | `/dashboard/propiedades/nueva` | Publicar nueva propiedad (título, precio, fotos, ubicación) |
-| Editar Propiedad | `/dashboard/propiedades/[id]/editar` | Modificar datos de una propiedad existente |
-| Mis Leads | `/dashboard/leads` | Ver consultas recibidas por sus propiedades |
-| Mi Perfil | `/dashboard/perfil` | Editar nombre, teléfono, bio, foto de perfil |
-| Mis Capacitaciones | `/dashboard/capacitaciones` | Ver capacitaciones en las que está inscrito |
+### Sidebar del Agente
+| Sección | Ruta | Qué puede hacer |
+|---------|------|-----------------|
+| Resumen | `/dashboard` | Stats personales: propiedades, consultas, capacitaciones |
+| Mis Propiedades | `/dashboard/propiedades` | Ver SUS propiedades publicadas con fotos |
+| Mis Consultas | `/dashboard/leads` | Ver leads recibidos por sus propiedades |
+| Mi Perfil | `/dashboard/perfil` | Editar nombre, teléfono, bio, foto |
+| Mis Capacitaciones | `/dashboard/capacitaciones` | Ver cursos inscritos |
 
-### Acciones especiales del asesor:
-- **Marcar propiedad como vendida:** Botón "Marcar vendida" en la lista de propiedades → ingresa precio real de venta → queda pendiente de aprobación del admin
-- **Aparecer en ranking:** Su posición se basa en el monto total de ventas aprobadas
+### Suscripción anual (OBLIGATORIA para publicar):
+- **Precio:** S/ 99/año (configurable por admin)
+- Al intentar crear propiedad sin suscripción → ve pantalla de pago
+- Paga por Stripe → suscripción activa por 365 días
+- Si Stripe no está configurado → ve mensaje "Contacta al administrador"
+
+### Acciones del agente:
+- **Publicar propiedades** (solo con suscripción activa) con fotos, precio, ubicación
+- **Editar/eliminar** solo SUS propiedades
+- **Marcar propiedad como vendida** → ingresa precio real → queda pendiente de aprobación
+- **Aparecer en ranking** basado en monto total de ventas aprobadas
+- **Recibir leads** cuando compradores contactan por sus propiedades
+
+### NO puede:
+- Ver propiedades de otros agentes
+- Aprobar ventas
+- Acceder al panel admin
+- Crear usuarios
+- Publicar sin suscripción activa
 
 ---
 
-## COMPRADOR / VISITANTE (Usuario no registrado)
+## COMPRADOR / USUARIO REGISTRADO
 
-**Acceso:** Páginas públicas (no requiere login)
+**Acceso:** `/dashboard` (funcionalidad muy limitada)
+**Credenciales:** comprador@chiclayopropiedades.com / Comprador1234!
+**Rol en DB:** `user`
+**Redirige después del login a:** `/dashboard`
 
-| Página | Ruta | Qué puede hacer |
-|--------|------|-----------------|
-| Home | `/` | Ver secciones: hero, about, propiedades destacadas, ranking, capacitaciones, blog, newsletter |
-| Propiedades | `/propiedades` | Buscar y filtrar propiedades (tipo, precio, ubicación, operación) |
-| Detalle Propiedad | `/propiedades/[slug]` | Ver fotos, datos completos, ubicación, contactar al asesor |
-| Blog | `/blog` | Leer artículos inmobiliarios |
-| Detalle Blog | `/blog/[slug]` | Leer artículo completo |
-| Capacitaciones | `/capacitaciones` | Ver catálogo de cursos disponibles |
-| Detalle Capacitación | `/capacitaciones/[slug]` | Ver detalles del curso, precio, inscribirse (Stripe pendiente) |
-| Ranking | `/ranking` | Ver ranking de asesores por ventas cerradas |
-| Servicios | `/servicios` | Ver servicios ofrecidos por la empresa |
-| Contacto | `/contacto` | Enviar consulta general vía formulario |
+### Sidebar del Usuario
+| Sección | Ruta | Qué puede hacer |
+|---------|------|-----------------|
+| Resumen | `/dashboard` | Stats básicos |
+| Mis Propiedades | `/dashboard/propiedades` | Vacío (no puede publicar) |
+| Mis Consultas | `/dashboard/leads` | Vacío |
+| Mi Perfil | `/dashboard/perfil` | Editar datos personales |
+| Mis Capacitaciones | `/dashboard/capacitaciones` | Ver cursos pagados |
 
 ### Acciones del comprador:
-- **Contactar asesor:** Formulario en la página de detalle de propiedad o botón de WhatsApp
-- **Registrarse:** Puede crear cuenta para acceder al dashboard (se convierte en usuario registrado)
+- **Editar su perfil** (nombre, teléfono, bio, foto)
+- **Ver capacitaciones** en las que se inscribió
+- **Inscribirse en cursos** y pagar por Stripe
+
+### NO puede:
+- Publicar propiedades
+- Ver leads
+- Marcar ventas
+- Para publicar → admin debe promoverlo a `agent`
 
 ---
 
-## USUARIO REGISTRADO (Rol: user)
+## VISITANTE (No registrado)
 
-**Acceso:** `/dashboard` (funcionalidad limitada vs asesor)
-**Se registra en:** `/signup`
+**Acceso:** Solo páginas públicas (no requiere login)
 
 | Página | Ruta | Qué puede hacer |
 |--------|------|-----------------|
-| Dashboard | `/dashboard` | Ver estadísticas básicas |
-| Mi Perfil | `/dashboard/perfil` | Editar sus datos personales |
-| Mis Capacitaciones | `/dashboard/capacitaciones` | Ver cursos en los que se inscribió |
+| Home | `/` | Ver hero, propiedades destacadas, ranking, capacitaciones, blog |
+| Propiedades | `/propiedades` | Buscar con filtros (tipo, precio, ubicación, operación) |
+| Detalle Propiedad | `/propiedades/[slug]` | Ver fotos, datos, ubicación, contactar asesor |
+| Blog | `/blog` | Leer artículos |
+| Detalle Blog | `/blog/[slug]` | Leer artículo completo |
+| Capacitaciones | `/capacitaciones` | Ver catálogo de cursos |
+| Detalle Capacitación | `/capacitaciones/[slug]` | Ver detalles, precio, inscribirse |
+| Ranking | `/ranking` | Ver ranking de asesores |
+| Servicios | `/servicios` | Ver servicios ofrecidos |
+| Contacto | `/contacto` | Enviar consulta por formulario |
+| Privacidad | `/privacidad` | Política de privacidad |
+| Términos | `/terminos` | Términos de servicio |
 
-**Nota:** Un usuario normal NO puede publicar propiedades ni ver leads. Para eso debe ser promovido a `agent` por un admin.
+### Acciones:
+- **Contactar asesor** por formulario o WhatsApp
+- **Registrarse** como usuario o agente en `/signup`
 
 ---
 
@@ -107,22 +150,34 @@
 
 | Página | Ruta | Función |
 |--------|------|---------|
-| Login | `/login` | Iniciar sesión con email/password |
-| Registro | `/signup` | Crear cuenta nueva (verificación por email) |
-| Recuperar contraseña | `/password-recovery` | Solicitar reset de contraseña |
-| Verificar email | `/verify-email` | Confirmar registro (link del email) |
+| Login | `/login` | Iniciar sesión (admin → `/admin`, otros → `/dashboard`) |
+| Registro | `/signup` | Crear cuenta (elige: Usuario o Agente Inmobiliario) |
+| Recuperar contraseña | `/password-recovery` | Solicitar reset |
+| Verificar email | `/verify-email` | Confirmar registro |
 
 ---
 
-## RESUMEN DE PROTECCIÓN DE RUTAS
+## PROTECCIÓN DE RUTAS
 
 | Ruta | Requiere login | Requiere rol |
 |------|---------------|-------------|
 | `/` (home y públicas) | ❌ | — |
-| `/login`, `/signup` | ❌ (redirige a dashboard si ya está logueado) | — |
+| `/login`, `/signup` | ❌ (redirige si ya logueado) | — |
 | `/dashboard/*` | ✅ | user, agent, o admin |
 | `/admin/*` | ✅ | solo admin |
 
 ---
 
+## FLUJO DE DINERO
+
+| Ingreso | Cómo funciona | Cobro |
+|---------|---------------|-------|
+| **Suscripción agente** | Agente paga S/99/año para publicar | Automático (Stripe) |
+| **Comisión por venta** | 5% sobre precio de venta aprobada | Manual (fuera de plataforma) |
+| **Capacitaciones** | Usuario paga curso online | Automático (Stripe) |
+| **Servicios B2B** | Empresa contacta por WhatsApp | Manual |
+
+---
+
 **Middleware:** `src/middleware.ts` verifica JWT en cada request y redirige según corresponda.
+**Última actualización:** Abril 2026

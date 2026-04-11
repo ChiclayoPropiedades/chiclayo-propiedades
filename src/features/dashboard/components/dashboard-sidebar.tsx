@@ -19,6 +19,7 @@ import {
   Briefcase,
   Trophy,
   Settings,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -195,6 +196,21 @@ export function DashboardSidebar({
           <Home className="size-4" aria-hidden="true" />
           {!isCollapsed && "Ir al sitio"}
         </Link>
+        <form action="/api/auth/signout" method="POST">
+          <button
+            type="submit"
+            title={isCollapsed ? "Cerrar sesión" : undefined}
+            className={cn(
+              "flex w-full items-center rounded-lg text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-600",
+              isCollapsed
+                ? "justify-center px-2 py-2.5"
+                : "gap-2.5 px-3 py-2.5"
+            )}
+          >
+            <LogOut className="size-4" aria-hidden="true" />
+            {!isCollapsed && "Cerrar sesión"}
+          </button>
+        </form>
       </div>
     </aside>
   );

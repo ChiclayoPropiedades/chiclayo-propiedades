@@ -128,7 +128,7 @@ export async function getSalesRecords(): Promise<SaleRecord[]> {
     .eq("status", "sold")
     .order("sale_date", { ascending: false });
 
-  if (error) throw new Error(error.message);
+  if (error) return [];
 
   return (data ?? []).map((row) => {
     const agent = Array.isArray(row.agent) ? row.agent[0] : row.agent;
@@ -160,7 +160,7 @@ export async function getEnrollmentRecords(): Promise<EnrollmentRecord[]> {
     .eq("payment_status", "paid")
     .order("enrolled_at", { ascending: false });
 
-  if (error) throw new Error(error.message);
+  if (error) return [];
 
   return (data ?? []).map((row) => {
     const training = Array.isArray(row.training)
