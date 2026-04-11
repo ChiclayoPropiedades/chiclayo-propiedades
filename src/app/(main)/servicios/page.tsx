@@ -1,11 +1,12 @@
 import { type Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle, Briefcase, Globe, UserCheck, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nuestros Servicios",
   description:
-    "Servicios inmobiliarios para empresas, personas y asesores en Chiclayo y Lambayeque. Asesoría, gestión de propiedades, capacitaciones y más.",
+    "Servicios inmobiliarios para empresas, personas y asesores en Chiclayo y Lambayeque. Asesoria, gestion de propiedades, capacitaciones y mas.",
 };
 
 interface ServiceItem {
@@ -17,8 +18,8 @@ interface ServiceSectionProps {
   icon: React.ReactNode;
   items: ServiceItem[];
   imagePosition: "left" | "right";
-  imageBg: string;
-  imageIcon: React.ReactNode;
+  imageSrc: string;
+  imageAlt: string;
 }
 
 function ServiceSection({
@@ -26,18 +27,23 @@ function ServiceSection({
   icon,
   items,
   imagePosition,
-  imageBg,
-  imageIcon,
+  imageSrc,
+  imageAlt,
 }: ServiceSectionProps) {
   const imageBlock = (
-    <div
-      className={[
-        "flex h-40 w-full items-center justify-center rounded-2xl sm:h-64 lg:h-80",
-        imageBg,
-      ].join(" ")}
-      aria-hidden="true"
-    >
-      {imageIcon}
+    <div className="relative h-56 w-full overflow-hidden rounded-2xl shadow-lg sm:h-72 lg:h-96">
+      <Image
+        src={imageSrc}
+        alt={imageAlt}
+        fill
+        sizes="(max-width: 1024px) 100vw, 50vw"
+        className="object-cover"
+      />
+      {/* Overlay sutil para profundidad */}
+      <div
+        className="absolute inset-0 bg-gradient-to-tr from-[#1e3a8a]/30 via-transparent to-transparent"
+        aria-hidden="true"
+      />
     </div>
   );
 
@@ -81,28 +87,28 @@ function ServiceSection({
 }
 
 const empresasItems: ServiceItem[] = [
-  { label: "Asesoría en compra, venta y alquiler de inmuebles comerciales" },
+  { label: "Asesoria en compra, venta y alquiler de inmuebles comerciales" },
   { label: "Estudios de mercado inmobiliario" },
-  { label: "Saneamiento y regularización de propiedades" },
-  { label: "Evaluación técnica y legal de activos inmobiliarios" },
-  { label: "Gestión integral de carteras de inmuebles" },
+  { label: "Saneamiento y regularizacion de propiedades" },
+  { label: "Evaluacion tecnica y legal de activos inmobiliarios" },
+  { label: "Gestion integral de carteras de inmuebles" },
 ];
 
 const generalesItems: ServiceItem[] = [
-  { label: "Saneamiento físico-legal de propiedades" },
-  { label: "Asesoría legal en contratos de compraventa y arrendamiento" },
-  { label: "Publicidad y difusión de propiedades" },
+  { label: "Saneamiento fisico-legal de propiedades" },
+  { label: "Asesoria legal en contratos de compraventa y arrendamiento" },
+  { label: "Publicidad y difusion de propiedades" },
   { label: "Capacitaciones para compradores e inversores" },
-  { label: "Property Management y administración de inmuebles" },
+  { label: "Property Management y administracion de inmuebles" },
 ];
 
 const asesoresItems: ServiceItem[] = [
-  { label: "Cursos y talleres de formación inmobiliaria" },
+  { label: "Cursos y talleres de formacion inmobiliaria" },
   { label: "Publicidad destacada en el portal" },
-  { label: "Reconocimiento mensual y premios por desempeño" },
+  { label: "Reconocimiento mensual y premios por desempeno" },
   { label: "Oportunidades de networking y alianzas" },
-  { label: "Participación en el ranking de asesores" },
-  { label: "Línea de carrera dentro de la plataforma" },
+  { label: "Participacion en el ranking de asesores" },
+  { label: "Linea de carrera dentro de la plataforma" },
 ];
 
 export default function ServiciosPage() {
@@ -134,10 +140,8 @@ export default function ServiciosPage() {
             icon={<Briefcase className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={empresasItems}
             imagePosition="left"
-            imageBg="bg-gradient-to-br from-[#1e3a8a] to-[#2563eb]"
-            imageIcon={
-              <Briefcase className="size-24 text-white/20" aria-hidden="true" />
-            }
+            imageSrc="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80&auto=format&fit=crop"
+            imageAlt="Profesionales cerrando un acuerdo inmobiliario corporativo"
           />
 
           <hr className="border-gray-100" />
@@ -148,10 +152,8 @@ export default function ServiciosPage() {
             icon={<Globe className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={generalesItems}
             imagePosition="right"
-            imageBg="bg-gradient-to-br from-emerald-600 to-teal-500"
-            imageIcon={
-              <Globe className="size-24 text-white/20" aria-hidden="true" />
-            }
+            imageSrc="https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&q=80&auto=format&fit=crop"
+            imageAlt="Entrega de llaves de una nueva propiedad"
           />
 
           <hr className="border-gray-100" />
@@ -162,10 +164,8 @@ export default function ServiciosPage() {
             icon={<UserCheck className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={asesoresItems}
             imagePosition="left"
-            imageBg="bg-gradient-to-br from-violet-600 to-indigo-500"
-            imageIcon={
-              <UserCheck className="size-24 text-white/20" aria-hidden="true" />
-            }
+            imageSrc="https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=1200&q=80&auto=format&fit=crop"
+            imageAlt="Asesores inmobiliarios en una reunion de trabajo"
           />
         </div>
 
