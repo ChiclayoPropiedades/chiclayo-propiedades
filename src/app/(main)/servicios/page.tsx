@@ -164,8 +164,8 @@ export default function ServiciosPage() {
             icon={<UserCheck className="size-5 text-[#2563eb]" aria-hidden="true" />}
             items={asesoresItems}
             imagePosition="left"
-            imageSrc="https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=1200&q=80&auto=format&fit=crop"
-            imageAlt="Asesores inmobiliarios en una reunion de trabajo"
+            imageSrc="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&q=80&auto=format&fit=crop"
+            imageAlt="Asesor inmobiliario profesional con traje elegante"
           />
         </div>
 
