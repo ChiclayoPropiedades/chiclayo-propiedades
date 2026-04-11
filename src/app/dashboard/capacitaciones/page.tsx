@@ -3,7 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { createClient } from "@/shared/lib/supabase/server";
-import { formatPrice } from "@/shared/lib/format";
+import { RequestAgentRole } from "@/features/trainings/components/request-agent-role";
+import { hasPendingRoleUpgrade } from "@/features/admin/services/role-upgrade-actions";
 
 export const metadata: Metadata = {
   title: "Mis Capacitaciones",
@@ -19,11 +20,13 @@ export default async function MisCapacitacionesPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id")
+    .select("id, role")
     .eq("user_id", user.id)
     .single();
 
   if (!profile) redirect("/login");
+
+  const isAgent = profile.role === "agent" || profile.role === "admin";
 
   const { data: enrollments } = await supabase
     .from("training_enrollments")
@@ -32,6 +35,13 @@ export default async function MisCapacitacionesPage() {
     .order("enrolled_at", { ascending: false });
 
   const myEnrollments = enrollments ?? [];
+
+  // Para users no-agentes, verificar si tienen solicitud pendiente
+  let pendingUpgrade = false;
+  if (!isAgent) {
+    const upgradeStatus = await hasPendingRoleUpgrade();
+    pendingUpgrade = upgradeStatus.pending;
+  }
 
   return (
     <div>
@@ -51,7 +61,28 @@ export default async function MisCapacitacionesPage() {
         </Link>
       </div>
 
-      {myEnrollments.length === 0 ? (
+      {/* Mensaje para usuarios no-agentes */}
+      {!isAgent && (
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-blue-100">
+              <GraduationCap className="size-7 text-[#2563eb]" />
+            </div>
+            <h2 className="text-lg font-semibold text-[#1f2937]">
+              Capacitaciones exclusivas para Agentes
+            </h2>
+            <p className="mt-1 max-w-md text-sm text-gray-500">
+              Las capacitaciones estan disponibles para Agentes Inmobiliarios.
+              Solicita tu cambio de rol para acceder a cursos, talleres y certificaciones.
+            </p>
+            <div className="mt-4 w-full max-w-sm">
+              <RequestAgentRole hasPendingRequest={pendingUpgrade} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {myEnrollments.length === 0 && isAgent ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white py-16">
           <GraduationCap className="mb-4 size-12 text-gray-300" />
           <h2 className="text-lg font-semibold text-[#1f2937]">
@@ -68,7 +99,7 @@ export default async function MisCapacitacionesPage() {
             Explorar Capacitaciones
           </Link>
         </div>
-      ) : (
+      ) : myEnrollments.length > 0 ? (
         <div className="grid gap-4">
           {myEnrollments.map((enrollment) => {
             const training = Array.isArray(enrollment.training)
@@ -130,7 +161,7 @@ export default async function MisCapacitacionesPage() {
             );
           })}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

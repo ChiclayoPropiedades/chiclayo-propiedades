@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
@@ -58,8 +58,12 @@ const inputClass = cn(
 
 export function SignupForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const preselectedRole = searchParams.get("role")
 
-  const [role, setRole] = useState<AccountRole>("user")
+  const [role, setRole] = useState<AccountRole>(
+    preselectedRole === "agent" ? "agent" : "user"
+  )
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
@@ -146,6 +150,13 @@ export function SignupForm() {
             Únete a nuestra plataforma inmobiliaria
           </p>
         </div>
+
+        {/* Mensaje contextual si viene de capacitaciones */}
+        {preselectedRole === "agent" && (
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+            Registrate como <strong>Agente Inmobiliario</strong> para acceder a capacitaciones y publicar propiedades.
+          </div>
+        )}
 
         {/* Error */}
         {error && (

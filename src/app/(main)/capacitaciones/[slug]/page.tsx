@@ -19,6 +19,8 @@ import ReactMarkdown from "react-markdown";
 import { isStripeConfigured } from "@/shared/lib/stripe";
 import { isMercadoPagoConfigured } from "@/shared/lib/mercadopago";
 import { EnrollButton } from "@/features/trainings/components/enroll-button";
+import { RequestAgentRole } from "@/features/trainings/components/request-agent-role";
+import { hasPendingRoleUpgrade } from "@/features/admin/services/role-upgrade-actions";
 import { createClient } from "@/shared/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -72,6 +74,24 @@ export default async function TrainingDetailPage({ params }: PageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = Boolean(user);
+
+  // Obtener rol del usuario y estado de solicitud de upgrade
+  let userRole: string | null = null;
+  let pendingUpgrade = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+    userRole = profile?.role ?? null;
+
+    if (userRole === "user") {
+      const upgradeStatus = await hasPendingRoleUpgrade();
+      pendingUpgrade = upgradeStatus.pending;
+    }
+  }
+  const isAgent = userRole === "agent" || userRole === "admin";
 
   // Leer WhatsApp settings para el botón de pago
   const { data: waSettings } = await supabase
@@ -286,7 +306,7 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                 </ul>
 
                 {/* CTA */}
-                {isLoggedIn ? (
+                {isLoggedIn && isAgent ? (
                   <EnrollButton
                     trainingId={training.id}
                     trainingTitle={training.title}
@@ -294,18 +314,20 @@ export default async function TrainingDetailPage({ params }: PageProps) {
                     isMercadoPagoConfigured={isMercadoPagoConfigured()}
                     whatsappPayment={whatsappPayment}
                   />
+                ) : isLoggedIn && !isAgent ? (
+                  <RequestAgentRole hasPendingRequest={pendingUpgrade} />
                 ) : (
                   <div className="space-y-2">
                     <Link
-                      href="/signup"
+                      href="/signup?role=agent"
                       className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[#1e40af]"
                     >
-                      Regístrate para inscribirte
+                      Registrate como Agente para inscribirte
                     </Link>
                     <p className="text-center text-xs text-gray-400">
                       ¿Ya tienes cuenta?{" "}
                       <Link href="/login" className="text-[#2563eb] hover:underline">
-                        Inicia sesión
+                        Inicia sesion
                       </Link>
                     </p>
                   </div>
