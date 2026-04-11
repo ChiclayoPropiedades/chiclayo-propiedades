@@ -116,7 +116,7 @@ export default async function RankingPage() {
   return (
     <>
       {/* Page header */}
-      <div className="bg-gradient-to-r from-[#1e3a8a] to-[#2563eb] py-10">
+      <div className="bg-gradient-to-r from-[#0a1628] to-[#1e3a5f] py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <Trophy className="size-8 text-white/70" aria-hidden="true" />
