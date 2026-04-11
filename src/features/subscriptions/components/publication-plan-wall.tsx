@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Camera, Star, MessageCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export function PublicationPlanWall({
 }: PublicationPlanWallProps) {
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "advanced">("basic");
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const plans = [
     { key: "basic" as const, ...basic, icon: Camera },
@@ -59,13 +61,16 @@ export function PublicationPlanWall({
         return;
       }
 
-      // Redirigir a WhatsApp
+      // Abrir WhatsApp en nueva pestaña
       window.open(
         `https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMessage)}`,
         "_blank"
       );
 
       toast.success("Solicitud enviada. Coordina el pago por WhatsApp.");
+
+      // Redirigir a Mis Propiedades para ver estado
+      router.push("/dashboard/propiedades");
     });
   }
 

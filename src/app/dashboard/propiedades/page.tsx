@@ -1,7 +1,7 @@
 import { type Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Home } from "lucide-react";
+import { Plus, Home, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { createClient } from "@/shared/lib/supabase/server";
 import { DashboardPropertiesView } from "./dashboard-properties-view";
 
@@ -26,6 +26,20 @@ export default async function MisPropiedadesPage() {
   if (!profile) redirect("/login");
 
   const isAdmin = profile.role === "admin";
+  const isUser = profile.role === "user";
+
+  // Para usuarios: ver estado de su solicitud de publicación
+  let userPubRequest: { plan_name: string; plan_price: number; currency: string; status: string } | null = null;
+  if (isUser) {
+    const { data: req } = await supabase
+      .from("publication_requests")
+      .select("plan_name, plan_price, currency, status")
+      .eq("profile_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    userPubRequest = req;
+  }
 
   const query = supabase
     .from("properties")
@@ -62,6 +76,49 @@ export default async function MisPropiedadesPage() {
           Nueva Propiedad
         </Link>
       </div>
+
+      {/* Estado de solicitud de publicación (solo usuarios) */}
+      {isUser && userPubRequest && (
+        <div className={`mb-6 flex items-start gap-3 rounded-lg border p-4 ${
+          userPubRequest.status === "pending"
+            ? "border-yellow-200 bg-yellow-50"
+            : userPubRequest.status === "approved"
+              ? "border-green-200 bg-green-50"
+              : "border-red-200 bg-red-50"
+        }`}>
+          {userPubRequest.status === "pending" ? (
+            <Clock className="mt-0.5 size-5 shrink-0 text-yellow-600" />
+          ) : userPubRequest.status === "approved" ? (
+            <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-green-600" />
+          ) : (
+            <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" />
+          )}
+          <div>
+            <p className={`text-sm font-medium ${
+              userPubRequest.status === "pending" ? "text-yellow-800"
+                : userPubRequest.status === "approved" ? "text-green-800"
+                  : "text-red-800"
+            }`}>
+              {userPubRequest.status === "pending"
+                ? `Solicitud pendiente — Plan ${userPubRequest.plan_name} (${userPubRequest.currency === "USD" ? "$" : "S/"} ${userPubRequest.plan_price})`
+                : userPubRequest.status === "approved"
+                  ? `Plan ${userPubRequest.plan_name} aprobado — ¡Ya puedes publicar!`
+                  : `Solicitud rechazada — Plan ${userPubRequest.plan_name}`}
+            </p>
+            <p className={`mt-0.5 text-xs ${
+              userPubRequest.status === "pending" ? "text-yellow-600"
+                : userPubRequest.status === "approved" ? "text-green-600"
+                  : "text-red-600"
+            }`}>
+              {userPubRequest.status === "pending"
+                ? "El administrador revisará tu solicitud después de recibir el pago."
+                : userPubRequest.status === "approved"
+                  ? "Haz click en 'Nueva Propiedad' para publicar."
+                  : "Contacta al administrador para más información."}
+            </p>
+          </div>
+        </div>
+      )}
 
       {myProperties.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white py-16">

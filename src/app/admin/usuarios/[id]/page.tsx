@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Phone, Mail } from "lucide-react";
+import { ArrowLeft, Phone, Mail, FileText } from "lucide-react";
 
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
@@ -14,7 +14,9 @@ import { UserDetailTabs } from "@/features/admin/components/user-detail-tabs";
 import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
 import { ExtendSubscriptionForm } from "@/features/subscriptions/components/extend-subscription-form";
 import { EditUserForm } from "@/features/admin/components/edit-user-form";
+import { PublicationRequestsTable } from "@/features/admin/components/publication-requests-table";
 import { createAdminClient } from "@/shared/lib/supabase/admin";
+import { getAllPublicationRequests } from "@/features/subscriptions/services/publication-actions";
 
 const roleLabels: Record<string, string> = {
   admin: "Administrador",
@@ -27,6 +29,38 @@ const roleColors: Record<string, string> = {
   agent: "border-blue-200 bg-blue-100 text-blue-800",
   user: "border-gray-200 bg-gray-100 text-gray-700",
 };
+
+async function UserPublicationSection({ profileId }: { profileId: string }) {
+  const allRequests = await getAllPublicationRequests();
+  const userRequests = allRequests.filter((r) => r.profile_id === profileId);
+
+  if (userRequests.length === 0) {
+    return (
+      <Card className="border-gray-200">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <FileText className="size-4" />
+            <span>Este usuario no tiene solicitudes de publicación.</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-gray-200">
+      <CardContent className="p-0">
+        <div className="flex items-center gap-2 border-b border-gray-200 px-6 py-3">
+          <FileText className="size-4 text-[#2563eb]" />
+          <h3 className="text-sm font-semibold text-[#1f2937]">
+            Solicitudes de publicación ({userRequests.length})
+          </h3>
+        </div>
+        <PublicationRequestsTable requests={userRequests} />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default async function AdminUserDetailPage({
   params,
@@ -152,12 +186,18 @@ export default async function AdminUserDetailPage({
       </Card>
 
       {/* Subscription management for agents */}
+      {/* Suscripción agente */}
       {isAgent && (
         <ExtendSubscriptionForm
           profileId={id}
           hasActiveSubscription={subscription?.active ?? false}
           expiresAt={subscription?.expiresAt ?? null}
         />
+      )}
+
+      {/* Solicitudes de publicación (usuarios) */}
+      {profile.role === "user" && (
+        <UserPublicationSection profileId={id} />
       )}
 
       {/* Edit user form */}
