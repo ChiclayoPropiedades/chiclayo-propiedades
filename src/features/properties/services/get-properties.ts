@@ -19,27 +19,46 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
   if (error) throw error;
 
   // Filtrar propiedades de agentes inactivos/eliminados
-  return (data ?? []).filter((p) => {
-    const agent = Array.isArray(p.agent) ? p.agent[0] : p.agent;
-    return agent?.is_active !== false;
-  }) as Property[];
+  // Obtener IDs de perfiles inactivos via admin
+  const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+  const adminSb = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data: inactiveProfiles } = await adminSb
+    .from("profiles")
+    .select("id")
+    .eq("is_active", false);
+
+  const inactiveIds = new Set((inactiveProfiles ?? []).map((p) => p.id));
+
+  return ((data ?? []) as Property[]).filter((p) => !inactiveIds.has(p.agent_id));
 }
 
 export async function getFeaturedProperties(): Promise<Property[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("properties")
-    .select("*, property_images(*), agent:profiles!agent_id(is_active)")
+    .select("*, property_images(*)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
     .limit(6);
   if (error) throw error;
 
-  return (data ?? []).filter((p) => {
-    const agent = Array.isArray(p.agent) ? p.agent[0] : p.agent;
-    return agent?.is_active !== false;
-  }) as Property[];
+  const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+  const adminSb = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data: inactiveProfiles } = await adminSb
+    .from("profiles")
+    .select("id")
+    .eq("is_active", false);
+
+  const inactiveIds = new Set((inactiveProfiles ?? []).map((p) => p.id));
+
+  return ((data ?? []) as Property[]).filter((p) => !inactiveIds.has(p.agent_id));
 }
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
@@ -47,15 +66,25 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
   const { data, error } = await supabase
     .from("properties")
     .select(
-      "*, property_images(*), agent:profiles!agent_id(id, full_name, phone, avatar_url, is_active)"
+      "*, property_images(*), agent:profiles!agent_id(id, full_name, phone, avatar_url)"
     )
     .eq("slug", slug)
     .single();
   if (error) return null;
 
-  // Si el agente está inactivo, no mostrar la propiedad
-  const agent = Array.isArray(data.agent) ? data.agent[0] : data.agent;
-  if (agent?.is_active === false) return null;
+  // Verificar si el agente está activo via admin client
+  const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+  const adminSb = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data: agentProfile } = await adminSb
+    .from("profiles")
+    .select("is_active")
+    .eq("id", data.agent_id)
+    .single();
+
+  if (agentProfile?.is_active === false) return null;
 
   return data as Property;
 }
