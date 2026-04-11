@@ -2,7 +2,7 @@ import { createClient } from "@/shared/lib/supabase/server";
 import { Property, PropertyFilters } from "../types";
 
 // Obtener IDs de perfiles que deben estar ocultos en la web pública
-async function getHiddenProfileIds(): Promise<Set<string>> {
+async function getHiddenProfileIds(): Promise<{ hiddenProfileIds: Set<string>; expiredPropertyIds: Set<string> }> {
   const { createClient: createServiceClient } = await import("@supabase/supabase-js");
   const adminSb = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,11 +31,25 @@ async function getHiddenProfileIds(): Promise<Set<string>> {
   const activeSubIds = new Set((activeSubs ?? []).map((s) => s.profile_id));
   const expiredAgents = (agents ?? []).filter((a) => !activeSubIds.has(a.id));
 
+  // 3. Usuarios (rol user) con publicaciones cuyo plan expiró
+  const { data: expiredPubs } = await adminSb
+    .from("publication_requests")
+    .select("property_id, expires_at")
+    .eq("status", "approved")
+    .eq("used", true)
+    .not("property_id", "is", null)
+    .lt("expires_at", new Date().toISOString());
+
+  const expiredPropertyIds = new Set<string>();
+  for (const p of expiredPubs ?? []) {
+    if (p.property_id) expiredPropertyIds.add(p.property_id);
+  }
+
   const hiddenIds = new Set<string>();
   for (const p of inactiveProfiles ?? []) hiddenIds.add(p.id);
   for (const a of expiredAgents) hiddenIds.add(a.id);
 
-  return hiddenIds;
+  return { hiddenProfileIds: hiddenIds, expiredPropertyIds };
 }
 
 export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
@@ -55,8 +69,10 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
   const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
 
-  const hiddenIds = await getHiddenProfileIds();
-  return ((data ?? []) as Property[]).filter((p) => !hiddenIds.has(p.agent_id));
+  const { hiddenProfileIds, expiredPropertyIds } = await getHiddenProfileIds();
+  return ((data ?? []) as Property[]).filter(
+    (p) => !hiddenProfileIds.has(p.agent_id) && !expiredPropertyIds.has(p.id)
+  );
 }
 
 export async function getFeaturedProperties(): Promise<Property[]> {
@@ -70,8 +86,10 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     .limit(6);
   if (error) throw error;
 
-  const hiddenIds = await getHiddenProfileIds();
-  return ((data ?? []) as Property[]).filter((p) => !hiddenIds.has(p.agent_id));
+  const { hiddenProfileIds, expiredPropertyIds } = await getHiddenProfileIds();
+  return ((data ?? []) as Property[]).filter(
+    (p) => !hiddenProfileIds.has(p.agent_id) && !expiredPropertyIds.has(p.id)
+  );
 }
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
@@ -85,8 +103,9 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
     .single();
   if (error) return null;
 
-  const hiddenIds = await getHiddenProfileIds();
-  if (hiddenIds.has(data.agent_id)) return null;
+  const { hiddenProfileIds, expiredPropertyIds } = await getHiddenProfileIds();
+  if (hiddenProfileIds.has(data.agent_id)) return null;
+  if (expiredPropertyIds.has(data.id)) return null;
 
   return data as Property;
 }

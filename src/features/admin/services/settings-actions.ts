@@ -22,6 +22,7 @@ interface PlatformSettings {
   user_pub_advanced_name: string;
   user_pub_advanced_extras: string;
   user_pub_currency: string;
+  user_pub_duration_days: string;
 }
 
 export interface EmailSettings {
@@ -60,6 +61,7 @@ export async function getSettings(): Promise<PlatformSettings> {
     user_pub_advanced_name: "Avanzada",
     user_pub_advanced_extras: "Mención en podcast de TikTok",
     user_pub_currency: "PEN",
+    user_pub_duration_days: "30",
   };
 
   for (const row of data ?? []) {
@@ -154,6 +156,10 @@ export async function updateSettings(
     {
       key: "user_pub_currency",
       value: formData.get("user_pub_currency") as string,
+    },
+    {
+      key: "user_pub_duration_days",
+      value: formData.get("user_pub_duration_days") as string,
     },
   ];
 

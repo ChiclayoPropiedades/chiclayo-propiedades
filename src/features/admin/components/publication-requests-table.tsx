@@ -25,6 +25,9 @@ interface PublicationRequest {
   plan_price: number;
   currency: string;
   status: string;
+  used?: boolean;
+  expires_at?: string | null;
+  is_expired?: boolean;
   created_at: string;
   user_name: string;
   user_phone: string | null;
@@ -76,6 +79,7 @@ export function PublicationRequestsTable({ requests }: Props) {
           <TableHead className="text-xs font-medium text-gray-500">Plan</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Monto</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Estado</TableHead>
+          <TableHead className="text-xs font-medium text-gray-500">Expira</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Fecha</TableHead>
           <TableHead className="text-xs font-medium text-gray-500">Acciones</TableHead>
         </TableRow>
@@ -105,22 +109,33 @@ export function PublicationRequestsTable({ requests }: Props) {
               {formatPrice(req.plan_price, req.currency)}
             </TableCell>
             <TableCell>
-              <Badge
-                variant="outline"
-                className={
-                  req.status === "approved"
-                    ? "border-green-200 bg-green-100 text-green-700"
-                    : req.status === "rejected"
-                      ? "border-red-200 bg-red-100 text-red-700"
-                      : "border-yellow-200 bg-yellow-100 text-yellow-700"
-                }
-              >
-                {req.status === "approved"
-                  ? "Aprobada"
-                  : req.status === "rejected"
-                    ? "Rechazada"
-                    : "Pendiente"}
-              </Badge>
+              <div className="flex flex-col gap-1">
+                <Badge
+                  variant="outline"
+                  className={
+                    req.is_expired
+                      ? "border-gray-200 bg-gray-100 text-gray-500"
+                      : req.status === "approved"
+                        ? "border-green-200 bg-green-100 text-green-700"
+                        : req.status === "rejected"
+                          ? "border-red-200 bg-red-100 text-red-700"
+                          : "border-yellow-200 bg-yellow-100 text-yellow-700"
+                  }
+                >
+                  {req.is_expired
+                    ? "Expirada"
+                    : req.status === "approved"
+                      ? req.used ? "Usada" : "Aprobada"
+                      : req.status === "rejected"
+                        ? "Rechazada"
+                        : "Pendiente"}
+                </Badge>
+              </div>
+            </TableCell>
+            <TableCell className="text-xs text-gray-400">
+              {req.expires_at
+                ? new Date(req.expires_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+                : "—"}
             </TableCell>
             <TableCell className="text-xs text-gray-400">
               {new Date(req.created_at).toLocaleDateString("es-PE", {

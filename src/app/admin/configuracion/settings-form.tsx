@@ -25,6 +25,7 @@ interface SettingsFormProps {
     user_pub_advanced_name: string;
     user_pub_advanced_extras: string;
     user_pub_currency: string;
+    user_pub_duration_days: string;
   };
   action: (
     formData: FormData
@@ -307,6 +308,13 @@ export function SettingsForm({ settings, action }: SettingsFormProps) {
                 <Label htmlFor="user_pub_advanced_extras">Extras del plan avanzado</Label>
                 <Input id="user_pub_advanced_extras" name="user_pub_advanced_extras" defaultValue={settings.user_pub_advanced_extras} disabled={isPending} className="border-gray-200" />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="user_pub_duration_days">Duración de publicación (días)</Label>
+              <Input id="user_pub_duration_days" name="user_pub_duration_days" type="number" min="1" defaultValue={settings.user_pub_duration_days} disabled={isPending} className="border-gray-200 w-32" />
+              <p className="text-xs text-gray-400">
+                Días que la propiedad se mantiene visible después de ser aprobada.
+              </p>
             </div>
             <p className="text-xs text-gray-400">
               Plan básico: 1 foto. Plan avanzado: hasta 10 fotos + extras.

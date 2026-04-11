@@ -78,16 +78,18 @@ export async function getAllPublicationRequests() {
   const { data } = await adminSupabase
     .from("publication_requests")
     .select(
-      "id, profile_id, plan_type, plan_name, plan_price, currency, status, created_at, user:profiles!profile_id(full_name, phone)"
+      "id, profile_id, plan_type, plan_name, plan_price, currency, status, used, expires_at, property_id, created_at, user:profiles!profile_id(full_name, phone)"
     )
     .order("created_at", { ascending: false });
 
   return (data ?? []).map((r) => {
     const user = Array.isArray(r.user) ? r.user[0] : r.user;
+    const isExpired = r.expires_at ? new Date(r.expires_at) < new Date() : false;
     return {
       ...r,
       user_name: user?.full_name ?? "Sin nombre",
       user_phone: user?.phone ?? null,
+      is_expired: isExpired,
     };
   });
 }
@@ -99,9 +101,24 @@ export async function approvePublicationRequest(
 ): Promise<{ success?: boolean; error?: string }> {
   const adminSupabase = createAdminClient();
 
+  // Leer duración configurable
+  const { data: durationSetting } = await adminSupabase
+    .from("platform_settings")
+    .select("value")
+    .eq("key", "user_pub_duration_days")
+    .single();
+
+  const durationDays = parseInt(durationSetting?.value ?? "30");
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + durationDays);
+
   const { error } = await adminSupabase
     .from("publication_requests")
-    .update({ status: "approved", updated_at: new Date().toISOString() })
+    .update({
+      status: "approved",
+      expires_at: expiresAt.toISOString(),
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", requestId);
 
   if (error) return { error: error.message };
@@ -138,16 +155,21 @@ export async function hasApprovedPlan(profileId: string): Promise<{
 }> {
   const supabase = await createClient();
 
-  // Buscar plan aprobado Y no usado (cada pago = 1 publicación)
+  // Buscar plan aprobado, no usado y no expirado
   const { data } = await supabase
     .from("publication_requests")
-    .select("id, plan_type, plan_name")
+    .select("id, plan_type, plan_name, expires_at")
     .eq("profile_id", profileId)
     .eq("status", "approved")
     .eq("used", false)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  // Verificar si expiró
+  if (data?.expires_at && new Date(data.expires_at) < new Date()) {
+    return { approved: false };
+  }
 
   if (!data) return { approved: false };
 
