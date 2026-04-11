@@ -1,9 +1,9 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { createPublicClient } from "@/shared/lib/supabase/server";
 import { Service } from "../types";
 
 export async function getServices(): Promise<Service[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("services")
       .select("*")

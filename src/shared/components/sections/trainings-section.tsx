@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowRight, BookOpen, Calendar, MapPin, User, GraduationCap, Clock } from "lucide-react"
-import { createClient } from "@/shared/lib/supabase/server"
+import { createPublicClient } from "@/shared/lib/supabase/server"
 
 interface Training {
   id: string
@@ -18,7 +18,7 @@ interface Training {
 
 async function getTrainings(): Promise<Training[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from("trainings")
       .select("id, title, description, price, currency, modality, event_date, location, instructor, cover_image, slug")
