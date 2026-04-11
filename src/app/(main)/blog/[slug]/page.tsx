@@ -11,8 +11,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const posts = await getPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  try {
+    const posts = await getPosts();
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -21,14 +25,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!post) {
     return {
-      title: "Artículo no encontrado | Chiclayo Propiedades",
+      title: "Artículo no encontrado",
     };
   }
 
   const description = post.excerpt ?? post.content.slice(0, 160);
 
   return {
-    title: `${post.title} | Blog | Chiclayo Propiedades`,
+    title: `${post.title} | Blog`,
     description,
     openGraph: {
       title: post.title,

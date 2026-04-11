@@ -4,11 +4,11 @@ import { ContactForm } from "@/features/contact/components/contact-form";
 import { ContactInfo } from "@/features/contact/components/contact-info";
 
 export const metadata: Metadata = {
-  title: "Contáctanos | Chiclayo Propiedades",
+  title: "Contáctanos",
   description:
     "Ponte en contacto con nuestro equipo. Estamos listos para ayudarte a encontrar la propiedad ideal en Chiclayo y Lambayeque.",
   openGraph: {
-    title: "Contáctanos | Chiclayo Propiedades",
+    title: "Contáctanos",
     description:
       "Ponte en contacto con nuestro equipo. Estamos listos para ayudarte a encontrar la propiedad ideal en Chiclayo y Lambayeque.",
     type: "website",

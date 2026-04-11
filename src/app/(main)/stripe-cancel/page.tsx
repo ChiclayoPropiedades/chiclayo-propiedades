@@ -3,7 +3,7 @@ import Link from "next/link";
 import { XCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Pago cancelado | Chiclayo Propiedades",
+  title: "Pago cancelado",
   description: "El proceso de pago fue cancelado.",
 };
 

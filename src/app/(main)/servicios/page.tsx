@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckCircle, Briefcase, Globe, UserCheck, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Nuestros Servicios | Chiclayo Propiedades",
+  title: "Nuestros Servicios",
   description:
     "Servicios inmobiliarios para empresas, personas y asesores en Chiclayo y Lambayeque. Asesoría, gestión de propiedades, capacitaciones y más.",
 };

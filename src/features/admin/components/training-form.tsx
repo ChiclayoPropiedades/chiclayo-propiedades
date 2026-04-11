@@ -19,6 +19,7 @@ interface TrainingInitialData {
   location: string | null;
   instructor: string | null;
   event_date: string | null;
+  cover_image: string | null;
 }
 
 interface TrainingFormProps {
@@ -223,6 +224,23 @@ export function TrainingForm({ initialData, action }: TrainingFormProps) {
             className="border-gray-200 focus:border-[#2563eb] focus:ring-[#2563eb]/20"
           />
         </div>
+      </div>
+
+      {/* Imagen de portada */}
+      <div className="space-y-1.5">
+        <Label htmlFor="cover_image">Imagen de portada (URL)</Label>
+        <Input
+          id="cover_image"
+          name="cover_image"
+          type="url"
+          defaultValue={initialData?.cover_image ?? ""}
+          placeholder="https://ejemplo.com/imagen.jpg"
+          disabled={isPending}
+          className="border-gray-200 focus:border-[#2563eb] focus:ring-[#2563eb]/20"
+        />
+        <p className="text-xs text-gray-400">
+          Pega la URL de una imagen. Formatos: JPG, PNG, WebP.
+        </p>
       </div>
 
       {/* Contenido (full width) */}

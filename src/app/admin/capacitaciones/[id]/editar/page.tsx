@@ -54,6 +54,7 @@ export default async function AdminCapacitacionEditarPage({
               location: training.location,
               instructor: training.instructor,
               event_date: training.event_date,
+              cover_image: training.cover_image,
             }}
             action={boundUpdateTraining}
           />

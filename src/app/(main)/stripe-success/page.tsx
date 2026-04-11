@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Pago exitoso | Chiclayo Propiedades",
+  title: "Pago exitoso",
   description: "Tu inscripción ha sido confirmada correctamente.",
 };
 

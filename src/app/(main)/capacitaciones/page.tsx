@@ -5,7 +5,7 @@ import { getTrainings } from "@/features/trainings/services/get-trainings";
 import { TrainingCard } from "@/features/trainings/components/training-card";
 
 export const metadata: Metadata = {
-  title: "Capacitaciones | Chiclayo Propiedades",
+  title: "Capacitaciones",
   description:
     "Formación profesional para asesores y empresas inmobiliarias. Cursos presenciales y virtuales en Chiclayo.",
 };

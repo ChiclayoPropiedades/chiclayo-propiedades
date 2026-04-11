@@ -4,11 +4,11 @@ import { getPosts } from "@/features/blog/services/get-posts";
 import { BlogGrid } from "@/features/blog/components/blog-grid";
 
 export const metadata: Metadata = {
-  title: "Blog Inmobiliario | Chiclayo Propiedades",
+  title: "Blog Inmobiliario",
   description:
     "Consejos, tendencias y noticias del mercado inmobiliario en Chiclayo y Lambayeque.",
   openGraph: {
-    title: "Blog Inmobiliario | Chiclayo Propiedades",
+    title: "Blog Inmobiliario",
     description:
       "Consejos, tendencias y noticias del mercado inmobiliario en Chiclayo y Lambayeque.",
     type: "website",

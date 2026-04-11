@@ -26,8 +26,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const trainings = await getTrainings();
-  return trainings.map((t) => ({ slug: t.slug }));
+  try {
+    const trainings = await getTrainings();
+    return trainings.map((t) => ({ slug: t.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -35,11 +39,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const training = await getTrainingBySlug(slug);
 
   if (!training) {
-    return { title: "Capacitación no encontrada | Chiclayo Propiedades" };
+    return { title: "Capacitación no encontrada" };
   }
 
   return {
-    title: `${training.title} | Capacitaciones | Chiclayo Propiedades`,
+    title: `${training.title} | Capacitaciones`,
     description: training.description,
     openGraph: {
       title: training.title,

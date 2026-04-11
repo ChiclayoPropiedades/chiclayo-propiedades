@@ -21,7 +21,7 @@ export async function generateMetadata({
       property.property_images?.[0] ?? null;
 
     return {
-      title: `${property.title} | Chiclayo Propiedades`,
+      title: property.title,
       description:
         property.description ??
         `${property.type} en ${property.operation} en ${property.district}, ${property.city}. Precio: ${formatPrice(property.price, property.currency)}.`,
@@ -36,7 +36,7 @@ export async function generateMetadata({
     };
   } catch {
     return {
-      title: "Propiedad | Chiclayo Propiedades",
+      title: "Propiedad",
     };
   }
 }

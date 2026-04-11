@@ -162,7 +162,7 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
 }
 
 export const metadata = {
-  title: "Propiedades | Chiclayo Propiedades",
+  title: "Propiedades",
   description:
     "Explora miles de propiedades en venta y alquiler en Chiclayo y Lambayeque. Casas, departamentos, terrenos y más.",
 };

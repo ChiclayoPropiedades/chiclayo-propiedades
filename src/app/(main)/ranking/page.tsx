@@ -16,7 +16,7 @@ function getAgent(entry: AgentRanking) {
 }
 
 export const metadata: Metadata = {
-  title: "Ranking de Asesores | Chiclayo Propiedades",
+  title: "Ranking de Asesores",
   description:
     "Conoce a los mejores asesores inmobiliarios de Chiclayo Propiedades, clasificados por ventas cerradas y monto total vendido.",
 };

@@ -45,6 +45,7 @@ export async function createTraining(formData: FormData) {
     location: (formData.get("location") as string) || null,
     instructor: (formData.get("instructor") as string) || null,
     event_date: (formData.get("event_date") as string) || null,
+    cover_image: (formData.get("cover_image") as string) || null,
   });
   if (error) return { error: error.message };
   redirect("/admin/capacitaciones");
@@ -64,6 +65,7 @@ export async function updateTraining(id: string, formData: FormData) {
       location: (formData.get("location") as string) || null,
       instructor: (formData.get("instructor") as string) || null,
       event_date: (formData.get("event_date") as string) || null,
+      cover_image: (formData.get("cover_image") as string) || null,
     })
     .eq("id", id);
   if (error) return { error: error.message };
