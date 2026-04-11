@@ -6,7 +6,7 @@ const topics = [
     icon: TrendingUp,
     title: "Tendencias del mercado",
     description: "Análisis actualizado del mercado inmobiliario en Chiclayo y Lambayeque.",
-    color: "from-[#1e3a5f] to-[#2a4a6f]",
+    color: "from-[#1e3a5f] to-[#1e3a5f]",
   },
   {
     icon: Lightbulb,
@@ -18,7 +18,7 @@ const topics = [
     icon: BookOpen,
     title: "Guías para compradores",
     description: "Todo lo que necesitas saber antes de comprar tu primera propiedad.",
-    color: "from-[#1e3a5f] to-[#2a4a6f]",
+    color: "from-[#1e3a5f] to-[#1e3a5f]",
   },
   {
     icon: FileText,
@@ -74,7 +74,7 @@ export function NewsSection() {
         <div className="mt-10 text-center">
           <Link
             href="/blog"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-8 text-sm font-semibold text-white shadow-lg shadow-[#1e3a5f]/20 transition-all hover:bg-[#0f1f33] hover:scale-[1.02]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-8 text-sm font-semibold text-white shadow-lg shadow-[#1e3a5f]/20 transition-all hover:bg-[#0a1628] hover:scale-[1.02]"
           >
             <Newspaper className="size-4" aria-hidden="true" />
             Visitar el Blog

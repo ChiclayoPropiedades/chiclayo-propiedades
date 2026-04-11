@@ -151,7 +151,7 @@ export async function TrainingsSection() {
                 <div className="px-6 pb-6">
                   <Link
                     href={`/capacitaciones/${training.slug}`}
-                    className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e3a5f] text-sm font-semibold text-white transition-all hover:bg-[#0f1f33] hover:shadow-lg"
+                    className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e3a5f] text-sm font-semibold text-white transition-all hover:bg-[#0a1628] hover:shadow-lg"
                   >
                     Más información
                   </Link>
@@ -187,7 +187,7 @@ export async function TrainingsSection() {
               <div className="mt-8">
                 <Link
                   href="/capacitaciones"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-6 text-sm font-semibold text-white transition-all hover:bg-[#0f1f33]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-6 text-sm font-semibold text-white transition-all hover:bg-[#0a1628]"
                 >
                   <BookOpen className="size-4" aria-hidden="true" />
                   Ver capacitaciones
