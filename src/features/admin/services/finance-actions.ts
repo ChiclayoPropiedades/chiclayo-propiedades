@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/shared/lib/supabase/server";
+import { createAdminClient } from "@/shared/lib/supabase/admin";
 
 async function verifyAdmin() {
   const supabase = await createClient();
@@ -42,6 +43,19 @@ export interface EnrollmentRecord {
   user_name: string;
   payment_status: string;
   enrolled_at: string;
+}
+
+export interface FullEnrollmentRecord {
+  id: string;
+  training_id: string;
+  training_title: string;
+  training_price: number;
+  training_currency: string;
+  user_name: string;
+  user_phone: string | null;
+  payment_status: string;
+  enrolled_at: string;
+  amount_paid: number | null;
 }
 
 export interface FinanceSummary {
@@ -177,4 +191,38 @@ export async function getEnrollmentRecords(): Promise<EnrollmentRecord[]> {
       enrolled_at: row.enrolled_at,
     };
   }) as EnrollmentRecord[];
+}
+
+// ─── Todos los enrollments (para admin/capacitaciones) ──────────────────────
+
+export async function getAllEnrollments(): Promise<FullEnrollmentRecord[]> {
+  const adminSupabase = createAdminClient();
+
+  const { data, error } = await adminSupabase
+    .from("training_enrollments")
+    .select(
+      "id, training_id, payment_status, enrolled_at, amount_paid, training:trainings(title, price, currency), user:profiles!user_id(full_name, phone)"
+    )
+    .order("enrolled_at", { ascending: false });
+
+  if (error) return [];
+
+  return (data ?? []).map((row) => {
+    const training = Array.isArray(row.training)
+      ? row.training[0]
+      : row.training;
+    const user = Array.isArray(row.user) ? row.user[0] : row.user;
+    return {
+      id: row.id,
+      training_id: row.training_id,
+      training_title: training?.title ?? "Sin titulo",
+      training_price: training?.price ?? 0,
+      training_currency: training?.currency ?? "PEN",
+      user_name: user?.full_name ?? "Sin nombre",
+      user_phone: user?.phone ?? null,
+      payment_status: row.payment_status,
+      enrolled_at: row.enrolled_at,
+      amount_paid: row.amount_paid ?? null,
+    };
+  }) as FullEnrollmentRecord[];
 }
