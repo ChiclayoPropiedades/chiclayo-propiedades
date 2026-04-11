@@ -84,7 +84,7 @@ export function PropertyCardDashboard({
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl">
       {/* Image */}
-      <div className="relative h-48 w-full shrink-0 overflow-hidden">
+      <div className="relative h-36 w-full shrink-0 overflow-hidden sm:h-48">
         {coverImage ? (
           <Image
             src={coverImage.url}
@@ -179,7 +179,7 @@ export function PropertyCardDashboard({
       </div>
 
       {/* Footer specs */}
-      <div className="flex items-center gap-4 border-t border-gray-100 px-4 py-2.5 text-xs text-gray-500">
+      <div className="flex items-center gap-2 border-t border-gray-100 px-3 py-2 text-xs text-gray-500 sm:gap-4 sm:px-4 sm:py-2.5">
         {property.bedrooms != null && (
           <span className="flex items-center gap-1">
             <Bed className="size-3.5 text-[#1e3a5f]" />

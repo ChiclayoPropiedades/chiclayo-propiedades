@@ -61,7 +61,7 @@ export function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto mt-14 grid max-w-lg grid-cols-3 gap-6 sm:max-w-2xl sm:gap-8">
+        <div className="mx-auto mt-14 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
           {[
             { icon: Building2, value: "500+", label: "Propiedades" },
             { icon: Users, value: "200+", label: "Agentes" },

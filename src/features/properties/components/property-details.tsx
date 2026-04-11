@@ -52,7 +52,7 @@ function ImageGallery({ property }: { property: Property }) {
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:grid-rows-2">
       {/* Main image */}
-      <div className="relative overflow-hidden rounded-xl sm:col-span-3 sm:row-span-2 h-72 sm:h-96">
+      <div className="relative overflow-hidden rounded-xl sm:col-span-3 sm:row-span-2 h-48 sm:h-72 lg:h-96">
         <Image
           src={coverImage.url}
           alt={coverImage.alt_text ?? property.title}
@@ -186,7 +186,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
             >
               Especificaciones
             </h2>
-            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3">
               {property.bedrooms !== null && (
                 <div className="flex flex-col gap-1 rounded-lg border border-gray-200 bg-gray-50 p-4">
                   <dt className="flex items-center gap-2 text-xs font-medium text-gray-500">

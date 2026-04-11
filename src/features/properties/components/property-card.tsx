@@ -49,7 +49,7 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
       aria-label={`Ver propiedad: ${property.title}`}
     >
       {/* Image container */}
-      <div className="relative h-52 w-full shrink-0 overflow-hidden">
+      <div className="relative h-40 w-full shrink-0 overflow-hidden sm:h-52">
         {coverImage ? (
           <Image
             src={coverImage.url}
@@ -115,7 +115,7 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
       </div>
 
       {/* Footer specs */}
-      <div className="flex items-center gap-5 border-t border-gray-100 bg-gray-50/50 px-5 py-3.5 text-sm text-gray-600">
+      <div className="flex items-center gap-3 border-t border-gray-100 bg-gray-50/50 px-4 py-3 text-sm text-gray-600 sm:gap-5 sm:px-5 sm:py-3.5">
         {property.bedrooms !== null && (
           <span className="flex items-center gap-1.5">
             <Bed className="size-4 text-[#1e3a5f]" aria-hidden="true" />

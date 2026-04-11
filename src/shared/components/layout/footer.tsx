@@ -145,15 +145,15 @@ export function Footer() {
               Horario de atención
             </h3>
             <ul className="flex flex-col gap-3 text-sm text-gray-400">
-              <li className="flex justify-between">
+              <li className="flex flex-col gap-0.5 sm:flex-row sm:justify-between">
                 <span>Lunes - Viernes</span>
                 <span className="font-medium text-white">9:00 - 18:00</span>
               </li>
-              <li className="flex justify-between">
+              <li className="flex flex-col gap-0.5 sm:flex-row sm:justify-between">
                 <span>Sábado</span>
                 <span className="font-medium text-white">9:00 - 13:00</span>
               </li>
-              <li className="flex justify-between">
+              <li className="flex flex-col gap-0.5 sm:flex-row sm:justify-between">
                 <span>Domingo</span>
                 <span className="text-gray-500">Cerrado</span>
               </li>

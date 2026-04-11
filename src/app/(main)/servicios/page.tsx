@@ -32,7 +32,7 @@ function ServiceSection({
   const imageBlock = (
     <div
       className={[
-        "flex h-64 w-full items-center justify-center rounded-2xl sm:h-80",
+        "flex h-40 w-full items-center justify-center rounded-2xl sm:h-64 lg:h-80",
         imageBg,
       ].join(" ")}
       aria-hidden="true"
