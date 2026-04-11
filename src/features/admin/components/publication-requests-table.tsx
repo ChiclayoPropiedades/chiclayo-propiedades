@@ -1,8 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, ExternalLink } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Table,
@@ -130,8 +131,14 @@ export function PublicationRequestsTable({ requests }: Props) {
               </Badge>
             </TableCell>
             <TableCell className="text-sm text-gray-700">
-              {req.property_title ? (
-                <span className="font-medium">{req.property_title}</span>
+              {req.property_title && req.property_id ? (
+                <Link
+                  href={`/admin/propiedades/${req.property_id}/editar`}
+                  className="inline-flex items-center gap-1 font-medium text-[#2563eb] hover:underline"
+                >
+                  {req.property_title}
+                  <ExternalLink className="size-3" />
+                </Link>
               ) : (
                 <span className="text-gray-300">Sin publicar</span>
               )}
