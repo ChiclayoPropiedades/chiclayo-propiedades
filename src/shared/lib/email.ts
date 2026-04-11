@@ -1,4 +1,4 @@
-import { getResend, DEFAULT_FROM } from "./resend";
+import { sendProviderEmail } from "./resend";
 
 interface SendEmailOptions {
   to: string;
@@ -7,30 +7,7 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail({ to, subject, html }: SendEmailOptions) {
-  const resend = getResend();
-  if (!resend) {
-    console.log("[Email] Resend no configurado, email no enviado:", subject);
-    return { success: false, error: "Resend no configurado" };
-  }
-
-  try {
-    const { error } = await resend.emails.send({
-      from: DEFAULT_FROM,
-      to,
-      subject,
-      html,
-    });
-
-    if (error) {
-      console.error("[Email] Error enviando:", error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (err) {
-    console.error("[Email] Error inesperado:", err);
-    return { success: false, error: "Error al enviar email" };
-  }
+  return sendProviderEmail({ to, subject, html });
 }
 
 // ─── Templates ──────────────────────────────────────────────────────────────

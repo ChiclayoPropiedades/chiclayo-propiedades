@@ -156,11 +156,11 @@ export default async function ConfiguracionPage() {
         </CardContent>
       </Card>
 
-      {/* Resend */}
+      {/* Brevo */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold text-[#1f2937]">
-            Resend (Emails Transaccionales)
+            Brevo - Emails Transaccionales (Opción 1)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -168,49 +168,121 @@ export default async function ConfiguracionPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`size-2.5 rounded-full ${
-                  process.env.RESEND_API_KEY
+                  process.env.BREVO_API_KEY
                     ? "bg-green-500"
                     : "bg-gray-300"
                 }`}
               />
               <span className="text-sm text-gray-700">
-                {process.env.RESEND_API_KEY
-                  ? "Resend conectado"
-                  : "Resend no configurado"}
+                {process.env.BREVO_API_KEY
+                  ? "Brevo conectado"
+                  : "Brevo no configurado"}
               </span>
             </div>
             <p className="text-xs text-gray-500">
-              Resend envía emails automáticos cuando llega un lead, se registra
-              un usuario, o se confirma un pago. Plan gratuito: 3,000 emails/mes.
+              Brevo envía emails automáticos (leads, bienvenida, pagos).
+              Plan gratuito: 300 emails/día.
             </p>
             <div className="space-y-2">
               <p className="text-xs font-medium text-gray-700">
                 1. Crear cuenta gratis en{" "}
                 <a
-                  href="https://resend.com"
+                  href="https://www.brevo.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#2563eb] underline"
                 >
-                  resend.com
+                  brevo.com
                 </a>
               </p>
               <p className="text-xs font-medium text-gray-700">
-                2. Copiar el API Key y configurar en Vercel:
+                2. Ir a SMTP & API &rarr; API Keys &rarr; Generar clave
+              </p>
+              <p className="text-xs font-medium text-gray-700">
+                3. Configurar en Vercel:
               </p>
             </div>
             <div className="rounded-lg bg-gray-50 p-3">
               <code className="block text-xs text-gray-600">
-                RESEND_API_KEY=re_...
+                BREVO_API_KEY=xkeysib-...
               </code>
               <code className="block text-xs text-gray-600">
-                RESEND_FROM_EMAIL=info@chiclayopropiedades.com
+                BREVO_FROM_EMAIL=info@chiclayopropiedades.com
               </code>
             </div>
-            <p className="text-xs text-gray-400">
-              Sin estas variables, la plataforma funciona normalmente pero no
-              envía emails automáticos.
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gmail API */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-[#1f2937]">
+            Gmail API - Emails Transaccionales (Opción 2)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div
+                className={`size-2.5 rounded-full ${
+                  process.env.GMAIL_REFRESH_TOKEN
+                    ? "bg-green-500"
+                    : "bg-gray-300"
+                }`}
+              />
+              <span className="text-sm text-gray-700">
+                {process.env.GMAIL_REFRESH_TOKEN
+                  ? "Gmail API conectado"
+                  : "Gmail API no configurado"}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">
+              Envía emails desde tu cuenta Gmail via OAuth2. 500 emails/día gratis.
             </p>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">
+                1. Ir a{" "}
+                <a
+                  href="https://console.cloud.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#2563eb] underline"
+                >
+                  Google Cloud Console
+                </a>
+                {" "}&rarr; Crear proyecto &rarr; Habilitar Gmail API
+              </p>
+              <p className="text-xs font-medium text-gray-700">
+                2. Credenciales &rarr; OAuth 2.0 &rarr; Web Application
+              </p>
+              <p className="text-xs font-medium text-gray-700">
+                3. Obtener refresh token con OAuth Playground
+              </p>
+              <p className="text-xs font-medium text-gray-700">
+                4. Configurar en Vercel:
+              </p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-3">
+              <code className="block text-xs text-gray-600">
+                GMAIL_CLIENT_ID=...apps.googleusercontent.com
+              </code>
+              <code className="block text-xs text-gray-600">
+                GMAIL_CLIENT_SECRET=GOCSPX-...
+              </code>
+              <code className="block text-xs text-gray-600">
+                GMAIL_REFRESH_TOKEN=1//...
+              </code>
+              <code className="block text-xs text-gray-600">
+                GMAIL_FROM_EMAIL=propiedadeschiclayo01@gmail.com
+              </code>
+            </div>
+            <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+              <p className="text-xs text-amber-700">
+                <strong>Nota:</strong> Si configuras Brevo Y Gmail, se usa Brevo
+                como proveedor principal.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
