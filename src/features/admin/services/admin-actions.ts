@@ -755,22 +755,33 @@ export async function createUser(data: {
   await verifyAdmin();
   const adminSupabase = createAdminClient();
 
+  // Normalizar nombre
+  const normalizedName = data.full_name
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
   // Crear usuario en Supabase Auth (email_confirm: true = ya verificado)
   const { data: authData, error: authError } =
     await adminSupabase.auth.admin.createUser({
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       email_confirm: true,
-      user_metadata: { full_name: data.full_name },
+      user_metadata: { full_name: normalizedName },
     });
 
-  if (authError) return { error: authError.message };
+  if (authError) {
+    if (authError.message.includes("already") || authError.message.includes("exists")) {
+      return { error: "Este correo ya está registrado." };
+    }
+    return { error: authError.message };
+  }
 
   // Crear perfil con rol y datos adicionales
   const { error: profileError } = await adminSupabase.from("profiles").upsert(
     {
       user_id: authData.user.id,
-      full_name: data.full_name,
-      phone: data.phone || null,
+      full_name: normalizedName,
+      phone: data.phone?.trim() || null,
       role: data.role,
       is_active: true,
     },
