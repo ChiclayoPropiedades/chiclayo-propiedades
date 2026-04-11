@@ -7,7 +7,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
-import { sendWelcomeEmail } from "@/features/auth/services/auth-actions"
+import { sendWelcomeEmail, checkPhoneDuplicate } from "@/features/auth/services/auth-actions"
 
 type AccountRole = "user" | "agent"
 
@@ -85,6 +85,16 @@ export function SignupForm() {
     }
 
     setLoading(true)
+
+    // Validar teléfono duplicado
+    if (phone.trim()) {
+      const isDuplicate = await checkPhoneDuplicate(phone)
+      if (isDuplicate) {
+        setError("Este número de teléfono ya está registrado.")
+        setLoading(false)
+        return
+      }
+    }
 
     // Normalizar nombre: primera letra mayúscula de cada palabra
     const normalizedName = fullName

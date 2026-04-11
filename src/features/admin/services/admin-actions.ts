@@ -198,6 +198,20 @@ export async function updateUserProfile(
   await verifyAdmin();
   const adminSupabase = createAdminClient();
 
+  // Validar teléfono duplicado
+  if (data.phone.trim()) {
+    const { data: existing } = await adminSupabase
+      .from("profiles")
+      .select("id")
+      .eq("phone", data.phone.trim())
+      .neq("id", profileId)
+      .limit(1);
+
+    if ((existing ?? []).length > 0) {
+      return { error: "Este número de teléfono ya está registrado por otro usuario." };
+    }
+  }
+
   // Normalizar nombre
   const normalizedName = data.full_name
     .trim()
@@ -208,7 +222,7 @@ export async function updateUserProfile(
     .from("profiles")
     .update({
       full_name: normalizedName,
-      phone: data.phone.trim(),
+      phone: data.phone.trim() || null,
       bio: data.bio.trim(),
       role: data.role,
     })
@@ -754,6 +768,19 @@ export async function createUser(data: {
 }): Promise<{ success?: boolean; error?: string }> {
   await verifyAdmin();
   const adminSupabase = createAdminClient();
+
+  // Validar teléfono duplicado
+  if (data.phone?.trim()) {
+    const { data: existing } = await adminSupabase
+      .from("profiles")
+      .select("id")
+      .eq("phone", data.phone.trim())
+      .limit(1);
+
+    if ((existing ?? []).length > 0) {
+      return { error: "Este número de teléfono ya está registrado." };
+    }
+  }
 
   // Normalizar nombre
   const normalizedName = data.full_name
