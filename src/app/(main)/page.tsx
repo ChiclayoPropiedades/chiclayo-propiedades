@@ -8,6 +8,8 @@ import { TrainingsSection } from "@/shared/components/sections/trainings-section
 import { NewsSection } from "@/shared/components/sections/news-section"
 import { NewsletterSection } from "@/shared/components/sections/newsletter-section"
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   return (
     <>

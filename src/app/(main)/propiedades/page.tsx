@@ -7,6 +7,8 @@ import { PropertyFilters } from "@/features/properties/components/property-filte
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import type { PropertyFilters as PropertyFiltersType } from "@/features/properties/types";
 
+export const revalidate = 60;
+
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

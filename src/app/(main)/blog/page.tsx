@@ -3,6 +3,8 @@ import { Newspaper } from "lucide-react";
 import { getPosts } from "@/features/blog/services/get-posts";
 import { BlogGrid } from "@/features/blog/components/blog-grid";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Blog Inmobiliario",
   description:

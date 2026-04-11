@@ -6,6 +6,8 @@ import { PropertyDetails } from "@/features/properties/components/property-detai
 import { formatPrice } from "@/shared/lib/format";
 import { propertyJsonLd } from "@/shared/lib/structured-data";
 
+export const revalidate = 300;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

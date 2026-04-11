@@ -24,6 +24,8 @@ import { hasPendingRoleUpgrade } from "@/features/admin/services/role-upgrade-ac
 import { hasExistingEnrollment } from "@/features/trainings/services/whatsapp-enrollment";
 import { createClient } from "@/shared/lib/supabase/server";
 
+export const revalidate = 300;
+
 export const dynamic = "force-dynamic";
 
 interface PageProps {

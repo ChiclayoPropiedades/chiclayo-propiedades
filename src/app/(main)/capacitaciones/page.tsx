@@ -4,6 +4,8 @@ import { GraduationCap } from "lucide-react";
 import { getTrainings } from "@/features/trainings/services/get-trainings";
 import { TrainingCard } from "@/features/trainings/components/training-card";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Capacitaciones",
   description:
