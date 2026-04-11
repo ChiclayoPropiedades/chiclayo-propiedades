@@ -65,22 +65,35 @@ function getAgent(agent: DashboardProperty["agent"]) {
 export function DashboardPropertiesView({ properties, isAdmin }: Props) {
   const [view, setView] = useState<"cards" | "table">("cards");
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(0);
 
   // Filtrar
   const filtered = useMemo(() => {
-    if (!search.trim()) return properties;
-    const q = search.toLowerCase();
-    return properties.filter((p) => {
-      const agent = getAgent(p.agent);
-      return (
-        p.title.toLowerCase().includes(q) ||
-        p.district?.toLowerCase().includes(q) ||
-        (p.type && typeLabels[p.type]?.toLowerCase().includes(q)) ||
-        agent.full_name?.toLowerCase().includes(q)
-      );
-    });
-  }, [properties, search]);
+    let result = properties;
+
+    // Filtro por estado
+    if (statusFilter === "active") result = result.filter((p) => p.is_active && p.status !== "sold");
+    else if (statusFilter === "sold") result = result.filter((p) => p.status === "sold");
+    else if (statusFilter === "pending") result = result.filter((p) => p.status === "sold" && p.sale_approved === false);
+    else if (statusFilter === "inactive") result = result.filter((p) => !p.is_active);
+
+    // Filtro por búsqueda
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((p) => {
+        const agent = getAgent(p.agent);
+        return (
+          p.title.toLowerCase().includes(q) ||
+          p.district?.toLowerCase().includes(q) ||
+          (p.type && typeLabels[p.type]?.toLowerCase().includes(q)) ||
+          agent.full_name?.toLowerCase().includes(q)
+        );
+      });
+    }
+
+    return result;
+  }, [properties, search, statusFilter]);
 
   // Paginar
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -91,10 +104,15 @@ export function DashboardPropertiesView({ properties, isAdmin }: Props) {
     setPage(0);
   }
 
+  function handleStatusFilter(value: string) {
+    setStatusFilter(value);
+    setPage(0);
+  }
+
   return (
     <div className="space-y-4">
-      {/* Search + Toggle */}
-      <div className="flex items-center gap-3">
+      {/* Search + Filters + Toggle */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           <Input
@@ -104,6 +122,19 @@ export function DashboardPropertiesView({ properties, isAdmin }: Props) {
             className="border-gray-200 pl-9"
           />
         </div>
+        {isAdmin && (
+          <select
+            value={statusFilter}
+            onChange={(e) => handleStatusFilter(e.target.value)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="active">Activas</option>
+            <option value="sold">Vendidas</option>
+            <option value="pending">Pendiente aprobación</option>
+            <option value="inactive">Inactivas</option>
+          </select>
+        )}
         <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1">
           <button
             onClick={() => setView("cards")}
