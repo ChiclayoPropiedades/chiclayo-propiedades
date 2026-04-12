@@ -26,7 +26,7 @@ const initialState: FormState = {
 export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
   const [form, setForm] = useState<FormState>({
     ...initialState,
-    message: `Hola, estoy interesado en la propiedad "${propertyTitle}". \u00bfPodr\u00eda brindarme m\u00e1s informaci\u00f3n?`,
+    message: `Hola, estoy interesado en la propiedad "${propertyTitle}". ¿Podría brindarme más información?`,
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -60,7 +60,7 @@ export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
         setError(result.error ?? "Error al enviar el mensaje");
       }
     } catch {
-      setError("Error de conexi\u00f3n. Intenta de nuevo.");
+      setError("Error de conexión. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -74,10 +74,10 @@ export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
           aria-hidden="true"
         />
         <h3 className="font-semibold text-[#1f2937]">
-          \u00a1Mensaje enviado!
+          ¡Mensaje enviado!
         </h3>
         <p className="text-sm text-gray-500">
-          Un asesor se pondr\u00e1 en contacto contigo pronto.
+          Un asesor se pondrá en contacto contigo pronto.
         </p>
         <button
           type="button"
@@ -122,7 +122,7 @@ export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
           htmlFor="contact-email"
           className="mb-1 block text-xs font-medium text-[#1f2937]"
         >
-          Correo electr\u00f3nico <span aria-hidden="true">*</span>
+          Correo electrónico <span aria-hidden="true">*</span>
         </label>
         <input
           id="contact-email"
@@ -141,7 +141,7 @@ export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
           htmlFor="contact-phone"
           className="mb-1 block text-xs font-medium text-[#1f2937]"
         >
-          Tel\u00e9fono
+          Teléfono
         </label>
         <input
           id="contact-phone"
