@@ -28,8 +28,8 @@ export function emailLeadNotification(data: {
     subject: `Nuevo lead: ${data.leadName} te contactó`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
-          <img src="https://chiclayopropiedades.com/images/logo-email.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+        <div style="background:#0a1628;padding:36px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="220" style="display:inline-block;max-width:220px;height:auto" />
           <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
@@ -64,8 +64,8 @@ export function emailWelcome(data: { name: string; role: string }) {
     subject: "Bienvenido a Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
-          <img src="https://chiclayopropiedades.com/images/logo-email.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+        <div style="background:#0a1628;padding:36px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="220" style="display:inline-block;max-width:220px;height:auto" />
           <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
@@ -101,8 +101,8 @@ export function emailTrainingConfirmation(data: {
     subject: `Inscripción confirmada: ${data.trainingTitle}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
-          <img src="https://chiclayopropiedades.com/images/logo-email.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+        <div style="background:#0a1628;padding:36px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="220" style="display:inline-block;max-width:220px;height:auto" />
           <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
@@ -142,8 +142,8 @@ export function emailSubscriptionConfirmation(data: {
     subject: "Suscripción activada - Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
-          <img src="https://chiclayopropiedades.com/images/logo-email.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+        <div style="background:#0a1628;padding:36px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="220" style="display:inline-block;max-width:220px;height:auto" />
           <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
@@ -176,8 +176,8 @@ export function emailLeadConfirmation(data: {
     subject: "Hemos recibido tu consulta - Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
-          <img src="https://chiclayopropiedades.com/images/logo-email.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+        <div style="background:#0a1628;padding:36px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="220" style="display:inline-block;max-width:220px;height:auto" />
           <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
