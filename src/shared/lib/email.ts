@@ -158,3 +158,40 @@ export function emailSubscriptionConfirmation(data: {
     `,
   };
 }
+
+
+export function emailLeadConfirmation(data: {
+  leadName: string;
+  propertyTitle: string | null;
+}) {
+  const propertyLine = data.propertyTitle
+    ? `<p style="margin:0 0 8px;color:#374151">Propiedad de interés: <strong>${data.propertyTitle}</strong></p>`
+    : "";
+
+  return {
+    subject: "Hemos recibido tu consulta - Chiclayo Propiedades",
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
+          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        </div>
+        <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <h2 style="color:#1f2937;margin:0 0 16px">Hola ${data.leadName},</h2>
+          <p style="color:#374151;margin:0 0 16px">Hemos recibido tu consulta exitosamente. Un asesor inmobiliario se pondrá en contacto contigo a la brevedad.</p>
+          ${propertyLine}
+          <div style="background:#f0f9ff;padding:16px;border-radius:8px;margin:16px 0;border-left:4px solid #2563eb">
+            <p style="margin:0;color:#1e40af;font-size:14px"><strong>¿Necesitas atención inmediata?</strong></p>
+            <p style="margin:8px 0 0;color:#374151;font-size:14px">Escríbenos por WhatsApp: <a href="https://wa.me/51928216206" style="color:#2563eb;text-decoration:none;font-weight:600">+51 928 216 206</a></p>
+          </div>
+          <p style="color:#6b7280;font-size:13px;margin:16px 0 0">
+            Gracias por confiar en Chiclayo Propiedades. Estamos para ayudarte a encontrar el lugar perfecto.
+          </p>
+        </div>
+        <div style="text-align:center;padding:16px 0">
+          <p style="color:#9ca3af;font-size:11px;margin:0">Chiclayo Propiedades | Av. Francisco Bolognesi 536, Chiclayo</p>
+          <p style="color:#9ca3af;font-size:11px;margin:4px 0 0">Este correo fue enviado porque completaste un formulario en chiclayopropiedades.com</p>
+        </div>
+      </div>
+    `,
+  };
+}

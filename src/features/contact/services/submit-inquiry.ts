@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/shared/lib/supabase/server";
-import { sendEmail, emailLeadNotification } from "@/shared/lib/email";
+import { sendEmail, emailLeadNotification, emailLeadConfirmation } from "@/shared/lib/email";
 
 export async function submitInquiry(formData: FormData) {
   const supabase = await createClient();
@@ -76,7 +76,23 @@ export async function submitInquiry(formData: FormData) {
     });
   } catch {
     // Email failure should not affect the inquiry submission
-    console.error("[Lead Email] Error enviando notificacion");
+    console.error("[Lead Email] Error enviando notificacion al agente");
+  }
+
+  // Enviar confirmacion al cliente (no bloquea la respuesta)
+  try {
+    const confirmTemplate = emailLeadConfirmation({
+      leadName: data.name,
+      propertyTitle,
+    });
+
+    await sendEmail({
+      to: data.email,
+      subject: confirmTemplate.subject,
+      html: confirmTemplate.html,
+    });
+  } catch {
+    console.error("[Lead Email] Error enviando confirmacion al cliente");
   }
 
   return { success: true };
