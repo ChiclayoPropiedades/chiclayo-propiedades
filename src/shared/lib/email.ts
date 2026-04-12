@@ -28,8 +28,9 @@ export function emailLeadNotification(data: {
     subject: `Nuevo lead: ${data.leadName} te contactó`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+          <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1f2937;margin:0 0 16px">Hola ${data.agentName},</h2>
@@ -63,8 +64,9 @@ export function emailWelcome(data: { name: string; role: string }) {
     subject: "Bienvenido a Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+          <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1f2937;margin:0 0 16px">Bienvenido, ${data.name}!</h2>
@@ -99,8 +101,9 @@ export function emailTrainingConfirmation(data: {
     subject: `Inscripción confirmada: ${data.trainingTitle}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+          <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1f2937;margin:0 0 16px">Hola ${data.userName},</h2>
@@ -139,8 +142,9 @@ export function emailSubscriptionConfirmation(data: {
     subject: "Suscripción activada - Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+          <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1f2937;margin:0 0 16px">Hola ${data.agentName},</h2>
@@ -172,8 +176,9 @@ export function emailLeadConfirmation(data: {
     subject: "Hemos recibido tu consulta - Chiclayo Propiedades",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <div style="background:#1e3a5f;padding:20px;border-radius:8px 8px 0 0;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:20px">Chiclayo Propiedades</h1>
+        <div style="background:#0a1628;padding:28px 20px;border-radius:8px 8px 0 0;text-align:center">
+          <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades" width="200" style="display:inline-block;max-width:200px;height:auto" />
+          <div style="margin-top:12px;height:2px;background:linear-gradient(to right,transparent,#b8860b,transparent)"></div>
         </div>
         <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1f2937;margin:0 0 16px">Hola ${data.leadName},</h2>
@@ -187,8 +192,15 @@ export function emailLeadConfirmation(data: {
             Gracias por confiar en Chiclayo Propiedades. Estamos para ayudarte a encontrar el lugar perfecto.
           </p>
         </div>
-        <div style="text-align:center;padding:16px 0">
+        <div style="text-align:center;padding:20px 0">
+          <div style="margin-bottom:12px">
+            <a href="https://www.facebook.com/chiclayopropiedades" style="text-decoration:none;margin:0 6px"><img src="https://cdn-icons-png.flaticon.com/16/733/733547.png" alt="Facebook" width="16" height="16" /></a>
+            <a href="https://www.instagram.com/chiclayopropiedades" style="text-decoration:none;margin:0 6px"><img src="https://cdn-icons-png.flaticon.com/16/2111/2111463.png" alt="Instagram" width="16" height="16" /></a>
+            <a href="https://www.youtube.com/@CHICLAYOPROPIEDADES" style="text-decoration:none;margin:0 6px"><img src="https://cdn-icons-png.flaticon.com/16/1384/1384060.png" alt="YouTube" width="16" height="16" /></a>
+            <a href="https://www.tiktok.com/@chiclayopropiedades" style="text-decoration:none;margin:0 6px"><img src="https://cdn-icons-png.flaticon.com/16/3046/3046121.png" alt="TikTok" width="16" height="16" /></a>
+          </div>
           <p style="color:#9ca3af;font-size:11px;margin:0">Chiclayo Propiedades | Av. Francisco Bolognesi 536, Chiclayo</p>
+          <p style="color:#9ca3af;font-size:11px;margin:4px 0 0">+51 928 216 206 | info@chiclayopropiedades.com</p>
           <p style="color:#9ca3af;font-size:11px;margin:4px 0 0">Este correo fue enviado porque completaste un formulario en chiclayopropiedades.com</p>
         </div>
       </div>
