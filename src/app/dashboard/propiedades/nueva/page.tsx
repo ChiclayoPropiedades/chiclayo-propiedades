@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   title: "Nueva Propiedad",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function NuevaPropiedadPage() {
   const supabase = await createClient();
   const {
@@ -38,7 +40,7 @@ export default async function NuevaPropiedadPage() {
 
   // Agentes necesitan suscripción. Admins pueden publicar sin restricción.
   if (profile.role === "agent") {
-    const { active, expiresAt } = await getSubscriptionStatus(profile.id);
+    const { active } = await getSubscriptionStatus(profile.id);
 
     if (!active) {
       const settings = await getSubscriptionSettings();
