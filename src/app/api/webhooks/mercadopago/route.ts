@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/shared/lib/supabase/admin";
 import {
   sendEmail,
   emailTrainingConfirmation,
   emailSubscriptionConfirmation,
 } from "@/shared/lib/email";
-
-// ─── Supabase Admin (bypass RLS) ────────────────────────────────────────────
-
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!serviceKey) {
-    return createClient(url, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-  }
-
-  return createClient(url, serviceKey);
-}
 
 // ─── Verificar firma x-signature ───��────────────────────────────────────────
 
@@ -29,10 +16,9 @@ function verifySignature(
 ): boolean {
   const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
 
-  // Sin secret configurado, aceptar todas (modo desarrollo)
   if (!webhookSecret) {
-    console.warn("[MP Webhook] MERCADOPAGO_WEBHOOK_SECRET no configurado, aceptando sin verificar");
-    return true;
+    console.error("[MP Webhook] MERCADOPAGO_WEBHOOK_SECRET no configurado — rechazando request");
+    return false;
   }
 
   if (!xSignature || !xRequestId || !dataId) {
@@ -126,7 +112,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    const supabase = getSupabaseAdmin();
+    const supabase = createAdminClient();
     const mpPaymentId = String(payment.id);
 
     // ── Pago de capacitación ──

@@ -333,9 +333,14 @@ export async function markPlanAsUsed(
   requestId: string,
   propertyId: string
 ): Promise<void> {
-  const supabase = await createClient();
-  await supabase
+  // Usa admin client porque usuarios no tienen policy de UPDATE en publication_requests
+  const adminSupabase = createAdminClient();
+  const { error } = await adminSupabase
     .from("publication_requests")
     .update({ used: true, property_id: propertyId, updated_at: new Date().toISOString() })
     .eq("id", requestId);
+
+  if (error) {
+    console.error("[markPlanAsUsed] Error:", error.message);
+  }
 }
