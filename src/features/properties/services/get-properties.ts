@@ -1,62 +1,62 @@
+import { cache } from "react";
 import { createPublicClient } from "@/shared/lib/supabase/server";
 import { Property, PropertyFilters } from "../types";
 
-// Obtener IDs de perfiles que deben estar ocultos en la web pública
-async function getHiddenProfileIds(): Promise<{ hiddenProfileIds: Set<string>; expiredPropertyIds: Set<string> }> {
+// Obtener IDs de perfiles que deben estar ocultos en la web pública.
+// Envuelto en React.cache() para deduplicar dentro del mismo request.
+const getHiddenProfileIds = cache(async (): Promise<{
+  hiddenProfileIds: Set<string>;
+  expiredPropertyIds: Set<string>;
+}> => {
   const { createClient: createServiceClient } = await import("@supabase/supabase-js");
   const adminSb = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // 1. Perfiles inactivos
-  const { data: inactiveProfiles } = await adminSb
-    .from("profiles")
-    .select("id")
-    .eq("is_active", false);
-
-  // 2. Agentes con suscripción vencida (rol agent sin suscripción activa)
-  const { data: agents } = await adminSb
-    .from("profiles")
-    .select("id")
-    .eq("role", "agent")
-    .eq("is_active", true);
-
-  const { data: activeSubs } = await adminSb
-    .from("agent_subscriptions")
-    .select("profile_id")
-    .eq("status", "active")
-    .gte("expires_at", new Date().toISOString());
+  // Ejecutar todas las queries en paralelo
+  const [
+    { data: inactiveProfiles },
+    { data: agents },
+    { data: activeSubs },
+    { data: expiredPubs },
+  ] = await Promise.all([
+    adminSb.from("profiles").select("id").eq("is_active", false),
+    adminSb.from("profiles").select("id").eq("role", "agent").eq("is_active", true),
+    adminSb
+      .from("agent_subscriptions")
+      .select("profile_id")
+      .eq("status", "active")
+      .gte("expires_at", new Date().toISOString()),
+    adminSb
+      .from("publication_requests")
+      .select("property_id")
+      .eq("status", "approved")
+      .eq("used", true)
+      .not("property_id", "is", null)
+      .lt("expires_at", new Date().toISOString()),
+  ]);
 
   const activeSubIds = new Set((activeSubs ?? []).map((s) => s.profile_id));
   const expiredAgents = (agents ?? []).filter((a) => !activeSubIds.has(a.id));
 
-  // 3. Usuarios (rol user) con publicaciones cuyo plan expiró
-  const { data: expiredPubs } = await adminSb
-    .from("publication_requests")
-    .select("property_id, expires_at")
-    .eq("status", "approved")
-    .eq("used", true)
-    .not("property_id", "is", null)
-    .lt("expires_at", new Date().toISOString());
+  const hiddenIds = new Set<string>();
+  for (const p of inactiveProfiles ?? []) hiddenIds.add(p.id);
+  for (const a of expiredAgents) hiddenIds.add(a.id);
 
   const expiredPropertyIds = new Set<string>();
   for (const p of expiredPubs ?? []) {
     if (p.property_id) expiredPropertyIds.add(p.property_id);
   }
 
-  const hiddenIds = new Set<string>();
-  for (const p of inactiveProfiles ?? []) hiddenIds.add(p.id);
-  for (const a of expiredAgents) hiddenIds.add(a.id);
-
   return { hiddenProfileIds: hiddenIds, expiredPropertyIds };
-}
+});
 
 export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
   const supabase = createPublicClient();
   let query = supabase
     .from("properties")
-    .select("*, property_images(*), agent:profiles!agent_id(is_active)")
+    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
     .eq("is_active", true);
 
   if (filters?.search) query = query.ilike("title", `%${filters.search}%`);
@@ -81,7 +81,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
   // Primero traer destacadas
   const { data: featured } = await supabase
     .from("properties")
-    .select("*, property_images(*)")
+    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
@@ -98,7 +98,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     const featuredIds = new Set(results.map((p) => p.id));
     const { data: recent } = await supabase
       .from("properties")
-      .select("*, property_images(*)")
+      .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(12);

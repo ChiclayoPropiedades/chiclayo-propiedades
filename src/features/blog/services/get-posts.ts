@@ -8,7 +8,7 @@ export async function getPosts(category?: string): Promise<BlogPost[]> {
     let query = supabase
       .from("blog_posts")
       .select(
-        "id, author_id, title, slug, content, excerpt, cover_image, category, is_published, published_at, created_at, updated_at, author:profiles!author_id(is_active)"
+        "id, author_id, title, slug, excerpt, cover_image, category, is_published, published_at, created_at, author:profiles!author_id(is_active)"
       )
       .eq("is_published", true)
       .order("published_at", { ascending: false });

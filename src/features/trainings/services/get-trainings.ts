@@ -6,7 +6,7 @@ export async function getTrainings(): Promise<Training[]> {
     const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("trainings")
-      .select("*")
+      .select("id, title, slug, description, price, currency, modality, event_date, location, instructor, cover_image")
       .eq("is_active", true)
       .order("event_date", { ascending: true });
 

@@ -9,29 +9,31 @@ export async function getRankings(): Promise<AgentRanking[]> {
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Traer rankings existentes
-    const { data: rankingData } = await supabase
-      .from("agent_rankings")
-      .select(
-        `id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period,
-        agent:profiles!agent_id(full_name, avatar_url, phone, role, is_active)`
-      )
-      .order("score", { ascending: false });
-
-    // Traer TODOS los agentes activos
-    const { data: allAgents } = await supabase
-      .from("profiles")
-      .select("id, full_name, avatar_url, phone, role, is_active")
-      .eq("role", "agent")
-      .eq("is_active", true)
-      .order("full_name");
-
-    // Verificar suscripciones activas
-    const { data: activeSubs } = await supabase
-      .from("agent_subscriptions")
-      .select("profile_id")
-      .eq("status", "active")
-      .gte("expires_at", new Date().toISOString());
+    // Ejecutar las 3 queries en paralelo
+    const [
+      { data: rankingData },
+      { data: allAgents },
+      { data: activeSubs },
+    ] = await Promise.all([
+      supabase
+        .from("agent_rankings")
+        .select(
+          `id, agent_id, score, properties_count, inquiries_count, sales_count, total_sales_amount, period,
+          agent:profiles!agent_id(full_name, avatar_url, phone, role, is_active)`
+        )
+        .order("score", { ascending: false }),
+      supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url, phone, role, is_active")
+        .eq("role", "agent")
+        .eq("is_active", true)
+        .order("full_name"),
+      supabase
+        .from("agent_subscriptions")
+        .select("profile_id")
+        .eq("status", "active")
+        .gte("expires_at", new Date().toISOString()),
+    ]);
 
     const activeSubIds = new Set((activeSubs ?? []).map((s) => s.profile_id));
 

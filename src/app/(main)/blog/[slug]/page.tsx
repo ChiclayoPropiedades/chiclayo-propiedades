@@ -9,8 +9,6 @@ import { articleJsonLd } from "@/shared/lib/structured-data";
 
 export const revalidate = 300;
 
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
