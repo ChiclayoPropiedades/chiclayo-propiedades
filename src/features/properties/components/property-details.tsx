@@ -334,7 +334,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
             <p className="mb-4 text-sm text-gray-500">
               Déjanos tus datos y un asesor se pondrá en contacto contigo.
             </p>
-            <ContactForm propertyTitle={property.title} />
+            <ContactForm propertyTitle={property.title} propertyId={property.id} />
           </div>
         </aside>
       </div>

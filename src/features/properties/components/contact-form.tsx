@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Send, CheckCircle } from "lucide-react";
+import { submitInquiry } from "@/features/contact/services/submit-inquiry";
 
 interface ContactFormProps {
   propertyTitle: string;
+  propertyId: string;
 }
 
 interface FormState {
@@ -21,13 +23,14 @@ const initialState: FormState = {
   message: "",
 };
 
-export function ContactForm({ propertyTitle }: ContactFormProps) {
+export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
   const [form, setForm] = useState<FormState>({
     ...initialState,
-    message: `Hola, estoy interesado en la propiedad "${propertyTitle}". ¿Podría brindarme más información?`,
+    message: `Hola, estoy interesado en la propiedad "${propertyTitle}". \u00bfPodr\u00eda brindarme m\u00e1s informaci\u00f3n?`,
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -39,10 +42,28 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate sending — replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.set("name", form.name);
+      formData.set("email", form.email);
+      formData.set("phone", form.phone);
+      formData.set("message", form.message);
+      formData.set("property_id", propertyId);
+
+      const result = await submitInquiry(formData);
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error ?? "Error al enviar el mensaje");
+      }
+    } catch {
+      setError("Error de conexi\u00f3n. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -53,10 +74,10 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
           aria-hidden="true"
         />
         <h3 className="font-semibold text-[#1f2937]">
-          ¡Mensaje enviado!
+          \u00a1Mensaje enviado!
         </h3>
         <p className="text-sm text-gray-500">
-          Un asesor se pondrá en contacto contigo pronto.
+          Un asesor se pondr\u00e1 en contacto contigo pronto.
         </p>
         <button
           type="button"
@@ -71,6 +92,12 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="contact-name"
@@ -95,7 +122,7 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
           htmlFor="contact-email"
           className="mb-1 block text-xs font-medium text-[#1f2937]"
         >
-          Correo electrónico <span aria-hidden="true">*</span>
+          Correo electr\u00f3nico <span aria-hidden="true">*</span>
         </label>
         <input
           id="contact-email"
@@ -114,7 +141,7 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
           htmlFor="contact-phone"
           className="mb-1 block text-xs font-medium text-[#1f2937]"
         >
-          Teléfono
+          Tel\u00e9fono
         </label>
         <input
           id="contact-phone"
