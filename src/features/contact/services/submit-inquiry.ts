@@ -18,11 +18,12 @@ export async function submitInquiry(formData: FormData) {
 
   if (error) return { success: false, error: error.message };
 
+  let propertyTitle: string | null = null;
+
   // Enviar email al agente (no bloquea la respuesta al usuario)
   try {
     let agentEmail = "info@chiclayopropiedades.com";
     let agentName = "Equipo";
-    let propertyTitle: string | null = null;
 
     if (data.property_id) {
       const { data: property } = await supabase
