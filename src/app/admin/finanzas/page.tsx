@@ -27,9 +27,9 @@ import {
 import { getAllSubscriptions } from "@/features/subscriptions/services/subscription-actions";
 import { SubscriptionsTable } from "@/features/subscriptions/components/subscriptions-table";
 
-function formatPrice(price: number, currency: string) {
+function formatPrice(price: number | null, currency: string) {
   const symbol = currency === "USD" ? "$" : "S/";
-  return `${symbol} ${price.toLocaleString("es-PE")}`;
+  return `${symbol} ${(price ?? 0).toLocaleString("es-PE")}`;
 }
 
 function formatDate(dateStr: string | null) {
