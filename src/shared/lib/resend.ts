@@ -7,6 +7,7 @@ import type { EmailSettings } from "@/features/admin/services/settings-actions";
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 const GMAIL_API_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send";
+const RESEND_API_URL = "https://api.resend.com/emails";
 
 // ─── Cache ──────────────────────────────────────────────────────────────────
 
@@ -50,14 +51,18 @@ async function getSettings(): Promise<EmailSettings> {
 // ─── Config Check ───────────────────────────────────────────────────────────
 
 export async function isEmailConfigured(): Promise<boolean> {
+  if (process.env.RESEND_API_KEY) return true;
   const s = await getSettings();
   return Boolean(s.brevo_api_key) || Boolean(s.gmail_refresh_token);
 }
 
-export async function getEmailProvider(): Promise<"brevo" | "gmail" | null> {
+export async function getEmailProvider(): Promise<"resend" | "brevo" | "gmail" | null> {
+  // Resend se detecta por variable de entorno (prioridad maxima)
+  if (process.env.RESEND_API_KEY) return "resend";
+
   const s = await getSettings();
 
-  // Si el admin seleccionó un proveedor específico
+  // Si el admin selecciono un proveedor especifico
   if (s.email_provider === "brevo" && s.brevo_api_key) return "brevo";
   if (s.email_provider === "gmail" && s.gmail_refresh_token) return "gmail";
 
@@ -93,11 +98,54 @@ export async function sendProviderEmail(
 
   const s = await getSettings();
 
+  if (provider === "resend") {
+    return sendViaResend(options);
+  }
+
   if (provider === "brevo") {
     return sendViaBrevo(s, options);
   }
 
   return sendViaGmail(s, options);
+}
+
+// ─── Resend ─────────────────────────────────────────────────────────────────
+
+async function sendViaResend(
+  { to, toName, subject, html }: SendEmailOptions
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) return { success: false, error: "RESEND_API_KEY no configurada" };
+
+    const res = await fetch(RESEND_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Chiclayo Propiedades <info@chiclayopropiedades.com>",
+        to: [to],
+        subject,
+        html,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error("[Resend] Error:", res.status, err);
+      return {
+        success: false,
+        error: (err as { message?: string }).message ?? `HTTP ${res.status}`,
+      };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[Resend] Error inesperado:", err);
+    return { success: false, error: "Error Resend" };
+  }
 }
 
 // ─── Brevo ──────────────────────────────────────────────────────────────────
