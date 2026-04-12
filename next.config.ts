@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
-        // Supabase Storage — reemplaza <project-ref> con el ID real del proyecto
+        // Supabase Storage
         protocol: "https",
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
@@ -16,9 +17,15 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
       {
-        // Imagenes del sitio original (Hostinger Horizons)
+        // Imagenes del sitio original (Hostinger Horizons) - con www
         protocol: "https",
         hostname: "www.chiclayopropiedades.com",
+        pathname: "/hcgi/**",
+      },
+      {
+        // Imagenes del sitio original (Hostinger Horizons) - sin www
+        protocol: "https",
+        hostname: "chiclayopropiedades.com",
         pathname: "/hcgi/**",
       },
       {

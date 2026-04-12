@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Send, CheckCircle } from "lucide-react";
+import { submitInquiry } from "@/features/contact/services/submit-inquiry";
 
 interface ContactFormProps {
   propertyTitle: string;
+  propertyId: string;
 }
 
 interface FormState {
@@ -21,13 +23,14 @@ const initialState: FormState = {
   message: "",
 };
 
-export function ContactForm({ propertyTitle }: ContactFormProps) {
+export function ContactForm({ propertyTitle, propertyId }: ContactFormProps) {
   const [form, setForm] = useState<FormState>({
     ...initialState,
     message: `Hola, estoy interesado en la propiedad "${propertyTitle}". ¿Podría brindarme más información?`,
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -39,10 +42,28 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate sending — replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.set("name", form.name);
+      formData.set("email", form.email);
+      formData.set("phone", form.phone);
+      formData.set("message", form.message);
+      formData.set("property_id", propertyId);
+
+      const result = await submitInquiry(formData);
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error ?? "Error al enviar el mensaje");
+      }
+    } catch {
+      setError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -71,6 +92,12 @@ export function ContactForm({ propertyTitle }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="contact-name"

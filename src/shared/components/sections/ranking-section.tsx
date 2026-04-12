@@ -140,7 +140,7 @@ export async function RankingSection() {
 
   return (
     <section
-      className="relative flex min-h-svh items-center overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#0f1f33] py-12 sm:py-16"
+      className="relative flex min-h-svh items-center overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#0a1628] py-12 sm:py-16"
       aria-labelledby="ranking-heading"
     >
       {/* Decorative */}
@@ -166,7 +166,7 @@ export async function RankingSection() {
             >
               Asesores Top del Mes
             </h2>
-            <p className="mt-2 max-w-xl text-base text-blue-200/80">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-blue-200/80 sm:text-lg">
               Clasificación basada en ventas cerradas y monto total vendido.
               Trabaja con los mejores profesionales.
             </p>

@@ -6,7 +6,18 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // IMPORTANTE: solo correr middleware en rutas que realmente necesitan
+  // validacion de sesion. Correrlo en rutas publicas marca la pagina como
+  // dynamic y anula cualquier ISR/cache estatico, penalizando TTFB.
+  //
+  // Publicas (excluidas del middleware): /, /propiedades, /ranking, /blog,
+  // /capacitaciones, /servicios, /contacto, /privacidad, /terminos, etc.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/login",
+    "/signup",
+    "/password-recovery",
+    "/verify-email",
   ],
 };

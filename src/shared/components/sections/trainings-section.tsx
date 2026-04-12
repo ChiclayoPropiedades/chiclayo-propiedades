@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowRight, BookOpen, Calendar, MapPin, User, GraduationCap, Clock } from "lucide-react"
-import { createClient } from "@/shared/lib/supabase/server"
+import { createPublicClient } from "@/shared/lib/supabase/server"
 
 interface Training {
   id: string
@@ -18,7 +18,7 @@ interface Training {
 
 async function getTrainings(): Promise<Training[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from("trainings")
       .select("id, title, description, price, currency, modality, event_date, location, instructor, cover_image, slug")
@@ -71,7 +71,7 @@ export async function TrainingsSection() {
             >
               Capacitaciones
             </h2>
-            <p className="mt-2 max-w-xl text-base text-gray-300">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-gray-300 sm:text-lg">
               Mejora tus habilidades y conocimientos mediante nuestros cursos y
               talleres especializados para el sector inmobiliario.
             </p>
@@ -151,7 +151,7 @@ export async function TrainingsSection() {
                 <div className="px-6 pb-6">
                   <Link
                     href={`/capacitaciones/${training.slug}`}
-                    className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e3a5f] text-sm font-semibold text-white transition-all hover:bg-[#0f1f33] hover:shadow-lg"
+                    className="flex h-11 w-full items-center justify-center rounded-xl bg-[#1e3a5f] text-sm font-semibold text-white transition-all hover:bg-[#0a1628] hover:shadow-lg"
                   >
                     Más información
                   </Link>
@@ -187,7 +187,7 @@ export async function TrainingsSection() {
               <div className="mt-8">
                 <Link
                   href="/capacitaciones"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-6 text-sm font-semibold text-white transition-all hover:bg-[#0f1f33]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-6 text-sm font-semibold text-white transition-all hover:bg-[#0a1628]"
                 >
                   <BookOpen className="size-4" aria-hidden="true" />
                   Ver capacitaciones

@@ -20,9 +20,9 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="mb-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 sm:py-6 lg:px-8 lg:py-0">
+        {/* Logo: oculto en movil (el navbar ya lo muestra), visible desde sm */}
+        <div className="mb-6 hidden sm:block">
           <Image
             src="/images/logo-hero.png"
             alt="Chiclayo Propiedades"
@@ -34,7 +34,7 @@ export function HeroSection() {
         </div>
 
         {/* Badge */}
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm sm:mb-5">
           <Building2 className="size-4" aria-hidden="true" />
           Plataforma inmobiliaria N°1 en Chiclayo
         </div>
@@ -44,38 +44,38 @@ export function HeroSection() {
           className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl"
         >
           Encuentra el lugar perfecto para tu{" "}
-          <span className="text-[#fbbf24]">próxima historia</span>
+          <span className="text-[#d4a017]">próxima historia</span>
         </h1>
 
-        <p className="mx-auto mt-2 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-blue-100 sm:mt-4 sm:text-lg">
           Conectamos tus sueños con la realidad. Miles de propiedades en venta y
           alquiler en Chiclayo y Lambayeque te esperan.
         </p>
 
-        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-6 sm:flex-row">
           <Link
             href="/propiedades"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-[#1e40af] shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-[#1e40af] shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
           >
             Explorar Propiedades
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
           <Link
             href="/contacto"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
           >
             Vender un inmueble
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
           >
             Registro de agente
           </Link>
         </div>
 
         {/* Stats */}
-        <div className="mx-auto mt-4 grid max-w-lg grid-cols-3 gap-3 sm:max-w-2xl sm:gap-8">
+        <div className="mx-auto mt-12 grid max-w-lg grid-cols-3 gap-4 sm:mt-10 sm:max-w-2xl sm:gap-8">
           {[
             { icon: Building2, target: 500, suffix: "+", label: "Propiedades" },
             { icon: Users, target: 200, suffix: "+", label: "Agentes" },

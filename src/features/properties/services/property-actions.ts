@@ -80,6 +80,12 @@ export async function createProperty(formData: FormData) {
     await markPlanAsUsed(userRequestId, data.id);
   }
 
+  // Revalidar paginas publicas y dashboard para que aparezca al instante
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  revalidatePath("/propiedades/[slug]", "page");
+  revalidatePath("/dashboard/propiedades");
+
   return { success: true, propertyId: data.id };
 }
 
@@ -109,6 +115,13 @@ export async function updateProperty(id: string, formData: FormData) {
     .eq("id", id);
 
   if (error) return { error: error.message };
+
+  // Revalidar paginas publicas y dashboard para que aparezca al instante
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  revalidatePath("/propiedades/[slug]", "page");
+  revalidatePath("/dashboard/propiedades");
+
   redirect("/dashboard/propiedades");
 }
 
@@ -179,6 +192,9 @@ export async function markPropertyAsSold(propertyId: string, salePrice: number) 
 
   if (error) return { error: error.message };
 
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  revalidatePath("/propiedades/[slug]", "page");
   revalidatePath("/dashboard/propiedades");
   revalidatePath("/admin/ranking");
   return { success: true };
@@ -204,6 +220,9 @@ export async function togglePropertyStatus(
 
   if (error) return { error: error.message };
 
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  revalidatePath("/propiedades/[slug]", "page");
   revalidatePath("/dashboard/propiedades");
   return { success: true };
 }

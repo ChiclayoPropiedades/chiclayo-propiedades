@@ -9,7 +9,7 @@ const benefits = [
 export function NewsletterSection() {
   return (
     <section
-      className="relative min-h-svh overflow-hidden bg-gradient-to-br from-[#0f1d4a] to-[#1e3a8a] flex flex-col justify-center py-16 sm:py-20"
+      className="relative min-h-svh overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#1e3a5f] flex flex-col justify-center py-16 sm:py-20"
       aria-labelledby="newsletter-heading"
     >
       {/* Decorative background */}
@@ -27,12 +27,12 @@ export function NewsletterSection() {
             </div>
             <h2
               id="newsletter-heading"
-              className="text-4xl font-bold text-white sm:text-5xl"
+              className="text-3xl font-bold text-white sm:text-4xl"
             >
               No te pierdas ninguna{" "}
               <span className="text-[#d4a017]">oportunidad</span>
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-300 sm:text-xl">
+            <p className="mt-3 text-base leading-relaxed text-gray-300 sm:text-lg">
               Suscríbete y recibe las mejores propiedades, noticias y consejos
               inmobiliarios directamente en tu correo.
             </p>

@@ -29,7 +29,7 @@ export async function FeaturedPropertiesSection() {
             >
               Propiedades Destacadas
             </h2>
-            <p className="mt-2 max-w-xl text-base text-gray-600">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-gray-600 sm:text-lg">
               Selección exclusiva de las mejores oportunidades de inversión y vivienda disponibles en este momento.
             </p>
           </div>

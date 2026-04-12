@@ -3,6 +3,8 @@ import { Newspaper } from "lucide-react";
 import { getPosts } from "@/features/blog/services/get-posts";
 import { BlogGrid } from "@/features/blog/components/blog-grid";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Blog Inmobiliario",
   description:
@@ -22,7 +24,7 @@ export default async function BlogPage() {
     <>
       {/* Page header */}
       <section
-        className="bg-gradient-to-br from-[#1e3a8a] via-[#1e40af] to-[#2563eb] py-14 sm:py-20"
+        className="bg-gradient-to-br from-[#0a1628] via-[#1e3a5f] to-[#1e3a5f] py-14 sm:py-20"
         aria-labelledby="blog-heading"
       >
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">

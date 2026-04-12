@@ -1,13 +1,25 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { createPublicClient } from "@/shared/lib/supabase/server";
 import { getPropertyBySlug } from "@/features/properties/services/get-properties";
 import { PropertyDetails } from "@/features/properties/components/property-details";
 import { formatPrice } from "@/shared/lib/format";
 import { propertyJsonLd } from "@/shared/lib/structured-data";
 
+export const revalidate = 300;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const supabase = createPublicClient();
+  const { data } = await supabase
+    .from("properties")
+    .select("slug")
+    .eq("is_active", true);
+  return (data ?? []).map((p) => ({ slug: p.slug as string }));
 }
 
 export async function generateMetadata({

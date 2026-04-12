@@ -6,6 +6,8 @@ import { getRankings } from "@/features/ranking/services/get-rankings";
 import { formatPrice } from "@/shared/lib/format";
 import type { AgentRanking } from "@/features/ranking/types";
 
+export const revalidate = 60;
+
 function getAgent(entry: AgentRanking) {
   const a = Array.isArray(entry.agent) ? entry.agent[0] : entry.agent;
   return {

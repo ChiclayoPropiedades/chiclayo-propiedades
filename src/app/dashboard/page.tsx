@@ -81,7 +81,9 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const stats = await getDashboardStats(user.id);
+  const stats = profile
+    ? await getDashboardStats(profile.id)
+    : { propertiesCount: 0, inquiriesCount: 0, enrollmentsCount: 0 };
 
   // Verificar suscripción si es agente
   const isAgent = profile?.role === "agent";
