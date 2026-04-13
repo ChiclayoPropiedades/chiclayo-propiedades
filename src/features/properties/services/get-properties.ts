@@ -56,7 +56,7 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
   const supabase = createPublicClient();
   let query = supabase
     .from("properties")
-    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
+    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, alt_text, is_cover, display_order)")
     .eq("is_active", true);
 
   if (filters?.search) query = query.ilike("title", `%${filters.search}%`);
@@ -81,7 +81,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
   // Primero traer destacadas
   const { data: featured } = await supabase
     .from("properties")
-    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
+    .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, alt_text, is_cover, display_order)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
@@ -98,7 +98,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     const featuredIds = new Set(results.map((p) => p.id));
     const { data: recent } = await supabase
       .from("properties")
-      .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, is_cover, display_order)")
+      .select("id, agent_id, title, slug, price, currency, operation, type, bedrooms, bathrooms, area_m2, address, district, city, status, featured, created_at, property_images(id, url, alt_text, is_cover, display_order)")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(12);
