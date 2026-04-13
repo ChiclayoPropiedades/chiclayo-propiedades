@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Avance — Chiclayo Propiedades</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; color: #1f2937; background: #f8fafc; line-height: 1.6; }
+
+  .hero { background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%); padding: 60px 40px; text-align: center; }
+  .hero img { height: 60px; margin-bottom: 20px; }
+  .hero h1 { color: #fff; font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .hero p { color: #93c5fd; font-size: 16px; }
+  .hero .date { color: #b8860b; font-weight: 600; margin-top: 16px; font-size: 14px; }
+  .gold-line { height: 3px; background: linear-gradient(to right, transparent, #b8860b, transparent); margin-top: 24px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  .section { margin-bottom: 48px; }
+  .section-number { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #0a1628; color: #b8860b; font-weight: 700; font-size: 14px; border-radius: 50%; margin-right: 12px; }
+  .section h2 { font-size: 22px; font-weight: 700; color: #0a1628; margin-bottom: 20px; display: flex; align-items: center; }
+  .section h3 { font-size: 16px; font-weight: 600; color: #1e3a5f; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px; }
+  thead { background: #0a1628; }
+  thead th { color: #fff; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tbody tr { border-bottom: 1px solid #e5e7eb; }
+  tbody tr:hover { background: #f0f9ff; }
+  tbody td { padding: 12px 16px; }
+
+  .status-done { color: #059669; font-weight: 600; }
+  .status-pending { color: #d97706; font-weight: 600; }
+  .status-urgent { color: #dc2626; font-weight: 600; }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .card.highlight { border-left: 4px solid #b8860b; }
+  .card.blue { border-left: 4px solid #2563eb; }
+  .card.green { border-left: 4px solid #059669; }
+  .card.red { border-left: 4px solid #dc2626; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .grid-4 { grid-template-columns: 1fr 1fr !important; } }
+
+  .stat { text-align: center; padding: 24px; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; }
+  .stat .number { font-size: 36px; font-weight: 800; color: #0a1628; }
+  .stat .label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  .stat.gold .number { color: #b8860b; }
+
+  .cost-table { background: #0a1628; border-radius: 12px; padding: 24px; color: #fff; margin: 24px 0; }
+  .cost-table h3 { color: #b8860b; border-bottom-color: #1e3a5f; }
+  .cost-table table { color: #fff; }
+  .cost-table thead { background: #1e3a5f; }
+  .cost-table tbody tr { border-bottom-color: #1e3a5f; }
+  .cost-table tbody tr:hover { background: #1e3a5f; }
+  .cost-total { font-size: 24px; font-weight: 800; color: #b8860b; text-align: center; margin-top: 16px; }
+
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+  .timeline-item { position: relative; margin-bottom: 24px; }
+  .timeline-item::before { content: ''; position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #2563eb; border: 2px solid #fff; box-shadow: 0 0 0 2px #2563eb; }
+  .timeline-item.done::before { background: #059669; box-shadow: 0 0 0 2px #059669; }
+  .timeline-item .time { font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; }
+  .timeline-item .title { font-size: 15px; font-weight: 600; color: #1f2937; }
+  .timeline-item .desc { font-size: 13px; color: #6b7280; }
+
+  .footer { background: #0a1628; padding: 40px; text-align: center; color: #9ca3af; font-size: 13px; }
+  .footer .brand { color: #b8860b; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge.green { background: #d1fae5; color: #065f46; }
+  .badge.yellow { background: #fef3c7; color: #92400e; }
+  .badge.red { background: #fee2e2; color: #991b1b; }
+  .badge.blue { background: #dbeafe; color: #1e40af; }
+
+  .action-box { background: linear-gradient(135deg, #eff6ff, #f0f9ff); border: 2px solid #2563eb; border-radius: 12px; padding: 24px; margin: 24px 0; }
+  .action-box h3 { color: #1e40af; margin: 0 0 16px; border: none; padding: 0; font-size: 18px; }
+  .action-box ol { padding-left: 20px; }
+  .action-box li { margin-bottom: 12px; font-size: 14px; }
+  .action-box strong { color: #1e40af; }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  .print-note { text-align: center; padding: 8px; background: #fef3c7; font-size: 12px; color: #92400e; }
+  @media print { .print-note { display: none; } body { background: #fff; } }
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px; }
+    .hero h1 { font-size: 24px; }
+    .hero p { font-size: 14px; }
+    .container { padding: 24px 16px; }
+    .section h2 { font-size: 18px; }
+    table { font-size: 12px; }
+    thead th { padding: 8px 10px; font-size: 11px; }
+    tbody td { padding: 8px 10px; }
+    .stat .number { font-size: 28px; }
+    .stat { padding: 16px; }
+    .cost-total { font-size: 20px; }
+    .action-box { padding: 16px; }
+    .action-box li { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-note">Para guardar como PDF: Ctrl+P (o Cmd+P en Mac) y selecciona "Guardar como PDF"</div>
+
+<div class="hero">
+  <img src="https://chiclayopropiedades.com/images/logo-white.png" alt="Chiclayo Propiedades">
+  <h1>Reporte de Avance</h1>
+  <p>Estado de la plataforma y plan de trabajo semanal</p>
+  <div class="date">Abril 2026</div>
+  <div class="gold-line"></div>
+</div>
+
+<div class="container">
+
+  <!-- SECCION 1: RESUMEN -->
+  <div class="section">
+    <h2><span class="section-number">1</span> Lo que se logro</h2>
+
+    <div class="grid-2 grid-4" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+      <div class="stat">
+        <div class="number">26</div>
+        <div class="label">Propiedades activas</div>
+      </div>
+      <div class="stat gold">
+        <div class="number">9</div>
+        <div class="label">Leads recibidos</div>
+      </div>
+      <div class="stat">
+        <div class="number">12</div>
+        <div class="label">Usuarios registrados</div>
+      </div>
+      <div class="stat gold">
+        <div class="number">10</div>
+        <div class="label">Agentes activos</div>
+      </div>
+    </div>
+
+    <h3>Infraestructura</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tarea</th><th>Estado</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr><td>Dominio chiclayopropiedades.com</td><td><span class="badge green">Completado</span></td><td>DNS migrado, HTTPS activo, www redirige al principal</td></tr>
+        <tr><td>Email transaccional</td><td><span class="badge green">Completado</span></td><td>Los clientes reciben confirmacion automática al contactar</td></tr>
+        <tr><td>Google Search Console</td><td><span class="badge green">Completado</span></td><td>Google esta indexando el sitio. Sitemap enviado.</td></tr>
+        <tr><td>Favicon del brand</td><td><span class="badge green">Completado</span></td><td>Logo visible en la pestaña del navegador</td></tr>
+        <tr><td>Velocidad de carga</td><td><span class="badge green">Completado</span></td><td>3x más rápido que antes (330ms vs 1 segundo)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Plataforma</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Funcionalidad</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>Portal público de propiedades</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Dashboard del agente (propiedades, leads, perfil)</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Panel de administración completo</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Ranking de agentes por ventas</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Capacitaciones con inscripción</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Suscripcion de agentes (S/199)</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Formulario de contacto con email automático</td><td><span class="badge green">Funcionando</span></td></tr>
+        <tr><td>Blog</td><td><span class="badge yellow">Estructura lista</span></td></tr>
+        <tr><td>Pasarela de pagos (MercadoPago)</td><td><span class="badge yellow">Pendiente</span></td></tr>
+        <tr><td>Google My Business</td><td><span class="badge yellow">Pendiente</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Diseño y Marca</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mejora</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Colores unificados (navy + dorado)</td><td>Toda la plataforma con los colores del logo</td></tr>
+        <tr><td>Headers de páginas</td><td>Todas las páginas con el mismo estilo visual</td></tr>
+        <tr><td>Responsive para celulares</td><td>Optimizado para iPhone y Android</td></tr>
+        <tr><td>Email profesional al cliente</td><td>Template con logo, WhatsApp y redes sociales</td></tr>
+        <tr><td>Descripciones de propiedades</td><td>Formato profesional, estructurado, sin emojis</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- SECCION 2: PLAN SEMANAL -->
+  <div class="section">
+    <h2><span class="section-number">2</span> Plan de esta semana</h2>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="time">Lunes - Miércoles</div>
+        <div class="title">Auditoria completa del código</div>
+        <div class="desc">Revisar vulnerabilidades, bugs, rendimiento y seguridad de toda la plataforma.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Miércoles - Viernes</div>
+        <div class="title">Corrección de bugs y vulnerabilidades</div>
+        <div class="desc">Arreglar todo lo detectado en la auditoria. Errores visuales, funcionales y de seguridad.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Cuando tengamos credenciales</div>
+        <div class="title">Integración de MercadoPago</div>
+        <div class="desc">Pasarela de pagos para que los agentes paguen suscripciones directamente online.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Viernes - Sábado</div>
+        <div class="title">Contenido SEO (5 artículos de blog)</div>
+        <div class="desc">Artículos optimizados para Google: guias de compra, mejores zonas, precios del mercado.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Fin de semana</div>
+        <div class="title">Entrega de plataforma al 100%</div>
+        <div class="desc">Plataforma auditada, corregida y lista para operar sin cabos sueltos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCION 3: LO QUE NECESITAMOS -->
+  <div class="section">
+    <h2><span class="section-number">3</span> Lo que necesitamos del cliente</h2>
+
+    <div class="action-box">
+      <h3>Acciones requeridas esta semana</h3>
+      <ol>
+        <li><strong>Credenciales de MercadoPago:</strong> Crear cuenta business en mercadopago.com.pe y enviarnos las claves de la API (Public Key + Access Token). Sin esto no podemos integrar la pasarela de pagos.</li>
+        <li><strong>Pago de Vercel Pro ($20/mes):</strong> El sitio esta en producción con usuarios reales. El plan gratuito es para proyectos personales y hay riesgo de suspensión.</li>
+        <li><strong>Google My Business:</strong> Necesitamos horario de atención, 3-5 fotos de la oficina de Plaza Bolognesi, y que alguien en la oficina reciba una carta de Google (1-2 semanas).</li>
+        <li><strong>Reportar errores:</strong> Si los agentes ven algo raro, screenshot + descripción por WhatsApp.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- SECCION 4: COSTOS -->
+  <div class="section">
+    <h2><span class="section-number">4</span> Costos operativos</h2>
+
+    <div class="cost-table">
+      <h3>Costo mensual de la plataforma</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Servicio</th><th>Hoy</th><th>En 6 meses</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td>Vercel (hosting)</td><td style="color:#b8860b;font-weight:700">$20/mes</td><td>$20/mes</td><td>Pagar ahora</td></tr>
+          <tr><td>Supabase (base de datos)</td><td style="color:#059669">Gratis</td><td>$25/mes</td><td>Cuando la DB supere 500MB</td></tr>
+          <tr><td>Resend (emails)</td><td style="color:#059669">Gratis</td><td>$0-20/mes</td><td>Gratis hasta 100 emails/dia</td></tr>
+          <tr><td>Dominio</td><td style="color:#059669">Ya pagado</td><td>~$1/mes</td><td>Renovación anual ~$12</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cost-total">Total hoy: $20/mes (~S/70)</div>
+    </div>
+
+    <div class="card highlight">
+      <strong style="color:#b8860b">Retorno de la inversión:</strong>
+      <p style="margin-top:8px;font-size:14px">Con solo <strong>4 agentes</strong> pagando la suscripción de S/199, la plataforma genera <strong>S/796/mes</strong> — más de 10 veces el costo operativo. Con 20 agentes = <strong>S/3,980/mes</strong>.</p>
+    </div>
+  </div>
+
+  <!-- SECCION 5: TECNOLOGIA -->
+  <div class="section">
+    <h2><span class="section-number">5</span> Tecnología</h2>
+
+    <div class="card blue">
+      <p style="font-size:14px">La plataforma esta construida con <strong>Next.js + Vercel + Supabase</strong>, la misma tecnologia que usan <strong>Notion</strong> (30 millones de usuarios), <strong>TikTok</strong> (version web) y <strong>Washington Post</strong>.</p>
+      <ul style="margin-top:12px;font-size:14px;padding-left:20px">
+        <li><strong>Escala automática:</strong> Si llegan 10,000 visitantes, no se cae.</li>
+        <li><strong>Cero mantenimiento de servidores:</strong> Todo automático.</li>
+        <li><strong>Seguridad incluida:</strong> HTTPS, firewall, backups automáticos.</li>
+        <li><strong>Costo predecible:</strong> $20-65/mes, sin sorpresas.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECCION 6: COMPARACION DE COSTOS -->
+  <div class="section">
+    <h2><span class="section-number">6</span> ¿Por qué Vercel + Supabase y no un servidor propio (VPS)?</h2>
+
+    <p style="font-size:14px;margin-bottom:16px;color:#6b7280">Comparación con precios reales de DigitalOcean (el VPS mas popular). Fuentes directas:</p>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
+      <a href="https://www.digitalocean.com/pricing/droplets" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#0069ff;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">↗ Precios DigitalOcean Droplets</a>
+      <a href="https://www.digitalocean.com/pricing/managed-databases" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#0069ff;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">↗ Precios DigitalOcean PostgreSQL</a>
+      <a href="https://vercel.com/pricing" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#000;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">↗ Precios Vercel</a>
+      <a href="https://supabase.com/pricing" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#3ecf8e;color:#000;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">↗ Precios Supabase</a>
+    </div>
+
+    <h3>100 agentes</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Concepto</th><th>DigitalOcean (VPS)</th><th>Vercel + Supabase (actual)</th></tr></thead>
+      <tbody>
+        <tr><td>Servidor / Hosting</td><td>Droplet 2GB: $12/mes</td><td>Vercel Pro: $20/mes</td></tr>
+        <tr><td>Base de datos PostgreSQL</td><td>Managed DB 1GB: $15/mes</td><td>Supabase Pro: $25/mes (todo incluido)</td></tr>
+        <tr><td>Auth (login, registro)</td><td>Auth0 o Clerk: $23+/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr><td>Storage (fotos)</td><td>Spaces: $5/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr><td>CDN global</td><td>Cloudflare: $0-20/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr><td>Backups + Monitoring</td><td>$3-23/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr style="background:#f0f9ff"><td><strong>Total servicio</strong></td><td><strong>$58-78/mes</strong></td><td><strong style="color:#059669">$45/mes</strong></td></tr>
+        <tr style="background:#fef3c7"><td><strong>+ Horas DevOps (mantenimiento)</strong></td><td><strong>$80-160/mes</strong> (4-8 hrs)</td><td><strong style="color:#059669">$0</strong></td></tr>
+        <tr style="background:#0a1628"><td style="color:#fff"><strong>TOTAL REAL</strong></td><td style="color:#dc2626;font-weight:800;font-size:16px">$138-238/mes</td><td style="color:#059669;font-weight:800;font-size:16px">$45/mes</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>500 agentes</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Concepto</th><th>DigitalOcean (VPS)</th><th>Vercel + Supabase</th></tr></thead>
+      <tbody>
+        <tr><td>Servidor</td><td>2x Droplets 4GB + Load Balancer: $60/mes</td><td>Vercel Pro: $20/mes</td></tr>
+        <tr><td>Base de datos</td><td>Managed DB 4GB: $60.84/mes</td><td>Supabase Pro + Medium: $85/mes</td></tr>
+        <tr><td>Auth</td><td>Auth0: $70/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr><td>Storage + CDN + Backups</td><td>$47/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr style="background:#f0f9ff"><td><strong>Total servicio</strong></td><td><strong>$238/mes</strong></td><td><strong style="color:#059669">$105/mes</strong></td></tr>
+        <tr style="background:#fef3c7"><td><strong>+ Horas DevOps</strong></td><td><strong>$240/mes</strong> (12 hrs)</td><td><strong style="color:#059669">$0</strong></td></tr>
+        <tr style="background:#0a1628"><td style="color:#fff"><strong>TOTAL REAL</strong></td><td style="color:#dc2626;font-weight:800;font-size:16px">$478/mes</td><td style="color:#059669;font-weight:800;font-size:16px">$105/mes</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>1000 agentes</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Concepto</th><th>DigitalOcean (VPS)</th><th>Vercel + Supabase</th></tr></thead>
+      <tbody>
+        <tr><td>Servidor</td><td>3x Droplets + LB: $84/mes</td><td>Vercel Pro: $20/mes</td></tr>
+        <tr><td>Base de datos</td><td>Managed DB 4GB + replica: $122/mes</td><td>Supabase Pro + Large: $135/mes</td></tr>
+        <tr><td>Auth + Storage + CDN + Backups + Monitoring</td><td>$185/mes</td><td><span class="badge green">Incluido</span></td></tr>
+        <tr style="background:#f0f9ff"><td><strong>Total servicio</strong></td><td><strong>$391/mes</strong></td><td><strong style="color:#059669">$155/mes</strong></td></tr>
+        <tr style="background:#fef3c7"><td><strong>+ Horas DevOps</strong></td><td><strong>$320/mes</strong> (16 hrs)</td><td><strong style="color:#059669">$0</strong></td></tr>
+        <tr style="background:#0a1628"><td style="color:#fff"><strong>TOTAL REAL</strong></td><td style="color:#dc2626;font-weight:800;font-size:16px">$711/mes</td><td style="color:#059669;font-weight:800;font-size:16px">$155/mes</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card highlight">
+      <strong style="color:#b8860b">Conclusión:</strong>
+      <p style="margin-top:8px;font-size:14px">Vercel + Supabase es entre <strong>3x y 5x más económico</strong> que un servidor propio en DigitalOcean en todas las escalas. DigitalOcean vende solo el servidor vacio — autenticación, almacenamiento, CDN, backups y mantenimiento se pagan aparte. Supabase incluye todo en un solo precio.</p>
+    </div>
+
+    <h3>¿Y si crecemos? Ruta de escalamiento</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Etapa</th><th>Agentes</th><th>Plan</th><th>Costo</th><th>¿Cambiar código?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Hoy</strong></td><td>10</td><td>Supabase Free + Vercel Pro</td><td style="color:#059669;font-weight:700">$20/mes</td><td><span class="badge green">No</span></td></tr>
+        <tr><td>6 meses</td><td>50</td><td>Supabase Pro + Vercel Pro</td><td>$45/mes</td><td><span class="badge green">No</span></td></tr>
+        <tr><td>1 año</td><td>100-200</td><td>Supabase Pro + Small Compute</td><td>$55/mes</td><td><span class="badge green">No</span></td></tr>
+        <tr><td>2 años</td><td>500</td><td>Supabase Pro + Medium Compute</td><td>$105/mes</td><td><span class="badge green">No</span></td></tr>
+        <tr><td>3 años</td><td>1000+</td><td>Supabase Pro + Large Compute</td><td>$155/mes</td><td><span class="badge green">No</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card blue">
+      <p style="font-size:14px"><strong>El código NO cambia en ninguna etapa.</strong> Solo se sube el plan de pago. Es como subir de plan en el celular: mas gigas, mismo telefono.</p>
+    </div>
+  </div>
+
+  <!-- SECCION 7: GOOGLE MY BUSINESS -->
+  <div class="section">
+    <h2><span class="section-number">7</span> Google My Business — Por qué es urgente</h2>
+
+    <div class="card red">
+      <strong style="color:#dc2626">Problema actual:</strong>
+      <p style="margin-top:8px;font-size:14px">Cuando alguien busca <em>"inmobiliaria Chiclayo"</em> en Google, aparecen <strong>2 competidores en el mapa</strong> (Chiclayo Inmobiliaria y Chiclayo Bienes Raices). <strong>Chiclayo Propiedades NO aparece.</strong></p>
+    </div>
+
+    <div class="card green">
+      <strong style="color:#059669">Solución:</strong>
+      <p style="margin-top:8px;font-size:14px">Crear un perfil de Google My Business (gratis). Con eso aparecemos en Google Maps con dirección, telefono, reseñas y link al sitio. El 46% de las búsquedas en Google son locales. <strong>Sin esto, estamos perdiendo clientes que van directo a la competencia.</strong></p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="brand">Chiclayo Propiedades</div>
+  <p>Av. Francisco Bolognesi 536, Plaza Bolognesi Stand 302A, Chiclayo</p>
+  <p>+51 928 216 206 | info@chiclayopropiedades.com</p>
+  <p style="margin-top:16px;color:#6b7280">chiclayopropiedades.com</p>
+</div>
+
+</body>
+</html>
