@@ -36,9 +36,11 @@ const operationLabels: Record<Property["operation"], string> = {
 };
 
 function ImageGallery({ property }: { property: Property }) {
-  const images = property.property_images ?? [];
-  const coverImage = images.find((img) => img.is_cover) ?? images[0] ?? null;
-  const otherImages = images.filter((img) => img !== coverImage).slice(0, 4);
+  const sorted = [...(property.property_images ?? [])].sort(
+    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+  );
+  const coverImage = sorted.find((img) => img.is_cover) ?? sorted[0] ?? null;
+  const otherImages = sorted.filter((img) => img.id !== coverImage?.id);
 
   if (!coverImage) {
     return (
@@ -52,45 +54,40 @@ function ImageGallery({ property }: { property: Property }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:grid-rows-2">
-      {/* Main image */}
-      <div className="relative overflow-hidden rounded-xl sm:col-span-3 sm:row-span-2 h-48 sm:h-72 lg:h-96">
+    <div className="space-y-2">
+      {/* Main cover image */}
+      <div className="relative overflow-hidden rounded-xl h-56 sm:h-72 lg:h-96">
         <Image
           src={coverImage.url}
           alt={coverImage.alt_text ?? property.title}
           fill
-          sizes="(max-width: 640px) 100vw, 75vw"
+          sizes="(max-width: 640px) 100vw, 100vw"
           className="object-cover"
           priority
         />
       </div>
 
-      {/* Secondary images */}
-      {otherImages.slice(0, 2).map((img, index) => (
-        <div
-          key={img.id}
-          className={`relative hidden overflow-hidden rounded-xl sm:block h-[calc((24rem-0.5rem)/2)] ${
-            index === 1 && otherImages.length > 2
-              ? "sm:relative"
-              : ""
-          }`}
-        >
-          <Image
-            src={img.url}
-            alt={img.alt_text ?? `Imagen ${index + 2} de ${property.title}`}
-            fill
-            sizes="25vw"
-            className="object-cover"
-          />
-          {index === 1 && otherImages.length > 2 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="text-lg font-semibold text-white">
-                +{otherImages.length - 1}
-              </span>
+      {/* All other images in a scrollable row on mobile, grid on desktop */}
+      {otherImages.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-x-visible sm:pb-0 lg:grid-cols-5">
+          {otherImages.map((img, index) => (
+            <div
+              key={img.id}
+              className="relative shrink-0 w-40 overflow-hidden rounded-xl sm:w-auto sm:aspect-[4/3]"
+            >
+              <div className="relative h-28 w-full sm:h-full">
+                <Image
+                  src={img.url}
+                  alt={img.alt_text ?? `Imagen ${index + 2} de ${property.title}`}
+                  fill
+                  sizes="(max-width: 640px) 160px, 25vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }
