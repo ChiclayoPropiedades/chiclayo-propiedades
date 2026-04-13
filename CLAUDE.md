@@ -5,8 +5,8 @@
 ## Proyecto
 
 - **Nombre:** Chiclayo Propiedades
-- **Dominio:** chiclayopropiedades.com (pendiente conectar)
-- **Produccion:** https://chiclayo-propiedades.vercel.app
+- **Dominio:** chiclayopropiedades.com (conectado y funcionando en Vercel)
+- **Produccion:** https://chiclayopropiedades.com
 - **Repo:** github.com/ChiclayoPropiedades/chiclayo-propiedades (privado)
 - **Supabase Project ID:** nukwnntnuxlwlmostqqx
 - **Supabase URL:** https://nukwnntnuxlwlmostqqx.supabase.co
@@ -153,6 +153,32 @@ Verificar siempre antes de push:
 npm run build     # Sin errores
 npm run typecheck # Sin errores TypeScript
 ```
+
+### DNS (Hostinger)
+- ALIAS `@` apunta a `cname.vercel-dns.com`
+- CNAME `www` apunta a `cname.vercel-dns.com` (redirect 308 al root)
+- Registros MX de Hostinger intactos (email corporativo funciona)
+
+### Email Transaccional
+- **Proveedor activo:** Resend (100 emails/dia gratis)
+- **API Key:** variable de entorno `RESEND_API_KEY` en Vercel
+- **Dominio verificado:** chiclayopropiedades.com (DKIM + SPF en Hostinger)
+- **From:** info@chiclayopropiedades.com
+- **Fallback:** Brevo (cuenta creada, pendiente desbloqueo)
+- **Flujo:** formulario de contacto -> guarda lead en DB -> email al agente + email de confirmacion al cliente
+
+### SEO
+- **Google Search Console:** verificado (cuenta: propiedadeschiclayo01@gmail.com)
+- **Sitemap:** https://chiclayopropiedades.com/sitemap.xml (automatico)
+- **Favicon:** logo del brand (src/app/icon.png + apple-icon.png)
+
+### Performance
+- ISR revalidate en paginas publicas (60s listas, 300s detalles)
+- `createPublicClient()` sin cookies para Server Components estaticos
+- Middleware solo en rutas protegidas (/dashboard, /admin, /login, /signup)
+- /propiedades refactorizado a static + client-side filtering
+- AVIF habilitado en next/image
+- `revalidatePath` en createProperty, updateProperty, togglePropertyStatus, markPropertyAsSold
 
 ## Documentos de Referencia
 

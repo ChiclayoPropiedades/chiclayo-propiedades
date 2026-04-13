@@ -11,8 +11,8 @@
 | Nombre | Chiclayo Propiedades |
 | Tipo | Plataforma inmobiliaria |
 | Region | Chiclayo, Lambayeque, Peru |
-| URL Produccion | https://chiclayo-propiedades.vercel.app |
-| Dominio | chiclayopropiedades.com (pendiente conectar) |
+| URL Produccion | https://chiclayopropiedades.com |
+| Dominio | chiclayopropiedades.com (conectado, DNS en Hostinger -> Vercel) |
 | Repositorio | github.com/ChiclayoPropiedades/chiclayo-propiedades (privado) |
 | Supabase Project | nukwnntnuxlwlmostqqx |
 | Deploy | Vercel (auto con git push a main) |
