@@ -3,10 +3,9 @@ import { AgentRanking } from "../types";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RankingRow = any;
 
-function getAdminSupabase() {
+async function getAdminSupabase() {
   // Usar admin client para bypass RLS (visitantes anónimos no pueden leer suscripciones)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { createClient } = require("@supabase/supabase-js") as typeof import("@supabase/supabase-js");
+  const { createClient } = await import("@supabase/supabase-js");
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -28,7 +27,7 @@ function isValidAgent(r: RankingRow, activeSubIds: Set<string>): boolean {
  */
 export async function getRankings(): Promise<AgentRanking[]> {
   try {
-    const supabase = getAdminSupabase();
+    const supabase = await getAdminSupabase();
 
     const [
       { data: rankingData },
@@ -66,7 +65,7 @@ export async function getRankings(): Promise<AgentRanking[]> {
  */
 export async function getAllAgentsForRanking(): Promise<AgentRanking[]> {
   try {
-    const supabase = getAdminSupabase();
+    const supabase = await getAdminSupabase();
 
     // 1) Subs activas
     const { data: activeSubs } = await supabase
