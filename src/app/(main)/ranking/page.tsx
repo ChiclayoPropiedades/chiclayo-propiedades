@@ -1,8 +1,9 @@
 import { type Metadata } from "next";
 import Image from "next/image";
-import { Trophy, Medal, TrendingUp, DollarSign, Home } from "lucide-react";
+import { Trophy, Medal } from "lucide-react";
 
-import { getRankings } from "@/features/ranking/services/get-rankings";
+import { getAllAgentsForRanking } from "@/features/ranking/services/get-rankings";
+import { RankingTable } from "@/features/ranking/components/ranking-table";
 import { formatPrice } from "@/shared/lib/format";
 import type { AgentRanking } from "@/features/ranking/types";
 
@@ -22,38 +23,6 @@ export const metadata: Metadata = {
   description:
     "Conoce a los mejores asesores inmobiliarios de Chiclayo Propiedades, clasificados por ventas cerradas y monto total vendido.",
 };
-
-function PositionBadge({ position }: { position: number }) {
-  if (position === 1) {
-    return (
-      <div className="flex flex-col items-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-yellow-400 text-lg font-extrabold text-yellow-900 shadow-md">1</span>
-        <span className="mt-0.5 text-[10px] font-bold text-yellow-700">1er lugar</span>
-      </div>
-    );
-  }
-  if (position === 2) {
-    return (
-      <div className="flex flex-col items-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-gray-300 text-lg font-extrabold text-gray-700 shadow-md">2</span>
-        <span className="mt-0.5 text-[10px] font-bold text-gray-500">2do lugar</span>
-      </div>
-    );
-  }
-  if (position === 3) {
-    return (
-      <div className="flex flex-col items-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-orange-300 text-lg font-extrabold text-orange-900 shadow-md">3</span>
-        <span className="mt-0.5 text-[10px] font-bold text-orange-600">3er lugar</span>
-      </div>
-    );
-  }
-  return (
-    <span className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-sm font-extrabold text-gray-600">
-      {position}
-    </span>
-  );
-}
 
 function AgentAvatar({
   name,
@@ -102,10 +71,10 @@ function EmptyState() {
         <Trophy className="size-10 text-[#2563eb]" aria-hidden="true" />
       </div>
       <h2 className="text-lg font-semibold text-[#1f2937]">
-        Sin asesores activos
+        Sin asesores registrados
       </h2>
       <p className="max-w-sm text-sm text-gray-500">
-        Actualmente no hay asesores con ventas registradas. Vuelve pronto para
+        Aún no hay asesores activos con suscripción vigente. Vuelve pronto para
         ver el ranking actualizado.
       </p>
     </div>
@@ -113,7 +82,10 @@ function EmptyState() {
 }
 
 export default async function RankingPage() {
-  const rankings = await getRankings();
+  const allAgents = await getAllAgentsForRanking();
+
+  // Podio: solo agentes con al menos 1 venta cerrada (top 3)
+  const podiumAgents = allAgents.filter((r) => r.sales_count > 0).slice(0, 3);
 
   return (
     <>
@@ -136,19 +108,19 @@ export default async function RankingPage() {
 
       {/* Content */}
       <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        {rankings.length === 0 ? (
+        {allAgents.length === 0 ? (
           <EmptyState />
         ) : (
           <>
-            {/* Top 3 podium — visible on md+ */}
-            {rankings.length >= 1 && (
+            {/* Top 3 podium — solo agentes con ventas, visible en md+ */}
+            {podiumAgents.length >= 1 && (
               <div className="mb-10 hidden justify-center gap-8 md:flex">
                 {/* 2nd place */}
-                {rankings[1] && (
+                {podiumAgents[1] && (
                   <div className="flex flex-col items-center gap-2 pt-6">
                     <AgentAvatar
-                      name={getAgent(rankings[1]).full_name}
-                      avatarUrl={getAgent(rankings[1]).avatar_url}
+                      name={getAgent(podiumAgents[1]).full_name}
+                      avatarUrl={getAgent(podiumAgents[1]).avatar_url}
                       size="lg"
                     />
                     <Medal
@@ -157,18 +129,18 @@ export default async function RankingPage() {
                     />
                     <p className="text-[10px] font-bold text-gray-500">2do lugar</p>
                     <p className="text-xs font-semibold text-[#1f2937]">
-                      {getAgent(rankings[1]).full_name}
+                      {getAgent(podiumAgents[1]).full_name}
                     </p>
                     <p className="text-xs font-medium text-green-600">
-                      {rankings[1].sales_count} ventas
+                      {podiumAgents[1].sales_count} ventas
                     </p>
                   </div>
                 )}
                 {/* 1st place */}
                 <div className="flex flex-col items-center gap-2">
                   <AgentAvatar
-                    name={getAgent(rankings[0]).full_name}
-                    avatarUrl={getAgent(rankings[0]).avatar_url}
+                    name={getAgent(podiumAgents[0]).full_name}
+                    avatarUrl={getAgent(podiumAgents[0]).avatar_url}
                     size="lg"
                   />
                   <Trophy
@@ -177,23 +149,23 @@ export default async function RankingPage() {
                   />
                   <p className="text-[10px] font-bold text-yellow-700">1er lugar</p>
                   <p className="text-sm font-bold text-[#1f2937]">
-                    {getAgent(rankings[0]).full_name}
+                    {getAgent(podiumAgents[0]).full_name}
                   </p>
                   <p className="text-xs font-medium text-green-600">
-                    {rankings[0].sales_count} ventas
+                    {podiumAgents[0].sales_count} ventas
                   </p>
-                  {rankings[0].total_sales_amount > 0 && (
+                  {podiumAgents[0].total_sales_amount > 0 && (
                     <p className="text-xs text-gray-500">
-                      {formatPrice(rankings[0].total_sales_amount, "PEN")}
+                      {formatPrice(podiumAgents[0].total_sales_amount, "PEN")}
                     </p>
                   )}
                 </div>
                 {/* 3rd place */}
-                {rankings[2] && (
+                {podiumAgents[2] && (
                   <div className="flex flex-col items-center gap-2 pt-8">
                     <AgentAvatar
-                      name={getAgent(rankings[2]).full_name}
-                      avatarUrl={getAgent(rankings[2]).avatar_url}
+                      name={getAgent(podiumAgents[2]).full_name}
+                      avatarUrl={getAgent(podiumAgents[2]).avatar_url}
                       size="lg"
                     />
                     <Medal
@@ -202,111 +174,18 @@ export default async function RankingPage() {
                     />
                     <p className="text-[10px] font-bold text-orange-600">3er lugar</p>
                     <p className="text-xs font-semibold text-[#1f2937]">
-                      {getAgent(rankings[2]).full_name}
+                      {getAgent(podiumAgents[2]).full_name}
                     </p>
                     <p className="text-xs font-medium text-green-600">
-                      {rankings[2].sales_count} ventas
+                      {podiumAgents[2].sales_count} ventas
                     </p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Table */}
-            <div className="overflow-x-auto overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-              <table
-                className="w-full text-sm"
-                aria-label="Tabla de ranking de asesores"
-              >
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    <th scope="col" className="px-4 py-3 text-left">
-                      Pos.
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-left">
-                      Asesor
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-center">
-                      <span className="inline-flex items-center gap-1">
-                        <TrendingUp className="size-3" />
-                        Ventas
-                      </span>
-                    </th>
-                    <th
-                      scope="col"
-                      className="hidden px-4 py-3 text-right sm:table-cell"
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        <DollarSign className="size-3" />
-                        Monto vendido
-                      </span>
-                    </th>
-                    <th
-                      scope="col"
-                      className="hidden px-4 py-3 text-right md:table-cell"
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        <Home className="size-3" />
-                        Propiedades
-                      </span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {rankings.map((entry, index) => {
-                    const pos = index + 1;
-                    const rowBg =
-                      pos === 1
-                        ? "bg-yellow-50/60"
-                        : pos === 2
-                          ? "bg-gray-50/60"
-                          : pos === 3
-                            ? "bg-orange-50/40"
-                            : "";
-                    return (
-                    <tr
-                      key={entry.id}
-                      className={`transition-colors hover:bg-[#eff6ff]/40 ${rowBg}`}
-                    >
-                      <td className="px-4 py-3">
-                        <PositionBadge position={pos} />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <AgentAvatar
-                            name={getAgent(entry).full_name}
-                            avatarUrl={getAgent(entry).avatar_url}
-                            size={pos <= 3 ? "lg" : "md"}
-                          />
-                          <div className="min-w-0">
-                            <p className="truncate font-semibold text-[#1f2937]">
-                              {getAgent(entry).full_name}
-                            </p>
-                            {getAgent(entry).phone && (
-                              <p className="text-xs text-gray-400">
-                                {getAgent(entry).phone}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center font-bold text-green-700">
-                        {entry.sales_count}
-                      </td>
-                      <td className="hidden px-4 py-3 text-right font-medium text-[#1f2937] sm:table-cell">
-                        {entry.total_sales_amount > 0
-                          ? formatPrice(entry.total_sales_amount, "PEN")
-                          : "—"}
-                      </td>
-                      <td className="hidden px-4 py-3 text-right text-gray-500 md:table-cell">
-                        {entry.properties_count}
-                      </td>
-                    </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            {/* Tabla con TODOS los agentes activos, paginada (5 por página) */}
+            <RankingTable rankings={allAgents} />
           </>
         )}
       </section>

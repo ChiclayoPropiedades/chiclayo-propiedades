@@ -21,6 +21,33 @@ function AuthLogo() {
   )
 }
 
+/**
+ * Mapea el mensaje crudo de Supabase Auth a un mensaje en español claro
+ * para el usuario final. Cubre los errores más comunes que vimos en producción.
+ */
+function mapAuthError(rawMessage: string): string {
+  const msg = rawMessage.toLowerCase()
+  if (msg.includes("invalid login credentials") || msg.includes("invalid_credentials")) {
+    return "Correo o contraseña incorrectos. Por favor, verifica tus datos."
+  }
+  if (msg.includes("email not confirmed") || msg.includes("email_not_confirmed")) {
+    return "Tu correo aún no está verificado. Revisa tu bandeja de entrada (y spam) y haz click en el enlace de confirmación."
+  }
+  if (msg.includes("user not found") || msg.includes("user_not_found")) {
+    return "No encontramos una cuenta con ese correo. ¿Quieres registrarte?"
+  }
+  if (msg.includes("too many") || msg.includes("rate limit")) {
+    return "Demasiados intentos. Espera unos minutos antes de volver a intentar."
+  }
+  if (msg.includes("network") || msg.includes("fetch")) {
+    return "No pudimos conectarnos al servidor. Verifica tu conexión a internet."
+  }
+  if (msg.includes("database") || msg.includes("server error")) {
+    return "Hay un problema temporal con el servidor. Por favor intenta nuevamente en unos momentos."
+  }
+  return "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
+}
+
 export function LoginForm() {
   const router = useRouter()
 
@@ -29,10 +56,29 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [needsResend, setNeedsResend] = useState(false)
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+
+  async function handleResendConfirmation() {
+    if (!email || resendStatus === "sending") return
+    setResendStatus("sending")
+    const supabase = createClient()
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    })
+    if (resendError) {
+      setResendStatus("error")
+    } else {
+      setResendStatus("sent")
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setNeedsResend(false)
+    setResendStatus("idle")
     setLoading(true)
 
     const supabase = createClient()
@@ -42,29 +88,52 @@ export function LoginForm() {
     })
 
     if (authError) {
-      setError(
-        authError.message === "Invalid login credentials"
-          ? "Correo o contraseña incorrectos. Por favor, verifica tus datos."
-          : "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
-      )
+      const isUnconfirmed = authError.message.toLowerCase().includes("email not confirmed")
+        || authError.message.toLowerCase().includes("email_not_confirmed")
+      setNeedsResend(isUnconfirmed)
+      setError(mapAuthError(authError.message))
       setLoading(false)
       return
     }
 
-    // Verificar rol para redirigir al panel correcto
+    // Verificar perfil para redirigir al panel correcto.
+    // Si el perfil no existe o no se puede leer (RLS), evitamos redirigir
+    // a una pantalla rota y mostramos un error claro.
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle()
+    if (!user) {
+      setError("No pudimos iniciar tu sesión. Inténtalo de nuevo.")
+      setLoading(false)
+      return
+    }
 
-      if (profile?.role === "admin") {
-        router.push("/admin")
-      } else {
-        router.push("/dashboard")
-      }
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role, is_active")
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    if (profileError) {
+      setError("Hubo un problema al cargar tu perfil. Contacta al administrador.")
+      setLoading(false)
+      return
+    }
+
+    if (!profile) {
+      setError("Tu cuenta no tiene un perfil asociado. Por favor contacta al administrador para que lo cree.")
+      setLoading(false)
+      return
+    }
+
+    if (profile.is_active === false) {
+      setError("Tu cuenta está desactivada. Contacta al administrador para reactivarla.")
+      setLoading(false)
+      // Cerrar sesión para evitar estado inconsistente
+      await supabase.auth.signOut()
+      return
+    }
+
+    if (profile.role === "admin") {
+      router.push("/admin")
     } else {
       router.push("/dashboard")
     }
@@ -93,7 +162,31 @@ export function LoginForm() {
             role="alert"
             className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
           >
-            {error}
+            <p>{error}</p>
+            {needsResend && (
+              <div className="mt-2">
+                {resendStatus === "sent" ? (
+                  <p className="text-xs font-semibold text-green-700">
+                    ✓ Te enviamos un nuevo correo de confirmación. Revisa tu bandeja.
+                  </p>
+                ) : resendStatus === "error" ? (
+                  <p className="text-xs text-red-600">
+                    No pudimos reenviar el correo. Intenta más tarde o contacta al administrador.
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendConfirmation}
+                    disabled={resendStatus === "sending" || !email}
+                    className="text-xs font-semibold text-[#2563eb] underline hover:text-[#1e40af] disabled:opacity-50"
+                  >
+                    {resendStatus === "sending"
+                      ? "Reenviando..."
+                      : "Reenviar correo de confirmación"}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
 
