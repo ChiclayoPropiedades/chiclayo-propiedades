@@ -36,7 +36,7 @@ export async function updateProfile(
         phone: input.phone.trim() || null,
         bio: input.bio.trim() || null,
       })
-      .eq("id", user.id);
+      .eq("user_id", user.id);
 
     if (error) {
       return { success: false, error: "Error al actualizar el perfil" };
