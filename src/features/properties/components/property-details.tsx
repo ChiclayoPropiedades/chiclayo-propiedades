@@ -4,7 +4,6 @@ import {
   Bed,
   Bath,
   Maximize2,
-  Home,
   Phone,
   User,
   MessageCircle,
@@ -16,6 +15,7 @@ import ReactMarkdown from "react-markdown";
 import { formatPrice } from "@/shared/lib/format";
 import { Property } from "../types";
 import { ContactForm } from "./contact-form";
+import { PropertyImageGallery } from "./property-image-gallery";
 
 interface PropertyDetailsProps {
   property: Property;
@@ -34,63 +34,6 @@ const operationLabels: Record<Property["operation"], string> = {
   venta: "En Venta",
   alquiler: "En Alquiler",
 };
-
-function ImageGallery({ property }: { property: Property }) {
-  const sorted = [...(property.property_images ?? [])].sort(
-    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
-  );
-  const coverImage = sorted.find((img) => img.is_cover) ?? sorted[0] ?? null;
-  const otherImages = sorted.filter((img) => img.id !== coverImage?.id);
-
-  if (!coverImage) {
-    return (
-      <div className="flex h-80 w-full items-center justify-center rounded-xl bg-gray-100">
-        <div className="flex flex-col items-center gap-3 text-gray-400">
-          <Home className="size-16" aria-hidden="true" />
-          <span className="text-sm">Sin imágenes disponibles</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      {/* Main cover image */}
-      <div className="relative overflow-hidden rounded-xl h-56 sm:h-72 lg:h-96">
-        <Image
-          src={coverImage.url}
-          alt={coverImage.alt_text ?? property.title}
-          fill
-          sizes="(max-width: 640px) 100vw, 100vw"
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      {/* All other images in a scrollable row on mobile, grid on desktop */}
-      {otherImages.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-x-visible sm:pb-0 lg:grid-cols-5">
-          {otherImages.map((img, index) => (
-            <div
-              key={img.id}
-              className="relative shrink-0 w-40 overflow-hidden rounded-xl sm:w-auto sm:aspect-[4/3]"
-            >
-              <div className="relative h-28 w-full sm:h-full">
-                <Image
-                  src={img.url}
-                  alt={img.alt_text ?? `Imagen ${index + 2} de ${property.title}`}
-                  fill
-                  sizes="(max-width: 640px) 160px, 25vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function PropertyDetails({ property }: PropertyDetailsProps) {
   const whatsappMessage = encodeURIComponent(
@@ -132,7 +75,10 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
         {/* Main column */}
         <div className="lg:col-span-2 flex flex-col gap-8">
           {/* Gallery */}
-          <ImageGallery property={property} />
+          <PropertyImageGallery
+            images={property.property_images ?? []}
+            propertyTitle={property.title}
+          />
 
           {/* Title + Price */}
           <div className="flex flex-col gap-3">
