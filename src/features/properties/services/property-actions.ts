@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { hasApprovedPlan, markPlanAsUsed } from "@/features/subscriptions/services/publication-actions";
 import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
+import { recalculateRankings } from "@/features/admin/services/admin-actions";
 
 function generateSlug(title: string): string {
   return (
@@ -149,10 +150,10 @@ export async function deleteOwnProperty(propertyId: string): Promise<{ success?:
     .single();
   if (!profile) return { error: "Perfil no encontrado" };
 
-  // Verificar que la propiedad pertenece al usuario (o es admin)
+  // Verificar que la propiedad pertenece al usuario (o es admin) y capturar slug.
   const { data: property } = await supabase
     .from("properties")
-    .select("agent_id")
+    .select("agent_id, slug")
     .eq("id", propertyId)
     .single();
 
@@ -167,8 +168,21 @@ export async function deleteOwnProperty(propertyId: string): Promise<{ success?:
   const { error } = await supabase.from("properties").delete().eq("id", propertyId);
   if (error) return { error: error.message };
 
+  // Invalidar listados públicos (ISR) y privados.
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  if (property.slug) revalidatePath(`/propiedades/${property.slug}`);
   revalidatePath("/dashboard/propiedades");
   revalidatePath("/admin/propiedades");
+  revalidatePath("/ranking");
+
+  // Borrar afecta properties_count del agente → recalcular ranking.
+  try {
+    await recalculateRankings();
+  } catch {
+    // No abortamos el delete si el recálculo falla.
+  }
+
   return { success: true };
 }
 

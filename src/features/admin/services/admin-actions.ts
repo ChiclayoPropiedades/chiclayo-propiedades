@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { createAdminClient } from "@/shared/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -191,19 +192,33 @@ export async function toggleUserActive(
   revalidatePath("/admin/usuarios");
 }
 
+const updateUserProfileSchema = z.object({
+  full_name: z.string().trim().min(1, "Nombre requerido").max(100),
+  phone: z.string().trim().max(20),
+  bio: z.string().trim().max(1000),
+  role: z.enum(["user", "agent", "admin"]),
+});
+
 export async function updateUserProfile(
   profileId: string,
   data: { full_name: string; phone: string; bio: string; role: string }
 ): Promise<{ success?: boolean; error?: string }> {
   await verifyAdmin();
+
+  const parsed = updateUserProfileSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+  const clean = parsed.data;
+
   const adminSupabase = createAdminClient();
 
   // Validar teléfono duplicado
-  if (data.phone.trim()) {
+  if (clean.phone) {
     const { data: existing } = await adminSupabase
       .from("profiles")
       .select("id")
-      .eq("phone", data.phone.trim())
+      .eq("phone", clean.phone)
       .neq("id", profileId)
       .limit(1);
 
@@ -213,8 +228,7 @@ export async function updateUserProfile(
   }
 
   // Normalizar nombre
-  const normalizedName = data.full_name
-    .trim()
+  const normalizedName = clean.full_name
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
@@ -222,9 +236,9 @@ export async function updateUserProfile(
     .from("profiles")
     .update({
       full_name: normalizedName,
-      phone: data.phone.trim() || null,
-      bio: data.bio.trim(),
-      role: data.role,
+      phone: clean.phone || null,
+      bio: clean.bio,
+      role: clean.role,
     })
     .eq("id", profileId);
 
@@ -232,6 +246,9 @@ export async function updateUserProfile(
 
   revalidatePath("/admin/usuarios");
   revalidatePath(`/admin/usuarios/${profileId}`);
+  // El cambio de role afecta el ranking público y la home.
+  revalidatePath("/ranking");
+  revalidatePath("/");
   return { success: true };
 }
 
@@ -751,10 +768,34 @@ export async function deleteService(id: string) {
 
 export async function deleteProperty(id: string) {
   const { supabase } = await verifyAdmin();
+
+  // Capturamos el slug antes de borrar para invalidar el detalle público.
+  const { data: prop } = await supabase
+    .from("properties")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
   await supabase.from("property_images").delete().eq("property_id", id);
   const { error } = await supabase.from("properties").delete().eq("id", id);
   if (error) return { error: error.message };
+
+  // Invalidar listados públicos (ISR) y privados.
+  revalidatePath("/");
+  revalidatePath("/propiedades");
+  if (prop?.slug) revalidatePath(`/propiedades/${prop.slug}`);
   revalidatePath("/admin/propiedades");
+  revalidatePath("/dashboard/propiedades");
+  revalidatePath("/ranking");
+  revalidatePath("/admin/ranking");
+
+  // Borrar afecta properties_count del agente → recalcular ranking.
+  try {
+    await recalculateRankings();
+  } catch {
+    // No abortamos el delete si el recálculo falla.
+  }
+
   return { success: true };
 }
 

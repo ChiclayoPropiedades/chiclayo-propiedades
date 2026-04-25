@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Save, Loader2, KeyRound, Eye, EyeOff, Camera, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -33,6 +34,7 @@ export function EditUserForm({
   userId,
   initialData,
 }: EditUserFormProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -56,6 +58,7 @@ export function EditUserForm({
     } else if (result.url) {
       setAvatarUrl(result.url);
       toast.success("Foto actualizada");
+      router.refresh();
     }
     setUploading(false);
   }
@@ -68,6 +71,7 @@ export function EditUserForm({
     } else {
       setAvatarUrl("");
       toast.success("Foto eliminada");
+      router.refresh();
     }
     setUploading(false);
   }
@@ -88,6 +92,7 @@ export function EditUserForm({
         toast.error(result.error);
       } else {
         toast.success("Datos actualizados");
+        router.refresh();
       }
     });
   }
