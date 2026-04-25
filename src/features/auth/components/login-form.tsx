@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
@@ -48,8 +48,27 @@ function mapAuthError(rawMessage: string): string {
   return "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
 }
 
+/**
+ * Mapea errores que llegan por query string desde el callback de auth
+ * (`/login?error=...`).
+ */
+function mapCallbackError(code: string | null): string | null {
+  if (!code) return null
+  switch (code) {
+    case "auth":
+      return "El enlace de verificación no es válido o ya expiró. Inicia sesión con tu correo y contraseña, o solicita un nuevo enlace."
+    case "inactive":
+      return "Tu cuenta está desactivada. Contacta al administrador para reactivarla."
+    case "profile":
+      return "Hubo un problema al crear tu perfil. Por favor contacta al administrador."
+    default:
+      return null
+  }
+}
+
 export function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -58,6 +77,12 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [needsResend, setNeedsResend] = useState(false)
   const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+
+  // Mostrar errores que llegan desde el callback (ej. /login?error=inactive).
+  useEffect(() => {
+    const callbackError = mapCallbackError(searchParams.get("error"))
+    if (callbackError) setError(callbackError)
+  }, [searchParams])
 
   async function handleResendConfirmation() {
     if (!email || resendStatus === "sending") return
@@ -88,6 +113,9 @@ export function LoginForm() {
     })
 
     if (authError) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[auth] signInWithPassword error:", authError.message)
+      }
       const isUnconfirmed = authError.message.toLowerCase().includes("email not confirmed")
         || authError.message.toLowerCase().includes("email_not_confirmed")
       setNeedsResend(isUnconfirmed)
@@ -113,6 +141,9 @@ export function LoginForm() {
       .maybeSingle()
 
     if (profileError) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[auth] profile select error:", profileError.message)
+      }
       setError("Hubo un problema al cargar tu perfil. Contacta al administrador.")
       setLoading(false)
       return
