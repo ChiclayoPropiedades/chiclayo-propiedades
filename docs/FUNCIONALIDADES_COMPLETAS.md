@@ -1,6 +1,6 @@
 # FUNCIONALIDADES COMPLETAS — Chiclayo Propiedades
 
-> Documento de contexto exhaustivo del sistema. Ultima actualizacion: 2026-04-12
+> Documento de contexto exhaustivo del sistema. Ultima actualizacion: 2026-04-25
 
 ---
 
@@ -89,7 +89,8 @@ src/
 
 ### 3.3 Propiedades — Detalle (`/propiedades/[slug]`)
 - **Tipo**: Server Component (async)
-- **Contenido**: Galeria de imagenes, datos completos, info del agente, formulario de contacto (genera lead)
+- **Contenido**: Galería de imágenes con **lightbox modal clickeable** (todos los thumbnails abren la imagen en grande), datos completos, info del agente, formulario de contacto (genera lead)
+- **Galería interactiva** (desde 2026-04-25, commit `8ac27ac`): Componente `PropertyImageGallery` (Client). Click en imagen principal o thumbnail abre Dialog con la foto en grande. Navegación circular con flechas (botones + teclado ←/→). Esc o botón ✕ cierra. Contador "X de N" visible. Funciona para todos los roles (visitante anónimo, comprador, agente, vendedor, super admin).
 - **SEO**: JSON-LD Property schema, metadata dinamica
 - **404**: Si no existe o no esta activa
 
@@ -120,10 +121,13 @@ src/
 - **Metodos de pago para inscripcion**: WhatsApp (manual), Stripe, MercadoPago
 
 ### 3.8 Ranking (`/ranking`)
-- **Tipo**: Server Component (async)
-- **Contenido**: Podio visual (top 3) + tabla completa de agentes
-- **Datos**: Avatar, nombre, ventas, monto total
-- **Filtro**: Solo agentes activos con suscripcion activa
+- **Tipo**: Server Component (async) + tabla en Client Component
+- **Contenido**: Podio visual (top 3) + tabla completa con paginación
+- **Podio (top 3)**: Solo agentes con `sales_count > 0`. Usa función `getRankings()`.
+- **Tabla** (desde 2026-04-25, commit `5599562`): Muestra TODOS los agentes activos con suscripción vigente, **incluso los de 0 ventas** (al final). Paginada de 5 en 5 (`<RankingTable />` Client Component). Posición global consistente entre páginas. Usa función `getAllAgentsForRanking()`.
+- **Datos**: Avatar, nombre, ventas, monto total, propiedades
+- **Filtro**: `role=agent`, `is_active=true`, suscripción `status=active` y `expires_at >= now()`
+- **EmptyState** si no hay agentes activos con suscripción.
 
 ### 3.9 Servicios (`/servicios`)
 - **Tipo**: Server Component (estatico)
@@ -149,8 +153,9 @@ src/
 
 ### 4.1 Login (`/login`)
 - Email + password con toggle de visibilidad
-- Redireccion por rol: admin → `/admin`, otros → `/dashboard`
-- Link a recuperacion de contrasena
+- Redirección por rol: admin → `/admin`, otros → `/dashboard`
+- Link a recuperación de contraseña
+- **Manejo de errores mejorado** (desde 2026-04-25, commit `5599562`): Mensajes específicos en español para 6 casos: credenciales inválidas, **email no confirmado** (con botón "Reenviar correo de confirmación" via `supabase.auth.resend`), usuario no encontrado, rate limit, error de red, error de DB. Validación adicional tras login: si `profile` es null o `is_active=false`, muestra mensaje claro y NO redirige a dashboard roto (evita pantallas en blanco). Si la cuenta está desactivada, hace `signOut()` automático para evitar estado inconsistente.
 
 ### 4.2 Signup (`/signup`)
 - Selector de tipo: "Usuario" (comprador/vendedor) o "Agente inmobiliario"
@@ -183,6 +188,7 @@ src/
 - **Usuarios basicos**: Muestra estado de solicitud de publicacion (pendiente/aprobada/rechazada)
 - **Agentes**: Lista de sus propiedades
 - **Admin**: Ve todas las propiedades
+- **Eliminar propiedad** (Sesión 7, commit `f72c58a`): la action `deleteOwnProperty` (y `deleteProperty` en admin) ahora invalidan TODAS las rutas afectadas por ISR/cache: `/`, `/propiedades`, `/propiedades/[slug]`, `/dashboard/propiedades`, `/admin/propiedades`, `/ranking` (y `/admin/ranking` solo en admin). Se llama también `recalculateRankings()` porque borrar una propiedad activa cambia `properties_count` del agente. Antes la propiedad seguía visible hasta 60s/300s en público
 
 ### 5.3 Nueva Propiedad (`/dashboard/propiedades/nueva`)
 - **Logica de acceso**:
@@ -246,8 +252,12 @@ src/
 - Stats rapidos: Propiedades, Leads, Ventas
 - Gestion de suscripcion (si es agente): Extender, activar, desactivar
 - Solicitudes de publicacion (si es usuario)
-- Formulario de edicion
+- Formulario de edicion (full_name, phone, bio, role + avatar + reset password)
 - Tabs: Propiedades y Consultas del usuario
+- **Sesión 7 (commit `f72c58a`):**
+  - El form llama `router.refresh()` tras cada toast de éxito (datos, avatar subido, avatar eliminado) para reflejar la normalización del nombre y nuevos valores sin F5 manual.
+  - `updateUserProfile` valida con Zod schema (full_name min 1 max 100, phone max 20, bio max 1000, role enum estricto `user`/`agent`/`admin`) antes del UPDATE. Bloquea DOM mutation attacks.
+  - El cambio de role invalida `/ranking` y `/` además de `/admin/usuarios/*`
 
 ### 6.4 Propiedades (`/admin/propiedades`)
 - Tabla de solicitudes de publicacion pendientes
@@ -312,8 +322,13 @@ src/
 ## 7. API Routes (4 endpoints)
 
 ### 7.1 Auth Callback (`GET /api/auth/callback`)
-- Intercambia codigo OAuth por sesion de Supabase
-- Redirige a la app o a login con error
+- Intercambia codigo OAuth por sesion de Supabase (`exchangeCodeForSession`)
+- **Validación de profile** (Sesión 7, commit `18ff884`):
+  - Tras intercambiar el code, lee profile con `createAdminClient()` (service role) para no depender de RLS.
+  - Si profile NO existe → llama `ensureProfileExists(user)` (server action idempotente con `INSERT ... ON CONFLICT (user_id) DO NOTHING`). Toma `full_name`, `phone`, `role` de `user.user_metadata`. Red de seguridad por si el trigger `on_auth_user_created` falla.
+  - Si profile existe pero `is_active=false` → cierra sesión (`signOut`) y redirige a `/login?error=inactive`.
+  - Si todo OK → redirige a `next` (default `/dashboard`).
+- Errores reportados al login-form vía query: `?error=auth` (link inválido), `?error=inactive` (cuenta desactivada), `?error=profile` (no se pudo crear perfil)
 
 ### 7.2 Sign Out (`POST /api/auth/signout`)
 - Cierra sesion de Supabase
@@ -453,10 +468,15 @@ modality:        'presencial' | 'online' | 'virtual'
 ```
 
 ### Seguridad (RLS)
-- 42 Row Level Security policies en total
+- 43 Row Level Security policies en total (42 originales + `profiles_select_own` agregada en Sesión 7)
 - Funcion `is_admin()` para verificar rol admin
 - Patron: Lectura publica para contenido activo, escritura restringida por propietario/rol
 - Admin client (service_role) para operaciones que bypasean RLS
+- **Policies en `public.profiles` (4):**
+  - `profiles_select_public` USING (is_active = true) — lectura pública de agentes activos
+  - `profiles_select_own` USING (user_id = auth.uid()) — **safety net** para que cada usuario lea su propio perfil aún si is_active=false (necesario para mostrar mensaje "cuenta desactivada" en login)
+  - `profiles_update_own` USING (user_id = auth.uid()) — usuario puede editar su propio perfil
+  - `profiles_update_admin` USING (is_admin()) — admin puede editar cualquier perfil
 
 ### Triggers
 - `on_auth_user_created`: Crea automaticamente un perfil cuando un usuario se registra en Supabase Auth

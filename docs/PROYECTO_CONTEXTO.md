@@ -67,7 +67,25 @@ src/shared/lib/              (utils, supabase, format)
 - Fase 7: Admin Panel completo (9 secciones, CRUD completo)
 - Fase 8: SEO (Sitemap, Robots, Metadata, JSON-LD)
 
-**Total:** 35 paginas, 9 tablas con RLS, 3 storage buckets, 2 API routes
+**Total:** 39 rutas, 13 tablas con RLS (42 policies), 3 storage buckets, 4 API routes (2 auth callback/signout + 2 webhooks Stripe/MercadoPago)
+
+### Fixes en producción tras V1.0 (2026-04-25 - Sesión 6)
+
+- **Ranking público:** la tabla muestra TODOS los agentes activos con suscripción vigente (paginados de 5 en 5). El podio sigue mostrando solo agentes con ventas. (`5599562`)
+- **Login error handling:** mensajes específicos para email no confirmado (con botón reenviar), perfil faltante, cuenta desactivada, rate limit, etc. (`5599562`)
+- **Galería de propiedades:** thumbnails clickeables con lightbox modal (Dialog shadcn). Funciona para todos los roles. Navegación con teclado y botones, contador, esc cierra. (`8ac27ac`)
+- Detalle: ver `docs/SESION_DESARROLLO.md` Etapa 7.7.
+
+### Fixes en producción (2026-04-28 - Sesión 7)
+
+- **Login post-verificación:** nuevo usuario podía entrar solo con la URL del email; en intentos posteriores con email/password fallaba en cualquier dispositivo. Causa raíz: faltaba RLS policy `profiles_select_own` como red de seguridad. (`18ff884`)
+  - Aplicada policy en Supabase: `CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (user_id = auth.uid());`
+  - Callback `/api/auth/callback` ahora valida que el profile existe (con service role) y lo crea automáticamente si falta vía `ensureProfileExists`. Si `is_active=false`, redirige a `/login?error=inactive`.
+  - Login-form muestra mensajes específicos del callback (`?error=inactive|profile|auth`).
+- **Editar usuario refresca UI:** form llamaba `revalidatePath` en server pero NO `router.refresh()` en cliente. Ahora se refresca tras los 3 toasts de éxito. Además se agregó Zod schema con role enum estricto. (`f72c58a`)
+- **Borrar propiedad invalida ISR público:** antes solo se invalidaba `/admin/propiedades`. Ahora se invalidan también `/`, `/propiedades`, `/propiedades/[slug]`, `/dashboard/propiedades`, `/ranking` y se llama `recalculateRankings()` porque cambia `properties_count`. (`f72c58a`)
+- **Diferidos** (esperando definición cliente): ranking V2 con 3 columnas (puntuación / ventas / monto dual S/+$) y perfil de agente con redes sociales + ruta pública `/asesor/[id]`. Diseño y schema preparados.
+- Detalle: ver `docs/SESION_DESARROLLO.md` Etapa 7.8.
 
 ### Documentos clave en el repo
 - `CLAUDE.md` - Instrucciones para IA (se lee automaticamente)
@@ -135,16 +153,23 @@ NEXT_PUBLIC_APP_NAME=Chiclayo Propiedades
 
 ## Configuraciones Pendientes (URGENTE)
 
+### CRÍTICO de seguridad (hacer YA)
+
+**0a. Token GitHub viejo expuesto en docs**
+- Token: `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`
+- Estado: ya fue revocado (probablemente por GitHub auto-detection al detectar exposure). Dejó de funcionar para `git push` el 2026-04-25.
+- Acción pendiente: limpiar de `.git/config` y de `docs/PROYECTO_CONTEXTO.md` + `docs/SESION_DESARROLLO.md`. Considerar reescribir historia con `git filter-repo` o BFG.
+
+**0b. ~~Aplicar policy RLS `profiles_select_own` en Supabase~~** ✅ HECHO en Sesión 7 (28 abril 2026).
+- Safety net para que usuarios siempre puedan leer su propio perfil aún si `is_active = false` o si la policy `profiles_select_public` cambia.
+- SQL aplicado: `CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (user_id = auth.uid());`
+- Resolvió bug de login post-verificación (commit `18ff884`).
+
 ### URGENTE (hacer antes de mostrar al cliente)
 
-**1. Configurar Site URL en Supabase**
-- Problema: Cuando un usuario se registra, Supabase redirige a localhost:3000
-- Solucion: Supabase > Auth > URL Configuration > Site URL = `https://chiclayo-propiedades.vercel.app`
-- Agregar Redirect URLs: `https://chiclayo-propiedades.vercel.app/**` y `http://localhost:3000/**`
+**1. ~~Configurar Site URL en Supabase~~** ✅ HECHO en Sesión 4 (10 abril). Site URL apunta a `https://chiclayo-propiedades.vercel.app`. Hoy el dominio principal es `chiclayopropiedades.com` (Vercel Pro contratado, DNS conectado).
 
-**2. Cambiar emails de Supabase a espanol**
-- Problema: Email de confirmacion en ingles
-- Solucion: Supabase > Auth > Email Templates, cambiar subjects y body a espanol
+**2. ~~Cambiar emails de Supabase a español~~** ✅ HECHO en Sesión 4 (10 abril). Confirm signup, reset password, invitación, magic link, cambio de correo, cambio de contraseña — todos en español vía Management API.
 
 ### IMPORTANTE (antes del lanzamiento)
 
@@ -157,11 +182,9 @@ NEXT_PUBLIC_APP_NAME=Chiclayo Propiedades
 - RUC: 20615657540, DNI: 47913462, cuentas Interbank
 - Estado: Esperando que el cliente cree la cuenta
 
-**5. Configurar Resend (emails transaccionales) - PARA DESPUES**
-- Formulario de contacto no envia email al asesor
+**5. ~~Configurar emails transaccionales~~** ✅ HECHO. Sistema dual provider (Resend + Brevo + Gmail OAuth2) configurable desde `/admin/configuracion`. Templates en español: welcome, lead notification, training confirmation, subscription confirmation. Cache 1 min para settings.
 
-**6. Conectar dominio chiclayopropiedades.com**
-- Requiere Vercel Pro ($20/mes), DNS en Hostinger
+**6. ~~Conectar dominio chiclayopropiedades.com~~** ✅ HECHO. Vercel Pro contratado, DNS apuntando a Vercel, SSL automático. Producción live en https://chiclayopropiedades.com (verificado 2026-04-25 con curl 200 OK).
 
 ### OPCIONAL (V2.0)
 

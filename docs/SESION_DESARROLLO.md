@@ -315,6 +315,204 @@ Lee todos los .md y dime qué sigue según el plan.
 | 7.84 | RLS: role_upgrade_requests | ✅ | Users read/insert own, admin read/update all |
 | 7.85 | RLS: training_enrollments INSERT | ✅ | Policy para que users puedan crear enrollments |
 
+### ETAPA 7.7: Sesión 6 - 25 Abril 2026 - Fixes producción + auditoría completa
+
+**Contexto:** Sesión asistida por Claude. El proyecto ya está conectado a `chiclayopropiedades.com` (Vercel Pro contratado). Se sincronizó local con GitHub (8 commits del 12 al 16 abril que estaban en remoto). Se mapeó la estructura completa del código (53 rutas, 10 features, ~12 archivos en shared/lib) y se actualizó memoria local de Claude (10 archivos `.md` en `.claude/projects/...`).
+
+#### 7.7.1 — Fix RANKING: tabla muestra todos los agentes
+
+**Reporte cliente:** En `/ranking`, la tabla inferior solo mostraba agentes con ventas. Cliente pidió que aparezcan TODOS los agentes activos con suscripción vigente, paginados de 5 en 5. El podio (top 3 con trofeos) sí debe mantenerse solo para agentes con ventas.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.7.1.1 | Nueva función `getAllAgentsForRanking()` | ✅ | `src/features/ranking/services/get-rankings.ts`. Devuelve todos los agentes con suscripción vigente, ordenados por score (los de 0 ventas al final). 3 queries: subscriptions activas → profiles agentes activos → rankings existentes. Merge con defaults para agentes sin ranking row. |
+| 7.7.1.2 | Función `getRankings()` original mantenida | ✅ | Sigue devolviendo solo agentes con ventas (uso: podio + sección home). Refactor a helpers `isValidAgent()` y `getAdminSupabase()`. |
+| 7.7.1.3 | Nuevo Client Component `RankingTable` | ✅ | `src/features/ranking/components/ranking-table.tsx`. Tabla con paginación 5 por página, prev/next con `ChevronLeft/Right`, posición global consistente entre páginas (1, 2, 3, 4, 5, **6**, 7...), aria-labels, accessibility. |
+| 7.7.1.4 | Refactor `/ranking/page.tsx` | ✅ | Usa `getAllAgentsForRanking()`. Podio = `allAgents.filter(r => r.sales_count > 0).slice(0, 3)`. Tabla = `<RankingTable rankings={allAgents} />`. EmptyState si no hay agentes. |
+
+#### 7.7.2 — Fix LOGIN: mejor manejo de errores global
+
+**Reporte cliente:** Una usuaria nueva ("Angela Senmache") no podía iniciar sesión, salía solo "error" genérico sin explicación. Cliente pidió fix global para que no vuelva a pasar.
+
+**Diagnóstico:** El form solo distinguía `"Invalid login credentials"` y para todo lo demás mostraba el mensaje genérico "Ocurrió un error al iniciar sesión. Inténtalo de nuevo." Esto ocultaba al usuario causas reales como email no confirmado, perfil faltante, cuenta desactivada, rate limit, etc.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.7.2.1 | Función `mapAuthError()` con 6 casos | ✅ | `src/features/auth/components/login-form.tsx`. Cubre: invalid credentials, email not confirmed, user not found, rate limit, network/fetch, database/server error, fallback genérico. Mensajes en español claros. |
+| 7.7.2.2 | Botón "Reenviar correo de confirmación" | ✅ | Aparece solo cuando el error es "email not confirmed". Llama a `supabase.auth.resend({ type: 'signup', email })`. Estados: idle / sending / sent / error con feedback visual. |
+| 7.7.2.3 | Validación de profile null | ✅ | Si `.maybeSingle()` retorna null tras login exitoso, muestra mensaje claro y NO redirige a dashboard roto. |
+| 7.7.2.4 | Validación de `profile.is_active === false` | ✅ | Mensaje claro + `supabase.auth.signOut()` automático para evitar estado inconsistente. |
+| 7.7.2.5 | Validación de profileError | ✅ | Si Supabase devuelve error en el query (no solo null), mensaje específico. |
+
+#### 7.7.3 — Fix GALERÍA: thumbnails clickeables con lightbox
+
+**Reporte cliente:** En `/propiedades/[slug]`, las miniaturas debajo de la imagen principal NO eran clickeables. Solo se veía la primera foto en grande. Cliente pidió que cualquier rol (visitante, comprador, agente, vendedor, super admin) pueda dar click a cualquier foto y verla en grande.
+
+**Causa raíz:** Los thumbnails en `property-details.tsx:73-87` se renderizaban dentro de un `<div>` SIN `onClick` ni `<button>`. La imagen principal estaba hardcodeada al cover, sin state que permita cambiarla. El bug se hizo evidente tras commit `c0c5b9b` (12 abril) que mostró TODAS las imágenes en lugar de solo 2.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.7.3.1 | Nuevo Client Component `PropertyImageGallery` | ✅ | `src/features/properties/components/property-image-gallery.tsx`. Lightbox modal con shadcn `Dialog`. Click en imagen principal o cualquier thumbnail abre lightbox en su index. Hover hint "Ver en grande" con icono `ZoomIn`. |
+| 7.7.3.2 | Navegación en lightbox | ✅ | Botones flecha izq/der (`ChevronLeft/Right`) circular. Soporte teclado: ←/→ navegan, Esc cierra (manejado por base-ui Dialog), botón X cierra. Contador "X de N" con `aria-live="polite"`. |
+| 7.7.3.3 | Refactor `property-details.tsx` | ✅ | Eliminada la función local `ImageGallery`. Importa `PropertyImageGallery`. PropertyDetails sigue siendo Server Component (no necesita `"use client"`). |
+| 7.7.3.4 | Optimizaciones tras audit con skill `simplify` | ✅ | `useMemo` en `orderedImages` (evita re-sort cada render), conditional mount del lightbox content (no preloadea cuando cerrado), `sizes` optimizados (66vw desktop hero, 20vw thumbnails), defensive clamp de `currentIndex` contra mutaciones de `images`, `NavButton` className compartido (DRY), JSX flatten en thumbnails. |
+
+#### 7.7.4 — Mantenimiento
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.7.4.1 | `git pull` de 8 commits remotos | ✅ | Local estaba 8 commits detrás. Fast-forward limpio de `c0c5b9b` → `73de678`. |
+| 7.7.4.2 | Mapeo completo de estructura del código | ✅ | 53 archivos de rutas, 10 features (admin más grande con `admin-actions.ts` 1094 líneas), 17 shadcn UI + 3 layout + 3 animated + 6 sections, 4 clientes Supabase, 3 providers email (Resend + Brevo + Gmail). |
+| 7.7.4.3 | Memoria local Claude actualizada | ✅ | 10 archivos `.md` en `C:\Users\Keybidigital\.claude\projects\C--KEYBIDIGITAL-DEV-Chilayo-Propiedades\memory\`: producción crítica, token expuesto, estado V1.0, diseño cliente, build memory, Next.js 16 docs, middleware ISR, admin-actions split, no migrations, índice de docs. |
+| 7.7.4.4 | Token GitHub viejo revocado | ✅ | `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` (en `.git/config` y `docs/PROYECTO_CONTEXTO.md`) dejó de funcionar para `git push` (probablemente auto-revocado por GitHub al detectar exposure). Generado nuevo PAT `github_pat_11CBO7R5...` (expira 30 días, scope `repo`). El nuevo se usó solo en URL de comando, NO se guardó en `.git/config`. |
+| 7.7.4.5 | Auditoría con skill `simplify` post-galería | ✅ | 3 agentes paralelos (reuse, quality, efficiency) revisaron el nuevo componente. Aplicados fixes: useMemo, conditional mount, sizes, clamp, NavButton, flatten JSX. |
+
+#### Commits en producción (deployed en Vercel)
+
+```
+8ac27ac fix: galeria de propiedades con lightbox clickeable para todos los roles
+a24c6c7 fix: revertir require() a dynamic import en get-rankings
+5599562 fix: ranking muestra todos los agentes activos + login con mejor manejo de errores
+```
+
+Todos verificados en https://chiclayopropiedades.com con `curl` (200 OK, 1.2-1.5s).
+
+#### Pendientes acumulados (NO resueltos en esta sesión)
+
+| # | Pendiente | Por qué quedó pendiente |
+|---|-----------|--------------------------|
+| 7.7.P1 | Aplicar policy RLS `profiles_select_own` en Supabase como safety net | Requiere acceso al MCP Supabase con `SUPABASE_ACCESS_TOKEN` (no provisto). Alternativa: ejecutar en SQL Editor: `CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (user_id = auth.uid());` |
+| 7.7.P2 | Diagnóstico final de Angela Senmache | Faltan datos: `profile_id`, `role`, `is_active`, `full_name` (columnas truncadas en screenshot del cliente). Y queries 2 (otros usuarios afectados) + 3 (RLS policies actuales). |
+| 7.7.P3 | Limpiar token GitHub viejo de docs y `.git/config` | Token viejo está revocado pero sigue en disco en 3 lugares. Cliente prefirió dejar el archivo `token github.txt` por ahora. |
+
+### ETAPA 7.8: Sesión 7 - 28 Abril 2026 - Fixes login post-verificación + edit usuario + delete propiedad ISR
+
+**Contexto:** El cliente reporta 5 problemas en producción (`chiclayopropiedades.com`, V1.0 + Sesión 6). Se decide implementar **3 bugs bloqueantes** en esta sesión. El rediseño del ranking (3 columnas puntuación/competencia/ventas + dual S/+$) y los campos sociales del perfil de agente quedan **diferidos** esperando definición final del cliente — diseño y schema preparados.
+
+**Bugs reportados:**
+1. Editar usuario desde admin no persistía cambios visualmente.
+2. Borrar propiedad: la propiedad seguía apareciendo en listados públicos.
+3. Ranking 1-10 debería mostrar puntuación / competencia / ventas + monto S/ y $.
+4. Perfil de agente sin campos de redes sociales / página web.
+5. Login post-verificación: nuevo usuario solo entraba con la URL del email; en intentos posteriores con email/password fallaba en cualquier dispositivo.
+
+#### 7.8.1 — Fix LOGIN post-verificación (CRÍTICO)
+
+**Diagnóstico (validado leyendo código):** RLS de `public.profiles` tenía solamente `profiles_select_public USING (is_active = true)`, `profiles_update_own`, `profiles_update_admin`. **No existía** `profiles_select_own` (la safety net pendiente desde Sesión 6, P1). En `login-form.tsx:109-113` el SELECT usa el cliente browser con la JWT del usuario; si por cualquier razón `is_active` no es `true` (race condition con trigger, edge case, futura restricción) el form muestra "Tu cuenta no tiene un perfil asociado" y bloquea acceso. El URL del email funciona porque `exchangeCodeForSession` en el callback bypasa el chequeo de profile.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.8.1.1 | Aplicar policy `profiles_select_own` en Supabase Dashboard | ✅ | SQL: `CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (user_id = auth.uid());`. Aplicada por el cliente desde SQL Editor (https://supabase.com/dashboard/project/nukwnntnuxlwlmostqqx/sql/new). Aditivo, sin riesgo. |
+| 7.8.1.2 | Reforzar callback `/api/auth/callback` | ✅ | `src/app/api/auth/callback/route.ts`. Tras `exchangeCodeForSession`: obtiene `user`, lee profile con `createAdminClient()` (service role para no depender de RLS), si no existe llama a `ensureProfileExists`, si `is_active=false` cierra sesión y redirige a `/login?error=inactive`. |
+| 7.8.1.3 | Nueva server action `ensureProfileExists` | ✅ | `src/features/auth/services/ensure-profile.ts` (archivo nuevo, fuera de `admin-actions.ts` por regla de proyecto). Idempotente: si profile ya existe no toca; si no, INSERT con service role tomando `full_name`, `phone`, `role` de `user.user_metadata`. Maneja `error.code === "23505"` (conflict por race con el trigger). |
+| 7.8.1.4 | Login form maneja `?error=` del callback | ✅ | `src/features/auth/components/login-form.tsx`. Función `mapCallbackError(code)` cubre: `auth` (link inválido/expirado), `inactive` (cuenta desactivada), `profile` (problema al crear perfil). `useEffect` lee `useSearchParams` y muestra el mensaje. |
+| 7.8.1.5 | Suspense boundary en `/login` | ✅ | `src/app/(auth)/login/page.tsx` envuelto en `<Suspense fallback={null}>` porque `useSearchParams` requiere prerender estático con CSR bailout. |
+| 7.8.1.6 | Logs de debug en dev | ✅ | En `login-form.tsx`, `console.warn("[auth] ...", error.message)` solo cuando `NODE_ENV === "development"`. No expone detalles en producción. |
+
+#### 7.8.2 — Fix EDIT USUARIO refresca UI tras guardar
+
+**Diagnóstico:** `updateUserProfile` en `admin-actions.ts:194-236` ya hacía UPDATE OK + `revalidatePath("/admin/usuarios")` y `/admin/usuarios/${profileId}`. El bug era 100% client-side: el form usa `defaultValue={initialData.full_name}` (uncontrolled) y NO llamaba `router.refresh()` tras `toast.success`. El server tenía data nueva pero el cliente seguía renderizando con el initialData original hasta navegar manualmente.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.8.2.1 | `router.refresh()` tras toast en 3 handlers | ✅ | `src/features/admin/components/edit-user-form.tsx`. Importa `useRouter` de `next/navigation`. Llama `router.refresh()` después de `toast.success("Datos actualizados")`, `toast.success("Foto actualizada")` y `toast.success("Foto eliminada")`. |
+| 7.8.2.2 | Zod schema en `updateUserProfile` | ✅ | `src/features/admin/services/admin-actions.ts:194-236`. Schema: `full_name` min 1 max 100, `phone` max 20, `bio` max 1000, `role` enum ["user","agent","admin"]. Bloquea DOM mutation attacks que cambien role a string arbitrario. |
+| 7.8.2.3 | revalidatePath ampliado | ✅ | `updateUserProfile` ahora también invalida `/ranking` y `/` porque cambio de role afecta ranking público (user→agent o agent→user). |
+
+#### 7.8.3 — Fix DELETE PROPIEDAD invalida ISR público
+
+**Diagnóstico:** `deleteProperty` (admin-actions.ts:752-759) hacía DELETE real + `revalidatePath("/admin/propiedades")` solamente. `deleteOwnProperty` (property-actions.ts:138-173) revalidaba `/dashboard/propiedades` y `/admin/propiedades`. Las rutas públicas con ISR (`/propiedades` rev=60s, `/propiedades/[slug]` rev=300s, `/`, `/ranking`) seguían sirviendo la propiedad borrada hasta que el cache expirara.
+
+| # | Tarea | Estado | Detalle |
+|---|-------|--------|---------|
+| 7.8.3.1 | Capturar slug antes de DELETE | ✅ | Antes del `.delete()` ambas funciones hacen un `select("slug").eq("id", id).maybeSingle()` para usar el slug en `revalidatePath` del detalle. |
+| 7.8.3.2 | revalidatePath ampliado en `deleteProperty` | ✅ | Invalida: `/`, `/propiedades`, `` /propiedades/${slug} ``, `/admin/propiedades`, `/dashboard/propiedades`, `/ranking`, `/admin/ranking`. |
+| 7.8.3.3 | revalidatePath ampliado en `deleteOwnProperty` | ✅ | Invalida las 6 mismas rutas públicas/privadas (sin `/admin/ranking` porque el agente no la consume). |
+| 7.8.3.4 | Recalcular ranking tras delete | ✅ | Ambas funciones llaman `recalculateRankings()` envuelto en try/catch (no aborta el delete si falla). Borrar una propiedad activa cambia `properties_count` del agente. Trade-off aceptado: la operación tarda ~1-3s extra. |
+| 7.8.3.5 | Cross-import sin ciclo | ✅ | `property-actions.ts` ahora importa `recalculateRankings` desde `@/features/admin/services/admin-actions`. Verificado que `admin-actions` no importa de `property-actions` → sin import circular. Build pasó. |
+
+#### 7.8.4 — Defer (NO implementado en esta sesión, planificado para futura)
+
+| # | Pendiente | Estado | Razón |
+|---|-----------|--------|--------|
+| 7.8.4.1 | Ranking con 3 columnas (puntuación / ventas / monto dual S/+$) | ⏸️ Diferido | Cliente respondió "eso del ranking la puntuación no aplica en esta sesión". Diseño completo preparado: score compuesto multifactor (`sales*100 + sqrt(monto/1000) + props*5 + inquiries`), schema dual `total_sales_amount_pen` + `total_sales_amount_usd` en `agent_rankings`, lectura de `usd_to_pen_rate` desde `platform_settings` (FIX al hardcode actual de 3.7 en `recalculateRankings`). |
+| 7.8.4.2 | Perfil de agente con redes sociales + ruta pública `/asesor/[id]` | ⏸️ Diferido | Cliente respondió "luego" tanto en ruta como en permisos. Schema preparado: `ALTER TABLE profiles ADD COLUMN social_facebook/instagram/linkedin/tiktok/youtube/social_x/website TEXT`. Form en `/dashboard/perfil` ampliable. Página pública `/asesor/[id]` diseñada con Server Component, ISR=300s, `generateStaticParams`, redes con iconos lucide, propiedades del agente. |
+
+#### Commits en producción (deployed en Vercel)
+
+```
+18ff884 fix: login post-verificacion permite acceso en cualquier dispositivo
+f72c58a fix: editar usuario refresca UI y delete propiedad invalida ISR publico
+```
+
+Build local pasó: `npm run typecheck` sin errores, `NODE_OPTIONS="--max-old-space-size=4096" npm run build` compiló las 77 rutas. Push a `main` exitoso (`8ac27ac..f72c58a`). Vercel desplegó automáticamente.
+
+#### Archivos modificados (esta sesión)
+
+| Archivo | Tipo | Líneas |
+|---------|------|--------|
+| `src/app/api/auth/callback/route.ts` | Modificado | +52 −2 (validación profile + ensureProfileExists + redirect inactive) |
+| `src/features/auth/services/ensure-profile.ts` | **Nuevo** | +60 (server action con service role, idempotente) |
+| `src/features/auth/components/login-form.tsx` | Modificado | +35 −2 (mapCallbackError, useEffect+useSearchParams, logs dev) |
+| `src/app/(auth)/login/page.tsx` | Modificado | +6 −2 (Suspense boundary) |
+| `src/features/admin/components/edit-user-form.tsx` | Modificado | +6 −0 (useRouter + 3× router.refresh) |
+| `src/features/admin/services/admin-actions.ts` | Modificado | +35 −10 (Zod schema + revalidatePath ampliado en update y delete + recalculateRankings) |
+| `src/features/properties/services/property-actions.ts` | Modificado | +20 −4 (slug capture + revalidatePath ampliado + import recalculate) |
+
+#### Pendientes acumulados (NO resueltos en esta sesión)
+
+| # | Pendiente | Por qué quedó pendiente |
+|---|-----------|--------------------------|
+| 7.8.P1 | Diagnóstico final de Angela Senmache (heredado de 7.7.P2) | No se reabrió en esta sesión. La policy `profiles_select_own` aplicada como safety net debería resolver el bug en general. Verificar con la usuaria si vuelve a tener problemas. |
+| 7.8.P2 | Limpiar token GitHub viejo de docs y `.git/config` (heredado de 7.7.P3) | Sigue pendiente. `docs/PROYECTO_CONTEXTO.md` línea ~ y `docs/SESION_DESARROLLO.md` líneas 21, 39, 367 contienen el token revocado `ghp_WTNTnuW6...`. `.git/config` también. NO se pegó el token nuevo en docs en esta sesión (decisión: tokens vivos solo en CLAUDE.md y memoria local). |
+| 7.8.P3 | Implementar ranking V2 (3 columnas + dual currency) | Cliente difirió. Diseño y SQL listos, esperando confirmación. |
+| 7.8.P4 | Implementar perfil agente con redes sociales + `/asesor/[id]` | Cliente difirió. Diseño y SQL listos, esperando confirmación de ruta y permisos. |
+
+#### Verificación end-to-end recomendada en producción
+
+| # | Flujo | Cómo probarlo |
+|---|-------|---------------|
+| V1 | Login post-verificación funciona en otro dispositivo | Crear usuario nuevo en /signup → confirmar email en PC → cerrar sesión → ir a /login en móvil con email/password → debe entrar normalmente |
+| V2 | Login con cuenta desactivada muestra error correcto | Setear `is_active=false` en SQL → intentar login → mensaje "Tu cuenta está desactivada", sesión cerrada |
+| V3 | Profile faltante se crea automáticamente | DELETE FROM profiles WHERE user_id = X → click link de email → callback debe crearlo y dejar entrar |
+| V4 | Editar usuario refresca UI | Admin /admin/usuarios/[id] → cambiar full_name → guardar → ver Title Case sin F5 |
+| V5 | Editar usuario rechaza role inválido | DOM mutation: `document.querySelector('select[name=role]').value = 'hacker'` → guardar → toast "Datos inválidos" |
+| V6 | Borrar propiedad desaparece del público inmediatamente | Crear propiedad → ver en /propiedades incógnito → borrar → refrescar incógnito → no aparece |
+| V7 | Detalle de propiedad borrada da 404 | Tras borrar, ir a /propiedades/[slug-borrado] → 404 (no contenido stale) |
+| V8 | Ranking refleja properties_count actualizado | Borrar propiedad activa → /ranking debe mostrar el agente con properties_count menos uno |
+
+#### Cambios de schema aplicados en esta sesión
+
+```sql
+-- Aplicado en Supabase Dashboard SQL Editor el 2026-04-28
+CREATE POLICY "profiles_select_own"
+  ON public.profiles
+  FOR SELECT
+  USING (user_id = auth.uid());
+```
+
+Total policies en `public.profiles` después de esta sesión: 4
+- `profiles_select_public` USING (is_active = true)
+- `profiles_select_own` USING (user_id = auth.uid()) ← **NUEVO**
+- `profiles_update_own` USING (user_id = auth.uid())
+- `profiles_update_admin` USING (is_admin())
+
+#### Notas sobre tokens y credenciales (Sesión 7)
+
+Durante esta sesión se usaron credenciales para `git push` y para acceso a Supabase. **Por seguridad, los strings completos de los tokens vivos NO se almacenan en archivos `.md` commiteados al repo** (este es exactamente el bug que el pendiente 7.8.P2 trata de cerrar). Los tokens activos se mantienen únicamente en:
+
+- **`CLAUDE.md`** (raíz del proyecto, ya commiteado — y por tanto también expuesto, ver pendiente)
+- **Memoria local de Claude**: `C:\Users\Keybidigital\.claude\projects\C--KEYBIDIGITAL-DEV-Chilayo-Propiedades\memory\` (NO commiteada, local al desarrollador)
+
+Tokens y accesos referenciados (sin valores literales aquí):
+- **GitHub PAT activo** — formato `github_pat_11CBO7R5...` — ver CLAUDE.md / memoria. Expira ~25-may-2026, scope `repo`.
+- **GitHub PAT viejo** — formato `ghp_WTNTnuW6...` — REVOCADO. Sigue presente en `.git/config` y en bloques históricos de `docs/SESION_DESARROLLO.md` y `docs/PROYECTO_CONTEXTO.md` por compatibilidad histórica.
+- **Supabase Service Role Key** — formato `eyJ...service_role...` — ver CLAUDE.md / memoria. Usada por `createAdminClient()` en server-side. Configurada como `SUPABASE_SERVICE_ROLE_KEY` en Vercel.
+- **Supabase Anon Key** — formato `eyJ...anon...` — pública por diseño, segura para frontend, sigue en `docs/PROYECTO_CONTEXTO.md` y `docs/SESION_DESARROLLO.md`.
+- **Supabase Publishable Key** — formato `sb_publishable_...` — ver CLAUDE.md.
+
+Recomendación: en próxima sesión, ejecutar el pendiente 7.8.P2 (limpieza de tokens viejos) **antes** de añadir más documentación con credenciales. La limpieza incluye `.git/config`, `docs/PROYECTO_CONTEXTO.md`, este archivo (líneas 21, 39, 367), y borrar `token github.txt`.
+
 ### ETAPA 8: Dominio y Producción ❌ PENDIENTE
 
 | # | Tarea | Estado | Dependencia |
