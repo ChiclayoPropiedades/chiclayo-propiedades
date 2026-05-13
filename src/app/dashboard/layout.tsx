@@ -58,19 +58,34 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
+  // H-2.3: usar maybeSingle() para no romper con 500 si el profile no existe
+  // (caso borde: trigger handle_new_user falló o profile fue borrado manualmente).
+  // Si no hay profile o hay error de RLS, mandamos al usuario al login para que
+  // pueda re-autenticarse o pedir soporte. NO renderizamos un dashboard parcial.
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name, avatar_url, role")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
+
+  if (profileError) {
+    // Limpieza defensiva: cerrar sesión para evitar estado inconsistente.
+    await supabase.auth.signOut();
+    redirect("/login?error=profile");
+  }
+
+  if (!profile) {
+    await supabase.auth.signOut();
+    redirect("/login?error=profile");
+  }
 
   const displayName =
-    profile?.full_name ??
+    profile.full_name ??
     user.user_metadata?.full_name ??
     user.email ??
     "Usuario";
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = profile.role === "admin";
   const mobileLinks = isAdmin ? mobileAdminLinks : mobileUserLinks;
 
   return (
@@ -79,7 +94,7 @@ export default async function DashboardLayout({
       <DashboardSidebar
         displayName={displayName}
         email={user.email ?? ""}
-        avatarUrl={profile?.avatar_url ?? null}
+        avatarUrl={profile.avatar_url ?? null}
         isAdmin={isAdmin}
       />
 
