@@ -101,7 +101,7 @@
 
 ### 🔐 Rotación de credenciales (consolas externas)
 
-7. **GitHub PAT activo** (`github_pat_11CBO7R5...`) → Settings → Developer Settings → Personal access tokens → Revoke + generar nuevo.
+7. **GitHub PAT activo** (`<REDACTED-GH-PAT-PREFIX>`) → Settings → Developer Settings → Personal access tokens → Revoke + generar nuevo.
 8. **Supabase DB password** (`Wr#EpJW2TM.5!?b`) → Dashboard → Settings → Database → Reset password.
 9. **Supabase Service Role Key** → Dashboard → Settings → API → Rotate.
 10. **Gmail** (`propiedades2324`) → cambiar password Google account + revisar app passwords.
@@ -121,9 +121,9 @@
     # Filter
     pip install git-filter-repo
     cat > /tmp/secrets.txt <<EOF
-    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==><REDACTED>
-    Wr#EpJW2TM.5!?b==><REDACTED>
-    propiedades2324==><REDACTED>
+    <REDACTED-GH-PAT-REVOKED>==><REDACTED>
+    <REDACTED-DB-PASSWORD>==><REDACTED>
+    <REDACTED-GMAIL-PASSWORD>==><REDACTED>
     EOF
     git filter-repo --replace-text /tmp/secrets.txt --force
 
