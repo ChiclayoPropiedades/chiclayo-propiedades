@@ -1,24 +1,12 @@
 import { NextResponse } from "next/server";
 import { getStripe } from "@/shared/lib/stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/shared/lib/supabase/admin";
 import type Stripe from "stripe";
 import {
   sendEmail,
   emailTrainingConfirmation,
   emailSubscriptionConfirmation,
 } from "@/shared/lib/email";
-
-// Usar service role para bypass RLS en webhooks
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!serviceKey) {
-    return createClient(url, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-  }
-
-  return createClient(url, serviceKey);
-}
 
 export async function POST(request: Request) {
   const stripe = getStripe();
@@ -33,9 +21,19 @@ export async function POST(request: Request) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
 
-  if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
-    console.warn("Stripe webhook: sin firma o secret no configurado");
-    return NextResponse.json({ received: true });
+  // Fail-closed (H-1.5): sin firma -> 401, sin secret -> 500.
+  // El comportamiento previo retornaba 200 OK silenciosamente, lo que
+  // (a) ocultaba misconfig en prod y (b) confirmaba al atacante que el
+  // endpoint existe.
+  if (!sig) {
+    return NextResponse.json({ error: "Missing stripe-signature" }, { status: 401 });
+  }
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error(
+      "[Stripe Webhook] STRIPE_WEBHOOK_SECRET no configurado en env. " +
+        "Webhook no puede verificar firmas."
+    );
+    return NextResponse.json({ error: "Webhook misconfigured" }, { status: 500 });
   }
 
   let event: Stripe.Event;
@@ -57,7 +55,7 @@ export async function POST(request: Request) {
     const trainingId = session.metadata?.training_id;
     const userId = session.metadata?.user_id;
 
-    const supabase = getSupabaseAdmin();
+    const supabase = createAdminClient();
     const metadataType = session.metadata?.type;
 
     // ── Pago de suscripción de agente ──
