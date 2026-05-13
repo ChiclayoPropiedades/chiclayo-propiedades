@@ -48,3 +48,15 @@ next-env.d.ts
 # claude
 .claude/logs/
 .claude/settings.local.json
+
+# secrets (defensive: nunca commitear archivos sueltos de tokens)
+token github.txt
+token*.txt
+*.token
+*.pem
+secrets.txt
+secrets/
+
+# screenshots de auditoria (no van al repo)
+test*.png
+screenshots/

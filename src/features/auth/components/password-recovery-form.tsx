@@ -6,6 +6,7 @@ import { Loader2Icon, CheckCircleIcon, ArrowLeftIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
+import { passwordRecoverySchema, firstZodError } from "@/features/auth/schemas"
 
 function AuthLogo() {
   return (
@@ -29,11 +30,19 @@ export function PasswordRecoveryForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+
+    // H-2.5: validar email antes del network call.
+    const parsed = passwordRecoverySchema.safeParse({ email })
+    if (!parsed.success) {
+      setError(firstZodError(parsed.error))
+      return
+    }
+
     setLoading(true)
 
     const supabase = createClient()
     const { error: authError } = await supabase.auth.resetPasswordForEmail(
-      email,
+      parsed.data.email,
       {
         redirectTo: `${window.location.origin}/api/auth/callback?next=/update-password`,
       }

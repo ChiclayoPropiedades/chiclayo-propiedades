@@ -3,10 +3,26 @@ import { createAdminClient } from "@/shared/lib/supabase/admin";
 import { ensureProfileExists } from "@/features/auth/services/ensure-profile";
 import { NextResponse } from "next/server";
 
+/**
+ * Valida que `next` sea un path interno seguro (mitiga open redirect H-1.3).
+ * Solo acepta paths que empiezan con `/` y NO con `//` o `/\` (protocol-relative).
+ * Cualquier valor invalido cae al default `/dashboard`.
+ */
+function safeNextPath(raw: string | null): string {
+  const fallback = "/dashboard";
+  if (!raw) return fallback;
+  // Bloquea protocol-relative (//evil.com, /\\evil.com) y absolute URLs.
+  if (!raw.startsWith("/")) return fallback;
+  if (raw.startsWith("//") || raw.startsWith("/\\")) return fallback;
+  // Bloquea cualquier intento de embed de protocolo.
+  if (/[\r\n\t]/.test(raw)) return fallback;
+  return raw;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeNextPath(searchParams.get("next"));
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=auth`);

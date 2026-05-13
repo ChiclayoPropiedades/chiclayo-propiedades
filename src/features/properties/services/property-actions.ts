@@ -6,6 +6,17 @@ import { redirect } from "next/navigation";
 import { hasApprovedPlan, markPlanAsUsed } from "@/features/subscriptions/services/publication-actions";
 import { getSubscriptionStatus } from "@/features/subscriptions/services/subscription-actions";
 import { recalculateRankings } from "@/features/admin/services/admin-actions";
+import { requirePropertyAccess } from "@/shared/lib/auth/verify-property";
+
+/**
+ * Mapea el code de error de los helpers de auth a un mensaje listo para UI.
+ * Mantiene el contrato `{ error: string }` que usan los Client Components.
+ */
+function authErrorMessage(code: "UNAUTHENTICATED" | "FORBIDDEN" | "PROFILE_NOT_FOUND"): string {
+  if (code === "UNAUTHENTICATED") return "No autenticado";
+  if (code === "PROFILE_NOT_FOUND") return "Perfil no encontrado";
+  return "No tienes permiso para esta operacion";
+}
 
 function generateSlug(title: string): string {
   return (
@@ -91,12 +102,11 @@ export async function createProperty(formData: FormData) {
 }
 
 export async function updateProperty(id: string, formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: defense-in-depth, solo dueno o admin.
+  const access = await requirePropertyAccess(id);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("properties")
     .update({
@@ -137,30 +147,18 @@ export async function getPropertyById(id: string) {
 }
 
 export async function deleteOwnProperty(propertyId: string): Promise<{ success?: boolean; error?: string }> {
+  // H-3.1: helper unificado. Sustituye ~20 lineas de auth + ownership manual.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, role")
-    .eq("user_id", user.id)
-    .single();
-  if (!profile) return { error: "Perfil no encontrado" };
-
-  // Verificar que la propiedad pertenece al usuario (o es admin) y capturar slug.
+  // Recuperar slug para invalidar ISR.
   const { data: property } = await supabase
     .from("properties")
-    .select("agent_id, slug")
+    .select("slug")
     .eq("id", propertyId)
     .single();
-
-  if (!property) return { error: "Propiedad no encontrada" };
-  if (property.agent_id !== profile.id && profile.role !== "admin") {
-    return { error: "No tienes permiso para eliminar esta propiedad" };
-  }
 
   // Eliminar imágenes primero
   await supabase.from("property_images").delete().eq("property_id", propertyId);
@@ -171,7 +169,7 @@ export async function deleteOwnProperty(propertyId: string): Promise<{ success?:
   // Invalidar listados públicos (ISR) y privados.
   revalidatePath("/");
   revalidatePath("/propiedades");
-  if (property.slug) revalidatePath(`/propiedades/${property.slug}`);
+  if (property?.slug) revalidatePath(`/propiedades/${property.slug}`);
   revalidatePath("/dashboard/propiedades");
   revalidatePath("/admin/propiedades");
   revalidatePath("/ranking");
@@ -187,12 +185,11 @@ export async function deleteOwnProperty(propertyId: string): Promise<{ success?:
 }
 
 export async function markPropertyAsSold(propertyId: string, salePrice: number) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: solo dueno o admin puede marcar vendida.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("properties")
     .update({
@@ -218,12 +215,11 @@ export async function togglePropertyStatus(
   propertyId: string,
   status: "active" | "inactive"
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: solo dueno o admin puede activar/desactivar.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("properties")
     .update({
@@ -244,12 +240,11 @@ export async function togglePropertyStatus(
 // ─── Imágenes ─────────────────────────────────────────────────────────────────
 
 export async function uploadPropertyImage(propertyId: string, formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: solo dueno o admin puede subir imagenes a esta propiedad.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   const file = formData.get("file") as File;
   if (!file) return { error: "No se seleccionó archivo" };
 
@@ -309,12 +304,11 @@ export async function uploadPropertyImage(propertyId: string, formData: FormData
 }
 
 export async function addPropertyImageUrl(propertyId: string, url: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: solo dueno o admin puede asociar imagen URL a esta propiedad.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   if (!url || !url.startsWith("http")) {
     return { error: "URL inválida" };
   }
@@ -346,12 +340,8 @@ export async function addPropertyImageUrl(propertyId: string, url: string) {
 
 export async function removePropertyImage(imageId: string) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
 
-  // Obtener la imagen para ver si está en Storage
+  // Obtener la imagen para ver si está en Storage y a que propiedad pertenece
   const { data: image } = await supabase
     .from("property_images")
     .select("url, property_id, is_cover")
@@ -359,6 +349,10 @@ export async function removePropertyImage(imageId: string) {
     .single();
 
   if (!image) return { error: "Imagen no encontrada" };
+
+  // H-3.1: verificar ownership de la propiedad asociada.
+  const access = await requirePropertyAccess(image.property_id);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
   // Si está en Supabase Storage, eliminar archivo
   const storageHost = process.env.NEXT_PUBLIC_SUPABASE_URL + "/storage";
@@ -399,12 +393,11 @@ export async function removePropertyImage(imageId: string) {
 }
 
 export async function setPropertyCoverImage(imageId: string, propertyId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
+  // H-3.1: solo dueno o admin puede cambiar portada.
+  const access = await requirePropertyAccess(propertyId);
+  if (!access.ok) return { error: authErrorMessage(access.error) };
 
+  const supabase = await createClient();
   // Quitar portada de todas
   await supabase
     .from("property_images")
