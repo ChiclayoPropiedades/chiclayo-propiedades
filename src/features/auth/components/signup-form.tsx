@@ -8,6 +8,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
 import { sendWelcomeEmail, checkPhoneDuplicate } from "@/features/auth/services/auth-actions"
+import { signupSchema, firstZodError } from "@/features/auth/schemas"
 
 type AccountRole = "user" | "agent"
 
@@ -78,43 +79,47 @@ export function SignupForm() {
     e.preventDefault()
     setError(null)
 
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.")
-      return
-    }
+    // H-2.5: validar con Zod antes de cualquier network call.
+    // Esto bloquea inputs inválidos (email mal formateado, password corta,
+    // teléfono basura, role manipulado) sin pegarle a Supabase.
+    const parsed = signupSchema.safeParse({
+      fullName,
+      email,
+      phone,
+      password,
+      confirmPassword,
+      role,
+    })
 
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.")
+    if (!parsed.success) {
+      setError(firstZodError(parsed.error))
       return
     }
 
     setLoading(true)
 
-    // Validar teléfono duplicado
-    if (phone.trim()) {
-      const isDuplicate = await checkPhoneDuplicate(phone)
-      if (isDuplicate) {
-        setError("Este número de teléfono ya está registrado.")
-        setLoading(false)
-        return
-      }
+    // Validar teléfono duplicado (usamos el valor normalizado por Zod)
+    const isDuplicate = await checkPhoneDuplicate(parsed.data.phone)
+    if (isDuplicate) {
+      setError("Este número de teléfono ya está registrado.")
+      setLoading(false)
+      return
     }
 
     // Normalizar nombre: primera letra mayúscula de cada palabra
-    const normalizedName = fullName
-      .trim()
+    const normalizedName = parsed.data.fullName
       .toLowerCase()
       .replace(/\b\w/g, (c) => c.toUpperCase())
 
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
+      email: parsed.data.email,
+      password: parsed.data.password,
       options: {
         data: {
           full_name: normalizedName,
-          phone,
-          role,
+          phone: parsed.data.phone,
+          role: parsed.data.role,
         },
       },
     })
@@ -130,7 +135,7 @@ export function SignupForm() {
     }
 
     // Enviar email de bienvenida (no bloquea el flujo)
-    sendWelcomeEmail({ email, name: fullName, role }).catch(() => {})
+    sendWelcomeEmail({ email: parsed.data.email, name: normalizedName, role: parsed.data.role }).catch(() => {})
 
     router.push("/verify-email")
   }

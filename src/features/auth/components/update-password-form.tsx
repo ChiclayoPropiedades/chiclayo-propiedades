@@ -7,6 +7,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon, CheckCircleIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
+import { updatePasswordSchema, firstZodError } from "@/features/auth/schemas"
 
 function AuthLogo() {
   return (
@@ -46,18 +47,18 @@ export function UpdatePasswordForm() {
     e.preventDefault()
     setError(null)
 
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.")
-      return
-    }
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.")
+    // H-2.5: validación Zod (longitud y match) antes del network call.
+    const parsed = updatePasswordSchema.safeParse({ password, confirmPassword })
+    if (!parsed.success) {
+      setError(firstZodError(parsed.error))
       return
     }
 
     setLoading(true)
     const supabase = createClient()
-    const { error: updateError } = await supabase.auth.updateUser({ password })
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: parsed.data.password,
+    })
 
     if (updateError) {
       setError(

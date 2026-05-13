@@ -7,6 +7,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { createClient } from "@/shared/lib/supabase/client"
 import { cn } from "@/shared/lib/utils"
+import { loginSchema, firstZodError } from "@/features/auth/schemas"
 
 function AuthLogo() {
   return (
@@ -104,12 +105,20 @@ export function LoginForm() {
     setError(null)
     setNeedsResend(false)
     setResendStatus("idle")
+
+    // H-2.5: validación Zod antes del network call.
+    const parsed = loginSchema.safeParse({ email, password })
+    if (!parsed.success) {
+      setError(firstZodError(parsed.error))
+      return
+    }
+
     setLoading(true)
 
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: parsed.data.email,
+      password: parsed.data.password,
     })
 
     if (authError) {
