@@ -127,8 +127,11 @@ export function LoginForm() {
     // Verificar perfil para redirigir al panel correcto.
     // Si el perfil no existe o no se puede leer (RLS), evitamos redirigir
     // a una pantalla rota y mostramos un error claro.
+    // H-2.4: en cualquier rama de error post-signIn debemos hacer signOut()
+    // para no dejar una sesion zombie en la cookie del browser.
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
+      await supabase.auth.signOut()
       setError("No pudimos iniciar tu sesión. Inténtalo de nuevo.")
       setLoading(false)
       return
@@ -144,12 +147,14 @@ export function LoginForm() {
       if (process.env.NODE_ENV === "development") {
         console.warn("[auth] profile select error:", profileError.message)
       }
+      await supabase.auth.signOut()
       setError("Hubo un problema al cargar tu perfil. Contacta al administrador.")
       setLoading(false)
       return
     }
 
     if (!profile) {
+      await supabase.auth.signOut()
       setError("Tu cuenta no tiene un perfil asociado. Por favor contacta al administrador para que lo cree.")
       setLoading(false)
       return
