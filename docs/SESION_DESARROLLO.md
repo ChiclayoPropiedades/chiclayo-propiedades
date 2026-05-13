@@ -18,7 +18,7 @@ Lee TODOS estos archivos antes de hacer cualquier cosa:
 7. docs/BUSINESS_LOGIC.md
 
 El repo es privado en GitHub. Para push usar:
-git remote set-url origin https://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@github.com/ChiclayoPropiedades/chiclayo-propiedades.git
+git remote set-url origin https://<REDACTED-GH-PAT-REVOKED>@github.com/ChiclayoPropiedades/chiclayo-propiedades.git
 
 Git config para este repo:
 git config user.name "ChiclayoPropiedades"
@@ -36,8 +36,8 @@ Lee todos los .md y dime qué sigue según el plan.
 
 ### GitHub
 - **Repo:** https://github.com/ChiclayoPropiedades/chiclayo-propiedades (privado)
-- **Token:** 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
-- **Push URL:** https://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@github.com/ChiclayoPropiedades/chiclayo-propiedades.git
+- **Token:** <REDACTED-GH-PAT-REVOKED>
+- **Push URL:** https://<REDACTED-GH-PAT-REVOKED>@github.com/ChiclayoPropiedades/chiclayo-propiedades.git
 - **Git user.name:** ChiclayoPropiedades
 - **Git user.email:** propiedadeschiclayo01@gmail.com
 - **Branch producción:** main
@@ -52,7 +52,7 @@ Lee todos los .md y dime qué sigue según el plan.
 
 ### Supabase
 - **Email:** propiedadeschiclayo01@gmail.com
-- **Password:** Wr#EpJW2TM.5!?b
+- **Password:** <REDACTED-PASSWORD-ROTATE-PENDING>
 - **Project URL:** https://nukwnntnuxlwlmostqqx.supabase.co
 - **Project ID:** nukwnntnuxlwlmostqqx
 - **Dashboard:** https://supabase.com/dashboard/project/nukwnntnuxlwlmostqqx
@@ -364,7 +364,7 @@ Lee todos los .md y dime qué sigue según el plan.
 | 7.7.4.1 | `git pull` de 8 commits remotos | ✅ | Local estaba 8 commits detrás. Fast-forward limpio de `c0c5b9b` → `73de678`. |
 | 7.7.4.2 | Mapeo completo de estructura del código | ✅ | 53 archivos de rutas, 10 features (admin más grande con `admin-actions.ts` 1094 líneas), 17 shadcn UI + 3 layout + 3 animated + 6 sections, 4 clientes Supabase, 3 providers email (Resend + Brevo + Gmail). |
 | 7.7.4.3 | Memoria local Claude actualizada | ✅ | 10 archivos `.md` en `C:\Users\Keybidigital\.claude\projects\C--KEYBIDIGITAL-DEV-Chilayo-Propiedades\memory\`: producción crítica, token expuesto, estado V1.0, diseño cliente, build memory, Next.js 16 docs, middleware ISR, admin-actions split, no migrations, índice de docs. |
-| 7.7.4.4 | Token GitHub viejo revocado | ✅ | `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` (en `.git/config` y `docs/PROYECTO_CONTEXTO.md`) dejó de funcionar para `git push` (probablemente auto-revocado por GitHub al detectar exposure). Generado nuevo PAT `github_pat_11CBO7R5...` (expira 30 días, scope `repo`). El nuevo se usó solo en URL de comando, NO se guardó en `.git/config`. |
+| 7.7.4.4 | Token GitHub viejo revocado | ✅ | `<REDACTED-GH-PAT-REVOKED>` (en `.git/config` y `docs/PROYECTO_CONTEXTO.md`) dejó de funcionar para `git push` (probablemente auto-revocado por GitHub al detectar exposure). Generado nuevo PAT `github_pat_11CBO7R5...` (expira 30 días, scope `repo`). El nuevo se usó solo en URL de comando, NO se guardó en `.git/config`. |
 | 7.7.4.5 | Auditoría con skill `simplify` post-galería | ✅ | 3 agentes paralelos (reuse, quality, efficiency) revisaron el nuevo componente. Aplicados fixes: useMemo, conditional mount, sizes, clamp, NavButton, flatten JSX. |
 
 #### Commits en producción (deployed en Vercel)

@@ -100,11 +100,11 @@ src/shared/lib/              (utils, supabase, format)
 
 ### Cuenta Principal del Proyecto
 - **Correo Gmail:** propiedadeschiclayo01@gmail.com
-- **Password Gmail:** propiedades2324
+- **Password Gmail:** <REDACTED-GMAIL-PASSWORD-ROTATE-PENDING>
 
 ### Supabase
 - **Email:** propiedadeschiclayo01@gmail.com
-- **Password:** Wr#EpJW2TM.5!?b
+- **Password:** <REDACTED-PASSWORD-ROTATE-PENDING>
 - **Project URL:** https://nukwnntnuxlwlmostqqx.supabase.co
 - **Anon Key:** eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51a3dubnRudXhsd2xtb3N0cXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjY4MzYsImV4cCI6MjA5MTI0MjgzNn0.OxgQhExyO6gnT9zh7Uob58T_QLypUOMlUIBXoL7FjTI
 - **Project ID:** nukwnntnuxlwlmostqqx
@@ -112,7 +112,7 @@ src/shared/lib/              (utils, supabase, format)
 
 ### Vercel
 - **Email:** propiedadeschiclayo01@gmail.com
-- **Password:** Wr#EpJW2TM.5!?b
+- **Password:** <REDACTED-PASSWORD-ROTATE-PENDING>
 - **Team:** chiclayo-propiedades-projects
 - **Project Name:** chiclayo-propiedades
 - **Production URL:** https://chiclayo-propiedades.vercel.app
@@ -120,11 +120,11 @@ src/shared/lib/              (utils, supabase, format)
 
 ### GitHub
 - **Email:** propiedadeschiclayo01@gmail.com
-- **Password:** Wr#EpJW2TM.5!?b
+- **Password:** <REDACTED-PASSWORD-ROTATE-PENDING>
 - **Repo:** https://github.com/ChiclayoPropiedades/chiclayo-propiedades (privado)
 - **Branch principal:** main
 - **Owner:** ChiclayoPropiedades
-- **Token:** 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
+- **Token:** <REDACTED-GH-PAT-REVOKED>
 
 ### Usuarios de Prueba
 | Email | Password | Rol |
@@ -156,7 +156,7 @@ NEXT_PUBLIC_APP_NAME=Chiclayo Propiedades
 ### CRÍTICO de seguridad (hacer YA)
 
 **0a. Token GitHub viejo expuesto en docs**
-- Token: `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`
+- Token: `<REDACTED-GH-PAT-REVOKED>`
 - Estado: ya fue revocado (probablemente por GitHub auto-detection al detectar exposure). Dejó de funcionar para `git push` el 2026-04-25.
 - Acción pendiente: limpiar de `.git/config` y de `docs/PROYECTO_CONTEXTO.md` + `docs/SESION_DESARROLLO.md`. Considerar reescribir historia con `git filter-repo` o BFG.
 
