@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createPublicClient } from "@/shared/lib/supabase/server";
 import { BlogPost } from "../types";
 
@@ -32,7 +33,7 @@ export async function getPosts(category?: string): Promise<BlogPost[]> {
   }
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
   try {
     const supabase = createPublicClient();
 
@@ -57,4 +58,4 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   } catch {
     return null;
   }
-}
+});

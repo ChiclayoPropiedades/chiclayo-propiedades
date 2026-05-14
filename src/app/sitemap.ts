@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next'
-import { createClient } from '@/shared/lib/supabase/server'
+import { createPublicClient } from '@/shared/lib/supabase/server'
+
+export const revalidate = 3600
 
 const BASE_URL = 'https://chiclayopropiedades.com'
 
@@ -49,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   // Propiedades activas
   const { data: properties } = await supabase
