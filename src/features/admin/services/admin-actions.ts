@@ -920,8 +920,15 @@ export async function deleteUser(profileId: string) {
 
 export async function deleteInquiry(id: string) {
   const { supabase } = await verifyAdmin();
-  const { error } = await supabase.from("inquiries").delete().eq("id", id);
+  const { data, error } = await supabase
+    .from("inquiries")
+    .delete()
+    .eq("id", id)
+    .select("id");
   if (error) return { error: error.message };
+  if (!data || data.length === 0) {
+    return { error: "No se pudo eliminar la consulta (verifica permisos)." };
+  }
   revalidatePath("/admin/leads");
   return { success: true };
 }

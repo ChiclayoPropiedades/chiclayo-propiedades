@@ -116,7 +116,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
   return results;
 }
 
-export async function getPropertyBySlug(slug: string): Promise<Property | null> {
+export const getPropertyBySlug = cache(async (slug: string): Promise<Property | null> => {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("properties")
@@ -132,4 +132,4 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
   if (expiredPropertyIds.has(data.id)) return null;
 
   return data as Property;
-}
+});

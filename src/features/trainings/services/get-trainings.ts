@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createPublicClient } from "@/shared/lib/supabase/server";
 import { Training } from "../types";
 
@@ -17,7 +18,7 @@ export async function getTrainings(): Promise<Training[]> {
   }
 }
 
-export async function getTrainingBySlug(slug: string): Promise<Training | null> {
+export const getTrainingBySlug = cache(async (slug: string): Promise<Training | null> => {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -32,4 +33,4 @@ export async function getTrainingBySlug(slug: string): Promise<Training | null> 
   } catch {
     return null;
   }
-}
+});
